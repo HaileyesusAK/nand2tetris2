@@ -19,3 +19,7 @@ TEST_F(HackAssembler, TranslatesAInstructionWithSymbol) {
 TEST_F(HackAssembler, TranslatesCInstructionWithNoDstNoJmp) {
     ASSERT_THAT(assembler.translate("D+A"), Eq("1110000010000000"));
 }
+
+TEST_F(HackAssembler, TranslatesCInstructionWithDstButWithoutJmp) {
+    ASSERT_THAT(assembler.translate("A=D&M"), Eq("1111000000100000"));
+}

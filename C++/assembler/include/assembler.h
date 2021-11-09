@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+static const size_t WSIZE = 16;
 
 class Assembler {
     public:
@@ -25,10 +26,10 @@ class Assembler {
         }
 
         std::string get_binary_instruction(uint16_t machine_code) const {
-            return std::bitset<16>(machine_code).to_string();
+            return std::bitset<WSIZE>(machine_code).to_string();
         }
 
-        std::string encode_c_instruction(const std::string& c_instruction) const {
+        std::string encode_comp_instruction(const std::string& instruction) const {
             std::unordered_map<std::string, uint16_t> encodings {
                 {"0", 42}, {"1", 63}, {"-1", 58}, {"D", 12}, {"A", 48},
                 {"!D", 13}, {"!A", 49}, {"-D", 15}, {"-A", 51}, {"D+1", 31},
@@ -37,10 +38,58 @@ class Assembler {
                 {"-M", 115}, {"M+1", 119}, {"M-1", 114}, {"D+M", 66},
                 {"D-M", 83}, {"M-D", 71}, {"D&M", 64}, {"D|M", 85}
             };
+			
+			const size_t OFFSET = 6;
+			auto it = encodings.find(instruction);
+			if(it == encodings.end())
+				return "";
 
-            auto machine_code = 7 << 13;
-            machine_code |= (encodings.find(c_instruction)->second) << 6;
-            return get_binary_instruction(machine_code);
+			return get_binary_instruction(it->second << OFFSET);
+		}
+
+        std::string encode_dst_instruction(const std::string& instruction) const {
+            std::unordered_map<std::string, uint16_t> encodings {
+                {"M", 1}, {"D", 2}, {"MD", 3}, {"A", 4}, {"AM", 5},
+				{"AD", 6}, {"AMD", 7}
+            };
+
+			const size_t OFFSET = 3;
+			auto it = encodings.find(instruction);
+			if(it == encodings.end())
+				return "";
+
+			return get_binary_instruction(it->second << OFFSET);
+		}
+
+		void split_c_instruction(const std::string& instruction, std::string& comp,
+								 std::string& dst) const {
+            auto n = instruction.find('=');
+			comp = "";
+			dst = "";
+
+            if(n == std::string::npos) {
+				comp = instruction;
+            }
+            else {
+				dst = instruction.substr(0, n);
+				comp = instruction.substr(n+1);
+            }
+		}
+
+        std::string encode_c_instruction(const std::string& c_instruction) const {
+			std::string comp, dst;
+			const size_t OFFSET = 13;
+			std::string prefix {std::bitset<WSIZE>(7 << OFFSET).to_string()};
+
+			split_c_instruction(c_instruction, comp, dst);
+			comp = encode_comp_instruction(comp);
+
+			auto machine_code = std::bitset<WSIZE> {prefix} | std::bitset<WSIZE> {comp};
+
+			if(!dst.empty())
+				machine_code |= std::bitset<WSIZE> {encode_dst_instruction(dst)};
+
+			return machine_code.to_string();
         }
 };
 

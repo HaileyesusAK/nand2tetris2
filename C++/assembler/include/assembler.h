@@ -3,6 +3,10 @@
 #include <string>
 
 class Assembler {
+    public:
+        std::string translate(const std::string& asm_instruction) {
+            return "0000000000000000";
+        }
 };
 
 #endif

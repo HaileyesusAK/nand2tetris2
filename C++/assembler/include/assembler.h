@@ -59,35 +59,75 @@ class Assembler {
 				return "";
 
 			return get_binary_instruction(it->second << OFFSET);
+            }
+
+        std::string encode_jmp_instruction(const std::string& instruction) const {
+            std::unordered_map<std::string, uint16_t> encodings {
+                {"JGT", 1}, {"JEQ", 2}, {"JGE", 3}, {"JLT", 4}, {"JNE", 5},
+                {"JLE", 6}, {"JMP", 7}
+            };
+
+			auto it = encodings.find(instruction);
+			if(it == encodings.end())
+				return "";
+
+			return get_binary_instruction(it->second);
 		}
 
-		void split_c_instruction(const std::string& instruction, std::string& comp,
-								 std::string& dst) const {
-            auto n = instruction.find('=');
-			comp = "";
-			dst = "";
+        std::string extract_dst(const std::string& c_instruction) const {
+            auto it = c_instruction.find('=');
+            if(it == std::string::npos)
+                return "";
 
-            if(n == std::string::npos) {
-				comp = instruction;
-            }
-            else {
-				dst = instruction.substr(0, n);
-				comp = instruction.substr(n+1);
-            }
+            return c_instruction.substr(0, it);
+        }
+
+        std::string extract_jmp(const std::string& c_instruction) const {
+            auto it = c_instruction.find(';');
+            if(it == std::string::npos)
+                return "";
+
+            return c_instruction.substr(it + 1);
+        }
+
+        std::string extract_comp(const std::string& c_instruction) const {
+            auto it1 = c_instruction.find('=');
+            auto it2 = c_instruction.find(';');
+
+            if(it1 == std::string::npos && it2 == std::string::npos)
+                return c_instruction;
+            else if(it1 != std::string::npos && it2 == std::string::npos)
+                return c_instruction.substr(it1 + 1);
+            else if(it1 == std::string::npos && it2 != std::string::npos)
+                return c_instruction.substr(0, it2);
+            else if(it1 != std::string::npos && it2 != std::string::npos)
+                return c_instruction.substr(it1 + 1, it2 - it1 - 1);
+            else
+                return "";
+        }
+
+		void split_c_instruction(const std::string& instruction, std::string& comp,
+								 std::string& dst, std::string& jmp) const {
+            dst = extract_dst(instruction);
+            comp = extract_comp(instruction);
+            jmp = extract_jmp(instruction);
 		}
 
         std::string encode_c_instruction(const std::string& c_instruction) const {
-			std::string comp, dst;
+			std::string comp, dst, jmp;
 			const size_t OFFSET = 13;
 			std::string prefix {std::bitset<WSIZE>(7 << OFFSET).to_string()};
 
-			split_c_instruction(c_instruction, comp, dst);
+			split_c_instruction(c_instruction, comp, dst, jmp);
 			comp = encode_comp_instruction(comp);
 
 			auto machine_code = std::bitset<WSIZE> {prefix} | std::bitset<WSIZE> {comp};
 
 			if(!dst.empty())
 				machine_code |= std::bitset<WSIZE> {encode_dst_instruction(dst)};
+
+            if(!jmp.empty())
+				machine_code |= std::bitset<WSIZE> {encode_jmp_instruction(jmp)};
 
 			return machine_code.to_string();
         }

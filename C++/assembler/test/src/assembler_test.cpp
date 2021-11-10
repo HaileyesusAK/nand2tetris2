@@ -23,3 +23,7 @@ TEST_F(HackAssembler, TranslatesCInstructionWithNoDstNoJmp) {
 TEST_F(HackAssembler, TranslatesCInstructionWithDstButWithoutJmp) {
     ASSERT_THAT(assembler.translate("A=D&M"), Eq("1111000000100000"));
 }
+
+TEST_F(HackAssembler, TranslatesCInstructionWithoutDstButWithJmp) {
+    ASSERT_THAT(assembler.translate("!M;JMP"), Eq("1111110001000111"));
+}

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 
 include_directories($ENV{GMOCK_HOME}/include $ENV{GTEST_HOME}/include ../include)
 link_directories($ENV{GOOGLETEST}/build/lib)
-add_definitions(-std=c++0x)
+add_definitions(-std=c++17)
 set(CMAKE_CXX_FLAGS "${CMAXE_CXX_FLAGS} -Wall")
 
 set(sources 

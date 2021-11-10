@@ -20,7 +20,20 @@ class Assembler {
                 return encode_c_instruction(asm_instruction);
         }
 
+        bool add_symbol(const std::string& symbol) {
+            // variables are stored starting from memory address 16
+            static uint16_t address = 16;
+            symbol_table.insert({symbol, address++});
+            return true;
+        }
+
     private:
+        static inline std::unordered_map<std::string, uint16_t> symbol_table {
+            // initialize with addresses of predefined symbol
+            {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
+            {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
+        };
+
         bool is_number(const std::string s) const {
             return !s.empty() and std::all_of(s.begin(), s.end(), ::isdigit);
         }
@@ -38,7 +51,7 @@ class Assembler {
                 {"-M", 115}, {"M+1", 119}, {"M-1", 114}, {"D+M", 66},
                 {"D-M", 83}, {"M-D", 71}, {"D&M", 64}, {"D|M", 85}
             };
-			
+
 			const size_t OFFSET = 6;
 			auto it = encodings.find(instruction);
 			if(it == encodings.end())

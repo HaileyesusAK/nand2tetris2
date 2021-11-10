@@ -31,3 +31,7 @@ TEST_F(HackAssembler, TranslatesCInstructionMissingDst) {
 TEST_F(HackAssembler, TranslatesCompleteCInstruction) {
     ASSERT_THAT(assembler.translate("AMD=D-A;JGT"), Eq("1110010011111001"));
 }
+
+TEST_F(HackAssembler, CanAddSymbol) {
+    ASSERT_THAT(assembler.add_symbol("n"), Eq(true));
+}

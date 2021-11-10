@@ -35,3 +35,8 @@ TEST_F(HackAssembler, TranslatesCompleteCInstruction) {
 TEST_F(HackAssembler, CanAddSymbol) {
     ASSERT_THAT(assembler.add_symbol("n"), Eq(true));
 }
+
+TEST_F(HackAssembler, RefusesToAddDuplicateSymbol) {
+    assembler.add_symbol("n");
+    ASSERT_THAT(assembler.add_symbol("n"), Eq(false));
+}

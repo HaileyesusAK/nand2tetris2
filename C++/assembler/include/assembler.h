@@ -37,6 +37,7 @@ class Assembler {
 
         void reset_symbol_table() {
             static std::unordered_map<std::string, uint16_t> predefined_symbols {
+				// initialize with addresses of predefined symbol
                 {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
                 {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
             };
@@ -47,12 +48,7 @@ class Assembler {
 
     private:
         static inline uint16_t next_symbol_addr;
-
-        static inline std::unordered_map<std::string, uint16_t> symbol_table {
-            // initialize with addresses of predefined symbol
-            {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
-            {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
-        };
+        static inline std::unordered_map<std::string, uint16_t> symbol_table;
 
         bool is_number(const std::string s) const {
             return !s.empty() and std::all_of(s.begin(), s.end(), ::isdigit);

@@ -16,14 +16,14 @@ TEST_F(HackAssembler, TranslatesAInstructionWithSymbol) {
     ASSERT_THAT(assembler.translate("@variable"), Eq("0000000000010000"));
 }
 
-TEST_F(HackAssembler, TranslatesCInstructionWithNoDstNoJmp) {
+TEST_F(HackAssembler, TranslatesCInstructionMissingDstJmp) {
     ASSERT_THAT(assembler.translate("D+A"), Eq("1110000010000000"));
 }
 
-TEST_F(HackAssembler, TranslatesCInstructionWithDstButWithoutJmp) {
+TEST_F(HackAssembler, TranslatesCInstructionMissingJmp) {
     ASSERT_THAT(assembler.translate("A=D&M"), Eq("1111000000100000"));
 }
 
-TEST_F(HackAssembler, TranslatesCInstructionWithoutDstButWithJmp) {
+TEST_F(HackAssembler, TranslatesCInstructionMissingDst) {
     ASSERT_THAT(assembler.translate("!M;JMP"), Eq("1111110001000111"));
 }

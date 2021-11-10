@@ -27,3 +27,7 @@ TEST_F(HackAssembler, TranslatesCInstructionMissingJmp) {
 TEST_F(HackAssembler, TranslatesCInstructionMissingDst) {
     ASSERT_THAT(assembler.translate("!M;JMP"), Eq("1111110001000111"));
 }
+
+TEST_F(HackAssembler, TranslatesCompleteCInstruction) {
+    ASSERT_THAT(assembler.translate("AMD=D-A;JGT"), Eq("1110010011111001"));
+}

@@ -40,3 +40,9 @@ TEST_F(HackAssembler, RefusesToAddDuplicateSymbol) {
     assembler.add_symbol("n");
     ASSERT_THAT(assembler.add_symbol("n"), Eq(false));
 }
+
+TEST_F(HackAssembler, ResetsSymbolTable) {
+    assembler.add_symbol("m");
+    assembler.reset_symbol_table();
+    ASSERT_THAT(assembler.add_symbol("m"), Eq(true));
+}

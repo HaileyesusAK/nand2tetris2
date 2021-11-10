@@ -6,9 +6,14 @@
 #include <unordered_map>
 
 static const size_t WSIZE = 16;
+static const uint16_t VARIABLE_START_ADDRESS = 16;
 
 class Assembler {
     public:
+        Assembler() {
+            reset_symbol_table();
+        }
+
         std::string translate(const std::string& asm_instruction) {
             if(asm_instruction.front() == '@') {
                 if(is_number(asm_instruction.substr(1)))
@@ -30,7 +35,19 @@ class Assembler {
             return inserted;
         }
 
+        void reset_symbol_table() {
+            static std::unordered_map<std::string, uint16_t> predefined_symbols {
+                {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
+                {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
+            };
+
+            symbol_table = predefined_symbols;
+            next_symbol_addr = VARIABLE_START_ADDRESS;
+        }
+
     private:
+        static inline uint16_t next_symbol_addr;
+
         static inline std::unordered_map<std::string, uint16_t> symbol_table {
             // initialize with addresses of predefined symbol
             {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
@@ -75,7 +92,7 @@ class Assembler {
 				return "";
 
 			return get_binary_instruction(it->second << OFFSET);
-            }
+        }
 
         std::string encode_jmp_instruction(const std::string& instruction) const {
             std::unordered_map<std::string, uint16_t> encodings {

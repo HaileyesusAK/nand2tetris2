@@ -9,7 +9,7 @@ class HackAssembler : public Test {
 };
 
 TEST_F(HackAssembler, TranslatesAInstructionWithLiteral) {
-    ASSERT_THAT(assembler.translate("@0"), Eq("0000000000000000"));
+    ASSERT_THAT(assembler.translate("@33"), Eq("0000000000100001"));
 }
 
 TEST_F(HackAssembler, TranslatesAInstructionWithSymbol) {

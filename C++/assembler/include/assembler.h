@@ -18,9 +18,9 @@ class Assembler {
             if(asm_instruction.front() == '@') {
                 auto symbol = asm_instruction.substr(1);
                 if(is_number(symbol))
-                    return "0000000000000000";
+                    return get_binary_string(static_cast<uint16_t>(std::stoul(symbol)));
                 else
-                    return get_binary_instruction(get_address(symbol));
+                    return get_binary_string(get_address(symbol));
             }
             else
                 return encode_c_instruction(asm_instruction);
@@ -63,7 +63,7 @@ class Assembler {
             return !s.empty() and std::all_of(s.begin(), s.end(), ::isdigit);
         }
 
-        std::string get_binary_instruction(uint16_t machine_code) const {
+        std::string get_binary_string(uint16_t machine_code) const {
             return std::bitset<WSIZE>(machine_code).to_string();
         }
 
@@ -82,7 +82,7 @@ class Assembler {
 			if(it == encodings.end())
 				return "";
 
-			return get_binary_instruction(it->second << OFFSET);
+			return get_binary_string(it->second << OFFSET);
 		}
 
         std::string encode_dst_instruction(const std::string& instruction) const {
@@ -96,7 +96,7 @@ class Assembler {
 			if(it == encodings.end())
 				return "";
 
-			return get_binary_instruction(it->second << OFFSET);
+			return get_binary_string(it->second << OFFSET);
         }
 
         std::string encode_jmp_instruction(const std::string& instruction) const {
@@ -109,7 +109,7 @@ class Assembler {
 			if(it == encodings.end())
 				return "";
 
-			return get_binary_instruction(it->second);
+			return get_binary_string(it->second);
 		}
 
         std::string extract_dst(const std::string& c_instruction) const {

@@ -144,19 +144,13 @@ class Assembler {
                 return "";
         }
 
-		void split_c_instruction(const std::string& instruction, std::string& comp,
-								 std::string& dst, std::string& jmp) const {
-            dst = extract_dst(instruction);
-            comp = extract_comp(instruction);
-            jmp = extract_jmp(instruction);
-		}
-
         std::string encode_c_instruction(const std::string& c_instruction) const {
-			std::string comp, dst, jmp;
 			const size_t OFFSET = 13;
 			std::string prefix {std::bitset<WSIZE>(7 << OFFSET).to_string()};
 
-			split_c_instruction(c_instruction, comp, dst, jmp);
+            std::string dst = extract_dst(c_instruction);
+            std::string comp = extract_comp(c_instruction);
+            std::string jmp = extract_jmp(c_instruction);
 			comp = encode_comp_instruction(comp);
 
 			auto machine_code = std::bitset<WSIZE> {prefix} | std::bitset<WSIZE> {comp};

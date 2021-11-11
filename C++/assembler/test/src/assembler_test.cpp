@@ -13,7 +13,9 @@ TEST_F(HackAssembler, TranslatesAInstructionWithLiteral) {
 }
 
 TEST_F(HackAssembler, TranslatesAInstructionWithSymbol) {
-    ASSERT_THAT(assembler.translate("@variable"), Eq("0000000000010000"));
+    assembler.add_symbol("m");
+    assembler.add_symbol("n");
+    ASSERT_THAT(assembler.translate("@n"), Eq("0000000000010001"));
 }
 
 TEST_F(HackAssembler, TranslatesCInstructionMissingDstJmp) {

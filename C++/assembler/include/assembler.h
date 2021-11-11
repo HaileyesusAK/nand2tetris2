@@ -16,10 +16,11 @@ class Assembler {
 
         std::string translate(const std::string& asm_instruction) {
             if(asm_instruction.front() == '@') {
-                if(is_number(asm_instruction.substr(1)))
+                auto symbol = asm_instruction.substr(1);
+                if(is_number(symbol))
                     return "0000000000000000";
                 else
-                    return "0000000000010000";
+                    return get_binary_instruction(get_address(symbol));
             }
             else
                 return encode_c_instruction(asm_instruction);
@@ -33,6 +34,14 @@ class Assembler {
                 ++address;
 
             return inserted;
+        }
+
+        uint16_t get_address(const std::string& symbol) const {
+            auto it = symbol_table.find(symbol);
+            if(it == symbol_table.end())
+                return 0;
+
+            return it->second;
         }
 
         void reset_symbol_table() {

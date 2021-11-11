@@ -16,6 +16,9 @@ class Assembler {
 
         std::string translate(const std::string& asm_instruction) {
             auto instruction = compact_instruction(asm_instruction);
+            if(instruction.empty())
+                return "";
+
             if(instruction.front() == '@') {
                 auto symbol = instruction.substr(1);
                 if(is_number(symbol))

@@ -56,3 +56,7 @@ TEST_F(HackAssembler, TranslatesInstructionWithSpaces) {
 TEST_F(HackAssembler, TranslatesInstructionWithComment) {
     ASSERT_THAT(assembler.translate("@4 // comment ..."), Eq("0000000000000100"));
 }
+
+TEST_F(HackAssembler, IgnoresBlankLine) {
+    ASSERT_THAT(assembler.translate("   "), Eq(""));
+}

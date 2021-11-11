@@ -38,7 +38,7 @@ class Assembler {
         }
 
         std::string compact_instruction(const std::string& instruction) const {
-            std::string s = instruction;
+            std::string s = instruction.substr(0, instruction.find("//"));
             auto end = std::remove(s.begin(), s.end(), ' ');
             s.erase(end, s.end());
             return s;

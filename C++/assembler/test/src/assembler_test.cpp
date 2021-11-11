@@ -52,3 +52,7 @@ TEST_F(HackAssembler, ResetsSymbolTable) {
 TEST_F(HackAssembler, TranslatesInstructionWithSpaces) {
     ASSERT_THAT(assembler.translate("AMD = D-A; JGT"), Eq("1110010011111001"));
 }
+
+TEST_F(HackAssembler, TranslatesInstructionWithComment) {
+    ASSERT_THAT(assembler.translate("@4 // comment ..."), Eq("0000000000000100"));
+}

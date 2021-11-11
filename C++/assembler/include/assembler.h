@@ -15,15 +15,16 @@ class Assembler {
         }
 
         std::string translate(const std::string& asm_instruction) {
-            if(asm_instruction.front() == '@') {
-                auto symbol = asm_instruction.substr(1);
+            auto instruction = compact_instruction(asm_instruction);
+            if(instruction.front() == '@') {
+                auto symbol = instruction.substr(1);
                 if(is_number(symbol))
                     return get_binary_string(static_cast<uint16_t>(std::stoul(symbol)));
                 else
                     return get_binary_string(get_address(symbol));
             }
             else
-                return encode_c_instruction(asm_instruction);
+                return encode_c_instruction(instruction);
         }
 
         bool add_symbol(const std::string& symbol) {
@@ -34,6 +35,13 @@ class Assembler {
                 ++address;
 
             return inserted;
+        }
+
+        std::string compact_instruction(const std::string& instruction) const {
+            std::string s = instruction;
+            auto end = std::remove(s.begin(), s.end(), ' ');
+            s.erase(end, s.end());
+            return s;
         }
 
         uint16_t get_address(const std::string& symbol) const {

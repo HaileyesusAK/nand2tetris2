@@ -28,11 +28,9 @@ class Assembler {
         }
 
         bool add_symbol(const std::string& symbol) {
-            // variables are stored starting from memory address 16
-            static uint16_t address = 16;
-            bool inserted = symbol_table.insert({symbol, address}).second;
+            bool inserted = symbol_table.insert({symbol, next_symbol_addr}).second;
             if(inserted)
-                ++address;
+                ++next_symbol_addr;
 
             return inserted;
         }

@@ -1,7 +1,11 @@
+#include <filesystem>
 #include "gmock/gmock.h"
 #include "assembler.h"
 
 using namespace testing;
+namespace fs = std::filesystem;
+
+static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data" ;
 
 class HackAssembler : public Test {
     public:
@@ -59,4 +63,9 @@ TEST_F(HackAssembler, TranslatesInstructionWithComment) {
 
 TEST_F(HackAssembler, IgnoresBlankLine) {
     ASSERT_THAT(assembler.translate("   "), Eq(""));
+}
+
+TEST_F(HackAssembler, CreatesOutputFile) {
+    assembler.translate_file(DATA_DIR / "Add.asm");
+    ASSERT_THAT(fs::exists(DATA_DIR / "Add.hack"), Eq(true));
 }

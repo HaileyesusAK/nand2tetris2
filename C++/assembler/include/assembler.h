@@ -2,11 +2,14 @@
 #define __ASSEMBLER_H__
 #include <algorithm>
 #include <bitset>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 
 static const size_t WSIZE = 16;
 static const uint16_t VARIABLE_START_ADDRESS = 16;
+namespace fs = std::filesystem;
 
 
 class Assembler {
@@ -37,6 +40,12 @@ class Assembler {
 
             symbol_table = predefined_symbols;
             next_symbol_addr = VARIABLE_START_ADDRESS;
+        }
+
+        void translate_file(const fs::path& asm_path) {
+            auto output_path = asm_path;
+            output_path.replace_extension(".hack");
+            std::ofstream ofs {output_path};
         }
 
         std::string translate(const std::string& asm_instruction) {
@@ -178,8 +187,6 @@ class Assembler {
 
             return c_instruction.substr(it + 1);
         }
-
-
 };
 
 #endif

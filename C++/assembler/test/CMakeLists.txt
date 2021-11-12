@@ -6,11 +6,16 @@ link_directories($ENV{GOOGLETEST}/build/lib)
 add_definitions(-std=c++17)
 set(CMAKE_CXX_FLAGS "${CMAXE_CXX_FLAGS} -Wall")
 
+
+ADD_DEFINITIONS(-DTEST_DIR="..")
+
 set(sources 
    src/main.cpp
    src/assembler_test.cpp)
 add_executable(test ${sources})
+target_link_libraries(test stdc++fs)
 target_link_libraries(test gmock)
 target_link_libraries(test gtest)
 target_link_libraries(test pthread)
+
 

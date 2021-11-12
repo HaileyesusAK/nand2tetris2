@@ -4,8 +4,10 @@
 #include <bitset>
 #include <filesystem>
 #include <fstream>
+#include <set>
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 static const size_t WSIZE = 16;
 static const uint16_t VARIABLE_START_ADDRESS = 16;
@@ -30,7 +32,6 @@ class Assembler {
             return inserted;
         }
 
-
         void reset_symbol_table() {
             static std::unordered_map<std::string, uint16_t> predefined_symbols {
 				// initialize with addresses of predefined symbol
@@ -43,9 +44,33 @@ class Assembler {
         }
 
         void translate_file(const fs::path& asm_path) {
+            if(!fs::exists(asm_path))
+                return;
+
+            // create output file
             auto output_path = asm_path;
             output_path.replace_extension(".hack");
             std::ofstream ofs {output_path};
+
+            // create symbol table
+            std::ifstream ifs {asm_path};
+            build_symbol_table(ifs);
+            ifs.clear();
+            ifs.seekg(0);
+
+            // translate instructions from the input file
+            std::string line;
+            while(!ifs.eof()) {
+                std::getline(ifs, line);
+                if(!line.empty())
+                    line.pop_back(); // remove trailing newline 
+
+                auto instruction = compact_instruction(line);
+                if(instruction.empty())
+                    continue;
+
+                ofs << translate(instruction) << std::endl; 
+            }
         }
 
         std::string translate(const std::string& asm_instruction) {
@@ -67,6 +92,39 @@ class Assembler {
     private:
         static inline uint16_t next_symbol_addr;
         static inline std::unordered_map<std::string, uint16_t> symbol_table;
+
+        void build_symbol_table(std::ifstream& ifs) {
+            std::string line;
+            std::set<std::string> variables;
+            uint16_t pc = 0;
+
+            ifs.seekg(0);
+            while(!ifs.eof()) {
+                std::getline(ifs, line);
+                if(!line.empty())
+                    line.pop_back(); // remove trailing newline 
+
+                auto s = compact_instruction(line);
+                
+                if(s.empty())
+                    continue;
+
+                if(s.front() == '@') {
+                    auto symbol = s.substr(1);
+                    if(!is_number(symbol))
+                        variables.emplace(symbol);
+                }
+                else if(s.front() == '(') {
+                    auto symbol = s.substr(1, s.length() - 2);
+                    variables.erase(symbol); // since the symbol is not a variable
+                    add_symbol(symbol, pc);
+                }
+                ++pc;
+            }
+
+            for(const auto& variable : variables)
+                add_variable(variable);
+        }
 
         std::string compact_instruction(const std::string& instruction) const {
             std::string s = instruction.substr(0, instruction.find("//"));

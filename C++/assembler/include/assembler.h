@@ -8,10 +8,35 @@
 static const size_t WSIZE = 16;
 static const uint16_t VARIABLE_START_ADDRESS = 16;
 
+
 class Assembler {
     public:
         Assembler() {
             reset_symbol_table();
+        }
+
+        bool add_symbol(const std::string& name, uint16_t address) {
+            return  symbol_table.insert({name, address}).second;
+        }
+
+        bool add_variable(const std::string& name) {
+            bool inserted = symbol_table.insert({name, next_symbol_addr}).second;
+            if(inserted)
+                ++next_symbol_addr;
+
+            return inserted;
+        }
+
+
+        void reset_symbol_table() {
+            static std::unordered_map<std::string, uint16_t> predefined_symbols {
+				// initialize with addresses of predefined symbol
+                {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
+                {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
+            };
+
+            symbol_table = predefined_symbols;
+            next_symbol_addr = VARIABLE_START_ADDRESS;
         }
 
         std::string translate(const std::string& asm_instruction) {
@@ -30,17 +55,9 @@ class Assembler {
                 return encode_c_instruction(instruction);
         }
 
-        bool add_variable(const std::string& name) {
-            bool inserted = symbol_table.insert({name, next_symbol_addr}).second;
-            if(inserted)
-                ++next_symbol_addr;
-
-            return inserted;
-        }
-
-        bool add_symbol(const std::string& name, uint16_t address) {
-            return  symbol_table.insert({name, address}).second;
-        }
+    private:
+        static inline uint16_t next_symbol_addr;
+        static inline std::unordered_map<std::string, uint16_t> symbol_table;
 
         std::string compact_instruction(const std::string& instruction) const {
             std::string s = instruction.substr(0, instruction.find("//"));
@@ -57,27 +74,32 @@ class Assembler {
             return it->second;
         }
 
-        void reset_symbol_table() {
-            static std::unordered_map<std::string, uint16_t> predefined_symbols {
-				// initialize with addresses of predefined symbol
-                {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
-                {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
-            };
-
-            symbol_table = predefined_symbols;
-            next_symbol_addr = VARIABLE_START_ADDRESS;
+        std::string get_binary_string(uint16_t machine_code) const {
+            return std::bitset<WSIZE>(machine_code).to_string();
         }
-
-    private:
-        static inline uint16_t next_symbol_addr;
-        static inline std::unordered_map<std::string, uint16_t> symbol_table;
 
         bool is_number(const std::string s) const {
             return !s.empty() and std::all_of(s.begin(), s.end(), ::isdigit);
         }
 
-        std::string get_binary_string(uint16_t machine_code) const {
-            return std::bitset<WSIZE>(machine_code).to_string();
+        std::string encode_c_instruction(const std::string& c_instruction) const {
+			const size_t OFFSET = 13;
+			std::string prefix {std::bitset<WSIZE>(7 << OFFSET).to_string()};
+
+            std::string dst = extract_dst(c_instruction);
+            std::string comp = extract_comp(c_instruction);
+            std::string jmp = extract_jmp(c_instruction);
+			comp = encode_comp_instruction(comp);
+
+			auto machine_code = std::bitset<WSIZE> {prefix} | std::bitset<WSIZE> {comp};
+
+			if(!dst.empty())
+				machine_code |= std::bitset<WSIZE> {encode_dst_instruction(dst)};
+
+            if(!jmp.empty())
+				machine_code |= std::bitset<WSIZE> {encode_jmp_instruction(jmp)};
+
+			return machine_code.to_string();
         }
 
         std::string encode_comp_instruction(const std::string& instruction) const {
@@ -125,22 +147,6 @@ class Assembler {
 			return get_binary_string(it->second);
 		}
 
-        std::string extract_dst(const std::string& c_instruction) const {
-            auto it = c_instruction.find('=');
-            if(it == std::string::npos)
-                return "";
-
-            return c_instruction.substr(0, it);
-        }
-
-        std::string extract_jmp(const std::string& c_instruction) const {
-            auto it = c_instruction.find(';');
-            if(it == std::string::npos)
-                return "";
-
-            return c_instruction.substr(it + 1);
-        }
-
         std::string extract_comp(const std::string& c_instruction) const {
             auto it1 = c_instruction.find('=');
             auto it2 = c_instruction.find(';');
@@ -157,25 +163,23 @@ class Assembler {
                 return "";
         }
 
-        std::string encode_c_instruction(const std::string& c_instruction) const {
-			const size_t OFFSET = 13;
-			std::string prefix {std::bitset<WSIZE>(7 << OFFSET).to_string()};
+        std::string extract_dst(const std::string& c_instruction) const {
+            auto it = c_instruction.find('=');
+            if(it == std::string::npos)
+                return "";
 
-            std::string dst = extract_dst(c_instruction);
-            std::string comp = extract_comp(c_instruction);
-            std::string jmp = extract_jmp(c_instruction);
-			comp = encode_comp_instruction(comp);
-
-			auto machine_code = std::bitset<WSIZE> {prefix} | std::bitset<WSIZE> {comp};
-
-			if(!dst.empty())
-				machine_code |= std::bitset<WSIZE> {encode_dst_instruction(dst)};
-
-            if(!jmp.empty())
-				machine_code |= std::bitset<WSIZE> {encode_jmp_instruction(jmp)};
-
-			return machine_code.to_string();
+            return c_instruction.substr(0, it);
         }
+
+        std::string extract_jmp(const std::string& c_instruction) const {
+            auto it = c_instruction.find(';');
+            if(it == std::string::npos)
+                return "";
+
+            return c_instruction.substr(it + 1);
+        }
+
+
 };
 
 #endif

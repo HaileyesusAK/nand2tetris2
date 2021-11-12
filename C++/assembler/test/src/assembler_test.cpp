@@ -13,8 +13,8 @@ TEST_F(HackAssembler, TranslatesAInstructionWithLiteral) {
 }
 
 TEST_F(HackAssembler, TranslatesAInstructionWithSymbol) {
-    assembler.add_symbol("m");
-    assembler.add_symbol("n");
+    assembler.add_variable("m");
+    assembler.add_variable("n");
     ASSERT_THAT(assembler.translate("@n"), Eq("0000000000010001"));
 }
 
@@ -35,18 +35,18 @@ TEST_F(HackAssembler, TranslatesCompleteCInstruction) {
 }
 
 TEST_F(HackAssembler, CanAddSymbol) {
-    ASSERT_THAT(assembler.add_symbol("n"), Eq(true));
+    ASSERT_THAT(assembler.add_variable("n"), Eq(true));
 }
 
 TEST_F(HackAssembler, RefusesToAddDuplicateSymbol) {
-    assembler.add_symbol("n");
-    ASSERT_THAT(assembler.add_symbol("n"), Eq(false));
+    assembler.add_variable("n");
+    ASSERT_THAT(assembler.add_variable("n"), Eq(false));
 }
 
 TEST_F(HackAssembler, ResetsSymbolTable) {
-    assembler.add_symbol("m");
+    assembler.add_variable("m");
     assembler.reset_symbol_table();
-    ASSERT_THAT(assembler.add_symbol("m"), Eq(true));
+    ASSERT_THAT(assembler.add_variable("m"), Eq(true));
 }
 
 TEST_F(HackAssembler, TranslatesInstructionWithSpaces) {

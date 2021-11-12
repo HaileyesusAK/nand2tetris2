@@ -30,12 +30,16 @@ class Assembler {
                 return encode_c_instruction(instruction);
         }
 
-        bool add_symbol(const std::string& symbol) {
-            bool inserted = symbol_table.insert({symbol, next_symbol_addr}).second;
+        bool add_variable(const std::string& name) {
+            bool inserted = symbol_table.insert({name, next_symbol_addr}).second;
             if(inserted)
                 ++next_symbol_addr;
 
             return inserted;
+        }
+
+        bool add_symbol(const std::string& name, uint16_t address) {
+            return  symbol_table.insert({name, address}).second;
         }
 
         std::string compact_instruction(const std::string& instruction) const {

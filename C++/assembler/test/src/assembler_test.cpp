@@ -60,3 +60,7 @@ TEST_F(HackAssembler, TranslatesInstructionWithComment) {
 TEST_F(HackAssembler, IgnoresBlankLine) {
     ASSERT_THAT(assembler.translate("   "), Eq(""));
 }
+
+TEST_F(HackAssembler, TranslatesAInstructionWithPredefinedSymbol) {
+    ASSERT_THAT(assembler.translate("@KBD"), Eq("0110000000000000"));
+}

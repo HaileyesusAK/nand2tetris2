@@ -24,6 +24,7 @@ class Assembler {
         uint16_t get_address(const std::string& symbol) const;
         void reset_symbol_table();
         std::string translate(const std::string& asm_instruction);
+        void translate_file(const fs::path& asm_file_path);
 
     private:
         static inline uint16_t next_symbol_addr;

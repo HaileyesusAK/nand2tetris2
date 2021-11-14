@@ -2,6 +2,8 @@
 #include <bitset>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <map>
 #include <string>
 #include <unordered_map>
 
@@ -28,7 +30,7 @@ void Assembler::build_symbol_table(const fs::path& asm_file_path) {
         return;
 
     std::string line;
-    std::set<std::string> variables;
+    std::unordered_map<std::string, uint16_t> variables;
     uint16_t pc = 0;
     
     std::ifstream ifs {asm_file_path};
@@ -41,19 +43,29 @@ void Assembler::build_symbol_table(const fs::path& asm_file_path) {
 
         if(instruction.second == InstType::A) {
             if(!is_number(instruction.first))
-                variables.emplace(instruction.first);
+                variables.insert({instruction.first, pc}); // assume a symbol is a variable
             ++pc;
         }
         else if(instruction.second == InstType::LABEL) {
-            variables.erase(instruction.first); // since the symbol is not a variable
+            variables.erase(instruction.first); // since the symbol is a label
             add_symbol(instruction.first, pc);
         }
         else if(instruction.second == InstType::C)
             ++pc;
     }
 
-    for(const auto& variable : variables)
-        add_variable(variable);
+    // The variables must be added in the order they are encountered
+    auto flip = [](const std::pair<std::string, uint16_t>& e){
+        return std::pair<uint16_t, std::string>{e.second, e.first}; 
+    };
+    std::map<uint16_t, std::string> sorted_variables;
+    std::transform(variables.begin(),
+                   variables.end(),
+                   std::inserter(sorted_variables, sorted_variables.begin()),
+                   flip);
+
+    for(const auto& variable : sorted_variables)
+        add_variable(variable.second);
 }
 
 std::pair<std::string, InstType> Assembler::classify_instruction(const std::string& inst) const {
@@ -209,4 +221,34 @@ std::string Assembler::translate(const std::pair<std::string, InstType>& instruc
 std::string Assembler::translate(const std::string& asm_instruction) {
 	auto instruction = classify_instruction(asm_instruction);
 	return translate(instruction);
+}
+
+
+void Assembler::translate_file(const fs::path& asm_file_path) {
+    if(!fs::exists(asm_file_path))
+        return;
+
+    reset_symbol_table();
+
+    // create output file
+    auto output_path = asm_file_path;
+    output_path.replace_extension(".hack");
+    std::ofstream ofs {output_path};
+
+    // create symbol table
+    build_symbol_table(asm_file_path);
+
+    // translate instructions from the input file
+    std::string line;
+    std::ifstream ifs {asm_file_path};
+    while(!ifs.eof()) {
+        std::getline(ifs, line);
+        if(!line.empty())
+            line.pop_back(); // remove trailing newline
+
+        auto instruction = classify_instruction(line);
+        if(instruction.second == InstType::A || instruction.second == InstType::C) {
+            ofs << translate(instruction) << std::endl;
+        }
+    }
 }

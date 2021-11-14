@@ -1,7 +1,10 @@
+#include <filesystem>
 #include "gmock/gmock.h"
 #include "assembler.h"
 
 using namespace testing;
+namespace fs = std::filesystem;
+static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data";
 
 class HackAssembler : public Test {
     public:
@@ -63,4 +66,14 @@ TEST_F(HackAssembler, IgnoresBlankLine) {
 
 TEST_F(HackAssembler, TranslatesAInstructionWithPredefinedSymbol) {
     ASSERT_THAT(assembler.translate("@KBD"), Eq("0110000000000000"));
+}
+
+TEST_F(HackAssembler, BuildsSymbolTable) {
+	assembler.reset_symbol_table();
+	assembler.build_symbol_table(fs::path(DATA_DIR / "Mult.asm"));
+	
+	ASSERT_THAT(assembler.get_address("R1"), Eq(1));
+	ASSERT_THAT(assembler.get_address("sum"), Eq(17));
+	ASSERT_THAT(assembler.get_address("LOOP_END"), Eq(18));
+	ASSERT_THAT(assembler.get_address("END"), Eq(24));
 }

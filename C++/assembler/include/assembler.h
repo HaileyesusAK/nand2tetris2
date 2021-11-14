@@ -1,13 +1,15 @@
 #ifndef __ASSEMBLER_H__
 #define __ASSEMBLER_H__
 
-#include <string>
+#include <filesystem>
+#include <fstream>
+#include <set>
 #include <unordered_map>
 #include <utility>
 
 static const size_t WSIZE = 16;
 static const uint16_t VARIABLE_START_ADDRESS = 16;
-
+namespace fs = std::filesystem;
 enum class InstType {A, C, LABEL, BLANK, UNKNOWN};
 
 using CodeMap = std::unordered_map<std::string, uint16_t>;
@@ -18,6 +20,8 @@ class Assembler {
 
         bool add_symbol(const std::string& name, uint16_t address);
         bool add_variable(const std::string& name);
+		void build_symbol_table(const fs::path& asm_file_path);
+        uint16_t get_address(const std::string& symbol) const;
         void reset_symbol_table();
         std::string translate(const std::string& asm_instruction);
 
@@ -25,8 +29,10 @@ class Assembler {
         static inline uint16_t next_symbol_addr;
         static inline CodeMap symbol_table;
 		static inline const CodeMap predefined_symbols {
-			{"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
-			{"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
+			{"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3}, {"THAT", 4}, {"R0",0},
+			{"R1", 1}, {"R2", 2}, {"R3", 3}, {"R4", 4}, {"R5", 5}, {"R6", 6}, {"R7", 7},
+			{"R8", 8}, {"R9", 9}, {"R10", 10}, {"R11", 11}, {"R12", 12}, {"R13", 13},
+			{"R14", 14}, {"R15", 15}, {"SCREEN", 16384}, {"KBD", 24576}
 		};
 		static inline CodeMap comp_encodings {
 			{"0", 42}, {"1", 63}, {"-1", 58}, {"D", 12}, {"A", 48}, {"!D", 13},
@@ -47,7 +53,6 @@ class Assembler {
 
 		std::pair<std::string, InstType> classify_instruction(const std::string& inst) const;
         std::string compact_instruction(const std::string& instruction) const;
-        uint16_t get_address(const std::string& symbol) const;
         std::string get_binary_string(uint16_t machine_code) const;
         bool is_number(const std::string s) const;
         std::string encode_c_instruction(const std::string& c_instruction) const;

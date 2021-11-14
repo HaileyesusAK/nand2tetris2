@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <bitset>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <unordered_map>
 
@@ -19,6 +21,39 @@ bool Assembler::add_variable(const std::string& name) {
         ++next_symbol_addr;
 
     return inserted;
+}
+
+void Assembler::build_symbol_table(const fs::path& asm_file_path) {
+    if(!fs::exists(asm_file_path))
+        return;
+
+    std::string line;
+    std::set<std::string> variables;
+    uint16_t pc = 0;
+    
+    std::ifstream ifs {asm_file_path};
+    while(!ifs.eof()) {
+        std::getline(ifs, line);
+        if(!line.empty())
+            line.pop_back(); // remove trailing newline 
+
+        auto instruction = classify_instruction(line);
+
+        if(instruction.second == InstType::A) {
+            if(!is_number(instruction.first))
+                variables.emplace(instruction.first);
+            ++pc;
+        }
+        else if(instruction.second == InstType::LABEL) {
+            variables.erase(instruction.first); // since the symbol is not a variable
+            add_symbol(instruction.first, pc);
+        }
+        else if(instruction.second == InstType::C)
+            ++pc;
+    }
+
+    for(const auto& variable : variables)
+        add_variable(variable);
 }
 
 std::pair<std::string, InstType> Assembler::classify_instruction(const std::string& inst) const {

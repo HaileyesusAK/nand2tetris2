@@ -49,45 +49,26 @@ std::string Assembler::encode_c_instruction(const std::string& c_instruction) co
 }
 
 std::string Assembler::encode_comp_instruction(const std::string& instruction) const {
-    std::unordered_map<std::string, uint16_t> encodings {
-        {"0", 42}, {"1", 63}, {"-1", 58}, {"D", 12}, {"A", 48},
-        {"!D", 13}, {"!A", 49}, {"-D", 15}, {"-A", 51}, {"D+1", 31},
-        {"A+1", 55}, {"D-1", 14}, {"A-1", 50}, {"D+A", 2}, {"D-A", 19},
-        {"A-D", 7}, {"D&A", 0}, {"D|A", 21}, {"M", 112}, {"!M", 113},
-        {"-M", 115}, {"M+1", 119}, {"M-1", 114}, {"D+M", 66},
-        {"D-M", 83}, {"M-D", 71}, {"D&M", 64}, {"D|M", 85}
-    };
-
     const size_t OFFSET = 6;
-    auto it = encodings.find(instruction);
-    if(it == encodings.end())
+    auto it = comp_encodings.find(instruction);
+    if(it == comp_encodings.end())
         return "";
 
     return get_binary_string(it->second << OFFSET);
 }
 
 std::string Assembler::encode_dst_instruction(const std::string& instruction) const {
-    std::unordered_map<std::string, uint16_t> encodings {
-        {"M", 1}, {"D", 2}, {"MD", 3}, {"A", 4}, {"AM", 5},
-        {"AD", 6}, {"AMD", 7}
-    };
-
     const size_t OFFSET = 3;
-    auto it = encodings.find(instruction);
-    if(it == encodings.end())
+    auto it = dst_encodings.find(instruction);
+    if(it == dst_encodings.end())
         return "";
 
     return get_binary_string(it->second << OFFSET);
 }
 
 std::string Assembler::encode_jmp_instruction(const std::string& instruction) const {
-    std::unordered_map<std::string, uint16_t> encodings {
-        {"JGT", 1}, {"JEQ", 2}, {"JGE", 3}, {"JLT", 4}, {"JNE", 5},
-        {"JLE", 6}, {"JMP", 7}
-    };
-
-    auto it = encodings.find(instruction);
-    if(it == encodings.end())
+    auto it = jmp_encodings.find(instruction);
+    if(it == jmp_encodings.end())
         return "";
 
     return get_binary_string(it->second);
@@ -142,12 +123,6 @@ bool Assembler::is_number(const std::string s) const {
 }
 
 void Assembler::reset_symbol_table() {
-    static std::unordered_map<std::string, uint16_t> predefined_symbols {
-        // initialize with addresses of predefined symbol
-        {"SP", 0}, {"LCL", 1}, {"ARG", 2}, {"THIS", 3},
-        {"THAT", 4}, {"SCREEN", 16384}, {"KBD", 24576}
-    };
-
     symbol_table = predefined_symbols;
     next_symbol_addr = VARIABLE_START_ADDRESS;
 }

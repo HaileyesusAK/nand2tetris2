@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAXE_CXX_FLAGS} -Wall")
 
 set(sources 
    src/main.cpp
+   ../src/assembler.cpp
    src/assembler_test.cpp)
 add_executable(test ${sources})
 target_link_libraries(test gmock)

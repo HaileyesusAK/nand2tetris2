@@ -21,6 +21,32 @@ bool Assembler::add_variable(const std::string& name) {
     return inserted;
 }
 
+std::pair<std::string, InstType> Assembler::classify_instruction(const std::string& inst) const {
+	auto s = compact_instruction(inst);
+	if(s.empty())
+		return {"", InstType::BLANK};
+	else if(s.front() == '@' && s.length() > 1)
+		return {s.substr(1), InstType::A};
+	else if(s.front() == '(' && s.back() == ')' && s.length() > 2)
+		return {s.substr(1, s.length() - 2), InstType::LABEL};
+	else {
+		std::string dst = extract_dst(s);
+		std::string comp = extract_comp(s);
+		std::string jmp = extract_jmp(s);
+
+		if(!dst.empty() && !dst_encodings.count(dst))
+			return {inst, InstType::UNKNOWN};
+
+		if(!jmp.empty() && !jmp_encodings.count(jmp))
+			return {inst, InstType::UNKNOWN};
+
+		if(!comp.empty() && !comp_encodings.count(comp))
+			return {inst, InstType::UNKNOWN};
+
+		return {s, InstType::C};
+	}
+}
+
 std::string Assembler::compact_instruction(const std::string& instruction) const {
     std::string s = instruction.substr(0, instruction.find("//"));
     auto end = std::remove(s.begin(), s.end(), ' ');
@@ -127,18 +153,25 @@ void Assembler::reset_symbol_table() {
     next_symbol_addr = VARIABLE_START_ADDRESS;
 }
 
-std::string Assembler::translate(const std::string& asm_instruction) {
-    auto instruction = compact_instruction(asm_instruction);
-    if(instruction.empty())
-        return "";
+std::string Assembler::translate(const std::pair<std::string, InstType>& instruction) const {
+	switch(instruction.second) {
+		case InstType::A:
+			if(is_number(instruction.first))
+				return get_binary_string(static_cast<uint16_t>(std::stoul(instruction.first)));
+			else
+				return get_binary_string(get_address(instruction.first));
+		break;
 
-    if(instruction.front() == '@') {
-        auto symbol = instruction.substr(1);
-        if(is_number(symbol))
-            return get_binary_string(static_cast<uint16_t>(std::stoul(symbol)));
-        else
-            return get_binary_string(get_address(symbol));
-    }
-    else
-        return encode_c_instruction(instruction);
+		case InstType::C:
+			return encode_c_instruction(instruction.first);
+		break;
+
+		default:
+			return "";
+	}
+}
+
+std::string Assembler::translate(const std::string& asm_instruction) {
+	auto instruction = classify_instruction(asm_instruction);
+	return translate(instruction);
 }

@@ -3,9 +3,12 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 static const size_t WSIZE = 16;
 static const uint16_t VARIABLE_START_ADDRESS = 16;
+
+enum class InstType {A, C, LABEL, BLANK, UNKNOWN};
 
 using CodeMap = std::unordered_map<std::string, uint16_t>;
 
@@ -42,6 +45,7 @@ class Assembler {
 			{"JLE", 6}, {"JMP", 7}
 		};
 
+		std::pair<std::string, InstType> classify_instruction(const std::string& inst) const;
         std::string compact_instruction(const std::string& instruction) const;
         uint16_t get_address(const std::string& symbol) const;
         std::string get_binary_string(uint16_t machine_code) const;
@@ -53,6 +57,7 @@ class Assembler {
         std::string extract_comp(const std::string& c_instruction) const;
         std::string extract_dst(const std::string& c_instruction) const;
         std::string extract_jmp(const std::string& c_instruction) const;
+		std::string translate(const std::pair<std::string, InstType>& instruction) const;
 };
 
 #endif

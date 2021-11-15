@@ -1,13 +1,17 @@
 #include <algorithm>
 #include <bitset>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <regex>
 #include <string>
 #include <unordered_map>
 
 #include "assembler.h"
+
+static const std::regex valid_symbol_regex(R"([a-zA-Z_.$:][\w.$:]*)");
 
 Assembler::Assembler() {
     reset_symbol_table();
@@ -69,29 +73,29 @@ void Assembler::build_symbol_table(const fs::path& asm_file_path) {
 }
 
 std::pair<std::string, InstType> Assembler::classify_instruction(const std::string& inst) const {
-	auto s = compact_instruction(inst);
-	if(s.empty())
-		return {"", InstType::BLANK};
-	else if(s.front() == '@' && s.length() > 1)
-		return {s.substr(1), InstType::A};
-	else if(s.front() == '(' && s.back() == ')' && s.length() > 2)
-		return {s.substr(1, s.length() - 2), InstType::LABEL};
-	else {
-		std::string dst = extract_dst(s);
-		std::string comp = extract_comp(s);
-		std::string jmp = extract_jmp(s);
+    auto s = compact_instruction(inst);
+    if(s.empty())
+        return {"", InstType::BLANK};
+    else if(s.front() == '@' && s.length() > 1)
+        return {s.substr(1), InstType::A};
+    else if(s.front() == '(' && s.back() == ')' && s.length() > 2)
+        return {s.substr(1, s.length() - 2), InstType::LABEL};
+    else {
+        std::string dst = extract_dst(s);
+        std::string comp = extract_comp(s);
+        std::string jmp = extract_jmp(s);
 
-		if(!dst.empty() && !dst_encodings.count(dst))
-			return {inst, InstType::UNKNOWN};
+        if(!dst.empty() && !dst_encodings.count(dst))
+            return {inst, InstType::UNKNOWN};
 
-		if(!jmp.empty() && !jmp_encodings.count(jmp))
-			return {inst, InstType::UNKNOWN};
+        if(!jmp.empty() && !jmp_encodings.count(jmp))
+            return {inst, InstType::UNKNOWN};
 
-		if(!comp.empty() && !comp_encodings.count(comp))
-			return {inst, InstType::UNKNOWN};
+        if(!comp.empty() && !comp_encodings.count(comp))
+            return {inst, InstType::UNKNOWN};
 
-		return {s, InstType::C};
-	}
+        return {s, InstType::C};
+    }
 }
 
 std::string Assembler::compact_instruction(const std::string& instruction) const {
@@ -195,34 +199,43 @@ bool Assembler::is_number(const std::string s) const {
     return !s.empty() and std::all_of(s.begin(), s.end(), ::isdigit);
 }
 
+bool Assembler::is_symbol(const std::string s) const {
+    return std::regex_match(s.begin(), s.end(), valid_symbol_regex);
+}
+
 void Assembler::reset_symbol_table() {
     symbol_table = predefined_symbols;
     next_symbol_addr = VARIABLE_START_ADDRESS;
 }
 
 std::string Assembler::translate(const std::pair<std::string, InstType>& instruction) const {
-	switch(instruction.second) {
-		case InstType::A:
-			if(is_number(instruction.first))
-				return get_binary_string(static_cast<uint16_t>(std::stoul(instruction.first)));
-			else
-				return get_binary_string(get_address(instruction.first));
-		break;
+    switch(instruction.second) {
+        case InstType::A:
+            if(is_number(instruction.first))
+                return get_binary_string(static_cast<uint16_t>(std::stoul(instruction.first)));
+            else if(is_symbol(instruction.first))
+                return get_binary_string(get_address(instruction.first));
+            else
+                throw std::out_of_range("Invalid symbol: " + instruction.first);
+        break;
 
-		case InstType::C:
-			return encode_c_instruction(instruction.first);
-		break;
+        case InstType::C:
+            return encode_c_instruction(instruction.first);
+        break;
 
-		default:
-			return "";
-	}
+        case InstType::BLANK:
+        case InstType::LABEL:
+            return "";
+
+        default:
+            throw std::invalid_argument("Unknown instruction: " + instruction.first);
+    }
 }
 
 std::string Assembler::translate(const std::string& asm_instruction) {
-	auto instruction = classify_instruction(asm_instruction);
-	return translate(instruction);
+    auto instruction = classify_instruction(asm_instruction);
+    return translate(instruction);
 }
-
 
 void Assembler::translate_file(const fs::path& asm_file_path) {
     if(!fs::exists(asm_file_path))

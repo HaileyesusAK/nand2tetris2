@@ -56,6 +56,7 @@ class Assembler {
         std::string compact_instruction(const std::string& instruction) const;
         std::string get_binary_string(uint16_t machine_code) const;
         bool is_number(const std::string s) const;
+        bool is_symbol(const std::string s) const;
         std::string encode_c_instruction(const std::string& c_instruction) const;
         std::string encode_comp_instruction(const std::string& instruction) const;
         std::string encode_dst_instruction(const std::string& instruction) const;

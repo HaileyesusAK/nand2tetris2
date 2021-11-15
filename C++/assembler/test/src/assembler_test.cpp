@@ -1,3 +1,4 @@
+#include <exception>
 #include <filesystem>
 #include "gmock/gmock.h"
 #include "assembler.h"
@@ -101,4 +102,12 @@ TEST_F(HackAssembler, TranslatesFile) {
 
     assembler.translate_file(DATA_DIR / input_file_name);
     ASSERT_THAT(cmpFiles(expected_file, output_file),  Eq(true));
+}
+
+TEST_F(HackAssembler, ThrowsExceptionOnInvalidInstruction) {
+    ASSERT_THROW(assembler.translate("MDA=null;jmp"), std::invalid_argument);    
+}
+
+TEST_F(HackAssembler, ThrowsExceptionOnInvalidSymbolinAInstruction) {
+    ASSERT_THROW(assembler.translate("@1symbol"), std::out_of_range);    
 }

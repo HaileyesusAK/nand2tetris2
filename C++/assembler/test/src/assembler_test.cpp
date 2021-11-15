@@ -1,18 +1,16 @@
 #include <filesystem>
-#include <fstream>
 #include "gmock/gmock.h"
 #include "assembler.h"
 
 using namespace testing;
 namespace fs = std::filesystem;
-
-static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data" ;
+static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data";
 
 class HackAssembler : public Test {
     public:
         Assembler assembler;
 
-        bool cmpFiles(const fs::path& p1, const fs::path& p2) {
+		bool cmpFiles(const fs::path& p1, const fs::path& p2) {
             std::ifstream file1(p1), file2(p2);
 
             std::string line1, line2;
@@ -25,7 +23,6 @@ class HackAssembler : public Test {
 
             return (file1.eof() && file2.eof());
         }
-
 };
 
 TEST_F(HackAssembler, TranslatesAInstructionWithLiteral) {
@@ -81,19 +78,27 @@ TEST_F(HackAssembler, IgnoresBlankLine) {
     ASSERT_THAT(assembler.translate("   "), Eq(""));
 }
 
-TEST_F(HackAssembler, CreatesOutputFile) {
-    assembler.translate_file(DATA_DIR / "Add.asm");
-    ASSERT_THAT(fs::exists(DATA_DIR / "Add.hack"), Eq(true));
+TEST_F(HackAssembler, TranslatesAInstructionWithPredefinedSymbol) {
+    ASSERT_THAT(assembler.translate("@KBD"), Eq("0110000000000000"));
+}
+
+TEST_F(HackAssembler, BuildsSymbolTable) {
+	assembler.reset_symbol_table();
+	assembler.build_symbol_table(fs::path(DATA_DIR / "Mult.asm"));
+	
+	ASSERT_THAT(assembler.get_address("R1"), Eq(1));
+	ASSERT_THAT(assembler.get_address("sum"), Eq(17));
+	ASSERT_THAT(assembler.get_address("LOOP_END"), Eq(18));
+	ASSERT_THAT(assembler.get_address("END"), Eq(24));
 }
 
 TEST_F(HackAssembler, TranslatesFile) {
-    std::string input_file_name = "Max.asm";
-    std::string output_file_name = "Max.hack";
+    std::string input_file_name = "Pong.asm";
+    std::string output_file_name = "Pong.hack";
 
     auto expected_file = DATA_DIR / "expected" / output_file_name;
     auto output_file = DATA_DIR / output_file_name;
 
-    assembler.reset_symbol_table();
     assembler.translate_file(DATA_DIR / input_file_name);
     ASSERT_THAT(cmpFiles(expected_file, output_file),  Eq(true));
 }

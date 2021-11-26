@@ -8,7 +8,7 @@ class Assembler:
         "-M": 115, "M+1": 119, "M-1": 114, "D+M": 66, "D-M": 83, "M-D": 71,
         "D&M": 64, "D|M": 85
     }
-
+    DST_ENCODINGS = {"M": 1, "D": 2, "MD": 3, "A": 4, "AM": 5, "AD": 6, "AMD": 7}
     CINST_PREFIX = 7 << 13
     CINST_COMP_OFFSET = 6
 
@@ -27,8 +27,21 @@ class Assembler:
 
         return self._to_bin(value)
 
+    @staticmethod
+    def _split_c_inst(inst):
+        if '=' in inst:
+            dst, _, comp = inst.partition('=')
+        else:
+            dst, comp = '', inst
+
+        return dst, comp
+
     def _translate_C_inst(self, inst):
-        machine_code = self.COMP_ENCODINGS[inst] << self.CINST_COMP_OFFSET
+        dst, comp = self._split_c_inst(inst)
+        machine_code = self.COMP_ENCODINGS[comp] << 6
+        if dst:
+            machine_code |= self.DST_ENCODINGS[dst] << 3
+
         return self._to_bin(self.CINST_PREFIX + machine_code)
 
     def translate(self, instruction):

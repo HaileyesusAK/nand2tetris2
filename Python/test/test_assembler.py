@@ -36,3 +36,6 @@ class TestAssembler(TestCase):
 
     def test_blank_instruction_translation(self):
         self.assertIsNone(self.assembler.translate("     "))
+
+    def test_A_instruction_with_predefined_symbol_translation(self):
+        self.assertEqual(self.assembler.translate("@KBD"), "0110000000000000")

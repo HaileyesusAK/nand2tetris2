@@ -13,10 +13,16 @@ class Assembler:
         "JGT": 1, "JEQ": 2, "JGE": 3, "JLT": 4, "JNE": 5, "JLE": 6, "JMP": 7
     }
 
+
+
     CINST_PREFIX = 7 << 13
 
     def __init__(self):
-        self.symbol_table = {}
+        self.symbol_table = {
+            "SP": 0, "LCL": 1, "ARG": 2, "THIS": 3, "THAT": 4, "R0":0,
+            "SCREEN": 16384, "KBD": 24576
+        }
+        self.symbol_table.update({f'R{i}': i for i in range(1,16)})
         self.variables_count = 0
 
     def _to_bin(self, value):

@@ -51,8 +51,14 @@ class Assembler:
 
         return self._to_bin(self.CINST_PREFIX + machine_code)
 
+    @staticmethod
+    def _compact_inst(inst):
+        if '//' in inst:
+            inst = inst[:inst.index('//')]
+        return ''.join([c for c in inst if not c.isspace()])
+
     def translate(self, instruction):
-        instruction = ''.join([c for c in instruction if c != ' '])
+        instruction = self._compact_inst(instruction)
         if instruction[0] == '@':
             return self._translate_A_inst(instruction[1:])
         else:

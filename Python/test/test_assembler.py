@@ -13,3 +13,7 @@ class TestAssembler(TestCase):
         assembler.add_variable("m")
         assembler.add_variable("n")
         self.assertEqual(assembler.translate("@n"), "0000000000010001")
+
+    def test_C_instruction_without_dst_jmp_translation(self):
+        assembler = Assembler()
+        self.assertEqual(assembler.translate("D+A"), "1110000010000000")

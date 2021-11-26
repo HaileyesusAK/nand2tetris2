@@ -52,6 +52,7 @@ class Assembler:
         return self._to_bin(self.CINST_PREFIX + machine_code)
 
     def translate(self, instruction):
+        instruction = ''.join([c for c in instruction if c != ' '])
         if instruction[0] == '@':
             return self._translate_A_inst(instruction[1:])
         else:

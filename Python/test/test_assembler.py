@@ -28,3 +28,5 @@ class TestAssembler(TestCase):
     def test_complete_C_instruction_translation(self):
         self.assertEqual(self.assembler.translate("AMD=D-A;JGT"), "1110010011111001")
 
+    def test_instruction_with_spaces_translation(self):
+        self.assertEqual(self.assembler.translate("AMD = D-A; JGT"), "1110010011111001")

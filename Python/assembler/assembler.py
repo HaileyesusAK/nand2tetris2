@@ -29,10 +29,14 @@ class Assembler:
     VALID_SYMBOL_PATTERN = re.compile(r'[a-zA-Z_.$:][\w.$:]*')
 
     def __init__(self):
-        self.symbol_table = {
+        self.symbol_table = {}
+        self._reset_symbol_table()
+
+    def _reset_symbol_table(self):
+        self.symbol_table.update({
             "SP": 0, "LCL": 1, "ARG": 2, "THIS": 3, "THAT": 4, "R0":0,
             "SCREEN": 16384, "KBD": 24576
-        }
+        })
         self.symbol_table.update({f'R{i}': i for i in range(1,16)})
         self.variables_count = 0
 
@@ -64,6 +68,7 @@ class Assembler:
                 return InstType.UNKNOWN, original
 
             return InstType.C, (dst, comp, jmp)
+
 
     def _to_bin(self, value):
         return f'{value:b}'.zfill(self.WSIZE)
@@ -100,6 +105,30 @@ class Assembler:
         if var not in self.symbol_table:
            self.symbol_table[var] = self.VAR_MEM_BASE + self.variables_count
            self.variables_count += 1
+
+    def build_symbol_table(self, asm_path):
+        self._reset_symbol_table()
+        pc = 0
+        variables = {}
+
+        with open(asm_path) as asm_file:
+            for inst in asm_file:
+                inst_type, inst = self._compact_inst(inst)
+                if inst_type == InstType.A:
+                    if not inst.isnumeric():
+                        variables[inst] = pc
+                    pc += 1
+                elif inst_type == InstType.LABEL:
+                    variables.pop(inst, None)
+                    self.symbol_table[inst] = pc
+                elif inst_type == InstType.C:
+                    pc += 1
+
+        for var in variables:
+            self.add_variable(var)
+
+    def get_address(self, symbol):
+        return self.symbol_table.get(symbol)
 
     def translate(self, instruction):
         inst_type, inst = self._compact_inst(instruction)

@@ -1,6 +1,8 @@
 from unittest import TestCase
+import os
 
 from assembler import Assembler
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
 
 class TestAssembler(TestCase):
@@ -42,3 +44,11 @@ class TestAssembler(TestCase):
 
     def test_label_instruction_translation(self):
         self.assertIsNone(self.assembler.translate("(END)"))
+
+    def test_symbol_table_building_from_file(self):
+        asm_path = os.path.join(DATA_DIR, "Mult.asm")
+        self.assembler.build_symbol_table(asm_path)
+        self.assertEqual(self.assembler.get_address("R1"), 1)
+        self.assertEqual(self.assembler.get_address("sum"), 17)
+        self.assertEqual(self.assembler.get_address("LOOP_END"), 18)
+        self.assertEqual(self.assembler.get_address("END"), 24)

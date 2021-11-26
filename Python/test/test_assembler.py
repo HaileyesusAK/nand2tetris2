@@ -1,8 +1,12 @@
+from filecmp import cmp
 from unittest import TestCase
 import os
 
 from assembler import Assembler
+
+
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+EXPECTED_DATA_DIR = os.path.join(DATA_DIR, "expected")
 
 
 class TestAssembler(TestCase):
@@ -52,3 +56,11 @@ class TestAssembler(TestCase):
         self.assertEqual(self.assembler.get_address("sum"), 17)
         self.assertEqual(self.assembler.get_address("LOOP_END"), 18)
         self.assertEqual(self.assembler.get_address("END"), 24)
+        
+    def test_file_translation(self):
+        asm_file = os.path.join(DATA_DIR, "Pong.asm")
+        hack_file = asm_file.replace(".asm", ".hack")
+        expected_hack_file = os.path.join(EXPECTED_DATA_DIR, "Pong.hack")
+        self.assembler.translate_file(asm_file)
+        self.assertTrue(cmp(hack_file, expected_hack_file, shallow=False))
+

@@ -138,3 +138,15 @@ class Assembler:
             return self._translate_A_inst(inst)
         elif inst_type == InstType.C:
             return self._translate_C_inst(*inst)
+
+    def translate_file(self, asm_path):
+        self.build_symbol_table(asm_path)
+        hack_path = asm_path.replace(".asm", ".hack")
+        with open(hack_path, "w") as hack_file:
+            with open(asm_path) as asm_file:
+                for inst in asm_file:
+                    machine_code = self.translate(inst)
+                    if not machine_code:
+                        continue
+
+                    hack_file.write(machine_code + os.linesep)

@@ -1,3 +1,16 @@
+from enum import Enum
+import re
+import os
+
+
+class InstType(Enum):
+    A = 1
+    C = 2
+    LABEL = 3
+    BLANK = 4
+    UNKNOWN = 5
+
+
 class Assembler:
     WSIZE = 16      # word size in bits
     VAR_MEM_BASE = 16 # base address of memory section for variables
@@ -12,10 +25,8 @@ class Assembler:
     JMP_ENCODINGS = {
         "JGT": 1, "JEQ": 2, "JGE": 3, "JLT": 4, "JNE": 5, "JLE": 6, "JMP": 7
     }
-
-
-
     CINST_PREFIX = 7 << 13
+    VALID_SYMBOL_PATTERN = re.compile(r'[a-zA-Z_.$:][\w.$:]*')
 
     def __init__(self):
         self.symbol_table = {
@@ -25,16 +36,37 @@ class Assembler:
         self.symbol_table.update({f'R{i}': i for i in range(1,16)})
         self.variables_count = 0
 
+    def _compact_inst(self, inst):
+        original = inst
+        if '//' in inst:
+            inst = inst[:inst.index('//')]
+        inst = ''.join([c for c in inst if not c.isspace()])
+
+        if not inst:
+            return InstType.BLANK, inst
+        elif len(inst) > 1 and inst[0] == '@':
+            symbol = inst[1:]
+            if symbol.isnumeric() or self.VALID_SYMBOL_PATTERN.fullmatch(symbol):
+                return InstType.A, symbol
+            else:
+                return InstType.UNKNOWN, original
+        elif len(inst) > 2 and inst[0] == '(' and inst[-1] == ')':
+            return InstType.LABEL, inst[1:-1]
+        else:
+            dst, comp, jmp = self._split_c_inst(inst)
+            if comp not in self.COMP_ENCODINGS:
+                return InstType.UNKNOWN, original
+
+            if dst and dst not in self.DST_ENCODINGS:
+                return InstType.UNKNOWN, original
+
+            if jmp and jmp not in self.JMP_ENCODINGS:
+                return InstType.UNKNOWN, original
+
+            return InstType.C, (dst, comp, jmp)
+
     def _to_bin(self, value):
         return f'{value:b}'.zfill(self.WSIZE)
-
-    def _translate_A_inst(self, symbol):
-        try:
-            value = int(symbol)
-        except ValueError:
-            value = self.symbol_table[symbol]
-
-        return self._to_bin(value)
 
     @staticmethod
     def _split_c_inst(inst):
@@ -46,8 +78,15 @@ class Assembler:
 
         return dst, comp, jmp
 
-    def _translate_C_inst(self, inst):
-        dst, comp, jmp= self._split_c_inst(inst)
+    def _translate_A_inst(self, symbol):
+        try:
+            value = int(symbol)
+        except ValueError:
+            value = self.symbol_table[symbol]
+
+        return self._to_bin(value)
+
+    def _translate_C_inst(self, dst, comp, jmp):
         machine_code = self.COMP_ENCODINGS[comp] << 6
         if dst:
             machine_code |= self.DST_ENCODINGS[dst] << 3
@@ -57,24 +96,16 @@ class Assembler:
 
         return self._to_bin(self.CINST_PREFIX + machine_code)
 
-    @staticmethod
-    def _compact_inst(inst):
-        if '//' in inst:
-            inst = inst[:inst.index('//')]
-        return ''.join([c for c in inst if not c.isspace()])
-
-    def translate(self, instruction):
-        instruction = self._compact_inst(instruction)
-        if not instruction:
-            return
-
-        if instruction[0] == '@':
-            return self._translate_A_inst(instruction[1:])
-        else:
-            return self._translate_C_inst(instruction)
-
     def add_variable(self, var):
         if var not in self.symbol_table:
            self.symbol_table[var] = self.VAR_MEM_BASE + self.variables_count
            self.variables_count += 1
 
+    def translate(self, instruction):
+        inst_type, inst = self._compact_inst(instruction)
+        if inst_type == InstType.BLANK or inst_type == InstType.LABEL:
+            return
+        elif inst_type == InstType.A:
+            return self._translate_A_inst(inst)
+        elif inst_type == InstType.C:
+            return self._translate_C_inst(*inst)

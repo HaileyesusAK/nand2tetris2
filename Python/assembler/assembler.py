@@ -48,26 +48,28 @@ class Assembler:
 
         if not inst:
             return InstType.BLANK, inst
-        elif len(inst) > 1 and inst[0] == '@':
+
+        if len(inst) > 1 and inst[0] == '@':
             symbol = inst[1:]
             if symbol.isnumeric() or self.VALID_SYMBOL_PATTERN.fullmatch(symbol):
                 return InstType.A, symbol
-            else:
-                return InstType.UNKNOWN, original
-        elif len(inst) > 2 and inst[0] == '(' and inst[-1] == ')':
+
+            return InstType.UNKNOWN, original
+
+        if len(inst) > 2 and inst[0] == '(' and inst[-1] == ')':
             return InstType.LABEL, inst[1:-1]
-        else:
-            dst, comp, jmp = self._split_c_inst(inst)
-            if comp not in self.COMP_ENCODINGS:
-                return InstType.UNKNOWN, original
 
-            if dst and dst not in self.DST_ENCODINGS:
-                return InstType.UNKNOWN, original
+        dst, comp, jmp = self._split_c_inst(inst)
+        if comp not in self.COMP_ENCODINGS:
+            return InstType.UNKNOWN, original
 
-            if jmp and jmp not in self.JMP_ENCODINGS:
-                return InstType.UNKNOWN, original
+        if dst and dst not in self.DST_ENCODINGS:
+            return InstType.UNKNOWN, original
 
-            return InstType.C, (dst, comp, jmp)
+        if jmp and jmp not in self.JMP_ENCODINGS:
+            return InstType.UNKNOWN, original
+
+        return InstType.C, (dst, comp, jmp)
 
 
     def _to_bin(self, value):
@@ -103,12 +105,12 @@ class Assembler:
 
     def add_variable(self, var):
         if var not in self.symbol_table:
-           self.symbol_table[var] = self.VAR_MEM_BASE + self.variables_count
-           self.variables_count += 1
+            self.symbol_table[var] = self.VAR_MEM_BASE + self.variables_count
+            self.variables_count += 1
 
     def build_symbol_table(self, asm_path):
         self._reset_symbol_table()
-        pc = 0
+        program_counter = 0
         variables = {}
 
         with open(asm_path) as asm_file:
@@ -116,13 +118,13 @@ class Assembler:
                 inst_type, inst = self._compact_inst(inst)
                 if inst_type == InstType.A:
                     if not inst.isnumeric():
-                        variables[inst] = pc
-                    pc += 1
+                        variables[inst] = program_counter
+                    program_counter += 1
                 elif inst_type == InstType.LABEL:
                     variables.pop(inst, None)
-                    self.symbol_table[inst] = pc
+                    self.symbol_table[inst] = program_counter
                 elif inst_type == InstType.C:
-                    pc += 1
+                    program_counter += 1
 
         for var in variables:
             self.add_variable(var)
@@ -132,11 +134,13 @@ class Assembler:
 
     def translate(self, instruction):
         inst_type, inst = self._compact_inst(instruction)
-        if inst_type == InstType.BLANK or inst_type == InstType.LABEL:
+        if inst_type in (InstType.BLANK, InstType.LABEL):
             return
-        elif inst_type == InstType.A:
+
+        if inst_type == InstType.A:
             return self._translate_A_inst(inst)
-        elif inst_type == InstType.C:
+
+        if inst_type == InstType.C:
             return self._translate_C_inst(*inst)
 
     def translate_file(self, asm_path):

@@ -9,8 +9,11 @@ class Assembler:
         "D&M": 64, "D|M": 85
     }
     DST_ENCODINGS = {"M": 1, "D": 2, "MD": 3, "A": 4, "AM": 5, "AD": 6, "AMD": 7}
+    JMP_ENCODINGS = {
+        "JGT": 1, "JEQ": 2, "JGE": 3, "JLT": 4, "JNE": 5, "JLE": 6, "JMP": 7
+    }
+
     CINST_PREFIX = 7 << 13
-    CINST_COMP_OFFSET = 6
 
     def __init__(self):
         self.symbol_table = {}
@@ -29,18 +32,22 @@ class Assembler:
 
     @staticmethod
     def _split_c_inst(inst):
-        if '=' in inst:
-            dst, _, comp = inst.partition('=')
+        prefix, _, jmp = inst.partition(';')
+        if '=' in prefix:
+            dst, _, comp = prefix.partition('=')
         else:
-            dst, comp = '', inst
+            dst, comp = '', prefix
 
-        return dst, comp
+        return dst, comp, jmp
 
     def _translate_C_inst(self, inst):
-        dst, comp = self._split_c_inst(inst)
+        dst, comp, jmp= self._split_c_inst(inst)
         machine_code = self.COMP_ENCODINGS[comp] << 6
         if dst:
             machine_code |= self.DST_ENCODINGS[dst] << 3
+
+        if jmp:
+            machine_code |= self.JMP_ENCODINGS[jmp]
 
         return self._to_bin(self.CINST_PREFIX + machine_code)
 

@@ -24,3 +24,7 @@ class TestAssembler(TestCase):
 
     def test_C_instruction_without_dst_translation(self):
         self.assertEqual(self.assembler.translate("!M;JMP"), "1111110001000111")
+
+    def test_complete_C_instruction_translation(self):
+        self.assertEqual(self.assembler.translate("AMD=D-A;JGT"), "1110010011111001")
+

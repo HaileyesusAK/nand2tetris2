@@ -59,6 +59,9 @@ class Assembler:
 
     def translate(self, instruction):
         instruction = self._compact_inst(instruction)
+        if not instruction:
+            return
+
         if instruction[0] == '@':
             return self._translate_A_inst(instruction[1:])
         else:

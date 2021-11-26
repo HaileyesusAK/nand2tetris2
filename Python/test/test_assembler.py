@@ -31,5 +31,8 @@ class TestAssembler(TestCase):
     def test_instruction_with_spaces_translation(self):
         self.assertEqual(self.assembler.translate("AMD = D-A; JGT"), "1110010011111001")
 
-    def test_instruction_with_trailing_comment(self):
+    def test_instruction_with_trailing_comment_translation(self):
         self.assertEqual(self.assembler.translate("@4   // comment..."),"0000000000000100")
+
+    def test_blank_instruction_translation(self):
+        self.assertIsNone(self.assembler.translate("     "))

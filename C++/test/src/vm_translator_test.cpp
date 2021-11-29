@@ -24,3 +24,9 @@ TEST_F(VMTranslator, TranslatesRelationalCommands) {
     auto result = translator.translate(RelOp::EQ, 0);
     ASSERT_THAT(expected_result, Eq(result));
 }
+
+TEST_F(VMTranslator, TranslatesUnaryAluCommands) {
+    std::vector<std::string> expected_result { "@SP", "A=M-1", "M=!M" };
+    auto result = translator.translate(UnaryOp::NOT);
+    ASSERT_THAT(expected_result, Eq(result));
+}

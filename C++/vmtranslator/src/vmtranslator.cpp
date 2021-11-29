@@ -5,7 +5,7 @@
 
 std::vector<std::string> VmTranslator::translate(const BinaryAluOp& op) {
     std::vector<std::string> inst {"@SP", "AM=M-1", "D=M", "@SP", "A=M-1"};
-    
+
     switch(op) {
         case BinaryAluOp::ADD: inst.push_back("M=M+D"); break;
         case BinaryAluOp::SUB: inst.push_back("M=M-D"); break;
@@ -19,7 +19,7 @@ std::vector<std::string> VmTranslator::translate(const BinaryAluOp& op) {
 std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
     std::vector<std::string> inst { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D"};
     inst.push_back("M=-1");     //Assume the arguments are equal
-    
+
     // the next instruction address to execute immediately if the arguments are not equal
     pc += inst.size() + 3;
     inst.push_back("@" + std::to_string(pc));
@@ -31,6 +31,16 @@ std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
     }
 
     inst.push_back("M=0");
+
+    return inst;
+}
+
+std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
+    std::vector<std::string> inst { "@SP", "A=M-1" };
+    if(op == UnaryOp::NEG)
+        inst.push_back("M=-M");
+    else
+        inst.push_back("M=!M");
 
     return inst;
 }

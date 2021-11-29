@@ -15,3 +15,22 @@ std::vector<std::string> VmTranslator::translate(const BinaryAluOp& op) {
 
     return inst;
 }
+
+std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
+    std::vector<std::string> inst { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D"};
+    inst.push_back("M=-1");     //Assume the arguments are equal
+    
+    // the next instruction address to execute immediately if the arguments are not equal
+    pc += inst.size() + 3;
+    inst.push_back("@" + std::to_string(pc));
+
+    switch(op) {
+        case RelOp::EQ: inst.push_back("D;JEQ"); break;
+        case RelOp::GT: inst.push_back("D;JGT"); break;
+        case RelOp::LT: inst.push_back("D;JLT"); break;
+    }
+
+    inst.push_back("M=0");
+
+    return inst;
+}

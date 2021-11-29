@@ -13,10 +13,10 @@ set(sources
    src/main.cpp
    ../src/assembler.cpp
    src/assembler_test.cpp)
-add_executable(test ${sources})
-target_link_libraries(test stdc++fs)
-target_link_libraries(test gmock)
-target_link_libraries(test gtest)
-target_link_libraries(test pthread)
-
-
+add_executable(tester ${sources})
+target_link_libraries(tester stdc++fs)
+target_link_libraries(tester gmock)
+target_link_libraries(tester gtest)
+target_link_libraries(tester pthread)
+set_target_properties(tester PROPERTIES COMPILE_FLAGS "--coverage")
+set_target_properties(tester PROPERTIES LINK_FLAGS "--coverage")

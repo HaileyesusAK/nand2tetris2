@@ -9,7 +9,7 @@ add_definitions(-std=c++17)
 set(CMAKE_CXX_FLAGS "${CMAXE_CXX_FLAGS} -Wall")
 
 
-ADD_DEFINITIONS(-DTEST_DIR="..")
+ADD_DEFINITIONS(-DTEST_DIR="${CMAKE_SOURCE_DIR}")
 
 set(sources 
    ../assembler/src/assembler.cpp

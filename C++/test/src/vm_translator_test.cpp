@@ -9,6 +9,14 @@ using namespace testing;
 class VMTranslator : public Test {
     public:
         VmTranslator translator;
+        void append_push_D(std::vector<std::string>& instructions) {
+            const static std::vector<std::string> push_D_inst {
+                "@SP", "A=M", "M=D", "@SP", "M=M+1"
+            };
+
+            for(const auto& inst:push_D_inst)
+                instructions.push_back(inst);
+        }
 };
 
 TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
@@ -34,8 +42,24 @@ TEST_F(VMTranslator, TranslatesUnaryAluCommands) {
 TEST_F(VMTranslator, TranslatesPushingOnNamedSegment) {
     uint16_t i = 1245;
     std::vector<std::string> expected_result {
-        "@LCL", "D=M", "@" + std::to_string(i), "A=D+A", "D=M", // Select the ith element from LCL
-        "@SP", "A=M", "M=D", "@SP", "M=M+1"};    // Push D on the stack
+        "@LCL", "D=M", "@" + std::to_string(i), "A=D+A", "D=M"
+    };
+    append_push_D(expected_result);
+
     auto result = translator.translate_push(Segment::LCL, i);
+    ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, TranslatesPushingOnStaticSegment) {
+    uint16_t i = 5;
+    std::string filename {"pong.vm"};
+
+    std::vector<std::string> expected_result {
+        "@" + filename + "." + std::to_string(i),
+        "D=A"
+    };
+    append_push_D(expected_result);
+
+    auto result = translator.translate_push_static(filename, i);
     ASSERT_THAT(result, Eq(expected_result));
 }

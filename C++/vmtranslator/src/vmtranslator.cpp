@@ -45,6 +45,15 @@ std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
     return inst;
 }
 
+void VmTranslator::append_push_D(std::vector<std::string>& instructions) {
+    const static std::vector<std::string> push_D_instructions {
+        "@SP", "A=M", "M=D", "@SP", "M=M+1"
+    };
+
+    for(const auto& inst : push_D_instructions)
+        instructions.push_back(inst);
+}
+
 std::vector<std::string> VmTranslator::translate_push(const Segment& segment, uint16_t idx) {
     const static std::unordered_map<Segment, std::string> segments {
         {Segment::ARG, "@ARG"},
@@ -55,21 +64,25 @@ std::vector<std::string> VmTranslator::translate_push(const Segment& segment, ui
         {Segment::TEMP, "@R5"}
     };
 
-    std::vector<std::string> inst {
+    std::vector<std::string> instructions {
         // Put the ith element from the segment in D
         segments.at(segment),
         "D=M",
         "@" + std::to_string(idx),
         "A=D+A",
-        "D=M",
-
-        // push D onto the stack
-        "@SP",
-        "A=M",
-        "M=D",
-        "@SP",
-        "M=M+1",
+        "D=M"
     };
+    append_push_D(instructions);
 
-    return inst;
+    return instructions;
+}
+
+std::vector<std::string> VmTranslator::translate_push_static(const std::string& file_name,  uint16_t idx) {
+    std::vector<std::string> instructions {
+        "@" + file_name + "." + std::to_string(idx),
+        "D=A"
+    };
+    append_push_D(instructions);
+
+    return instructions;
 }

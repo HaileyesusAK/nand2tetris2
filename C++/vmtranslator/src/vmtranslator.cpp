@@ -44,3 +44,32 @@ std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
 
     return inst;
 }
+
+std::vector<std::string> VmTranslator::translate_push(const Segment& segment, uint16_t idx) {
+    const static std::unordered_map<Segment, std::string> segments {
+        {Segment::ARG, "@ARG"},
+        {Segment::LCL, "@LCL"},
+        {Segment::THIS, "@THIS"},
+        {Segment::THAT, "@THAT"},
+        {Segment::POINTER, "@R3"},
+        {Segment::TEMP, "@R5"}
+    };
+
+    std::vector<std::string> inst {
+        // Put the ith element from the segment in D
+        segments.at(segment),
+        "D=M",
+        "@" + std::to_string(idx),
+        "A=D+A",
+        "D=M",
+
+        // push D onto the stack
+        "@SP",
+        "A=M",
+        "M=D",
+        "@SP",
+        "M=M+1",
+    };
+
+    return inst;
+}

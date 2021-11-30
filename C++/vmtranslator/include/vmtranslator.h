@@ -7,12 +7,14 @@
 enum class BinaryAluOp {ADD, SUB, AND, OR};
 enum class RelOp {EQ, GT, LT};
 enum class UnaryOp {NEG, NOT};
+enum class Segment {ARG, LCL, THIS, THAT, POINTER, TEMP}; 
 
 class VmTranslator {
     public:
         std::vector<std::string> translate(const BinaryAluOp& op);
         std::vector<std::string> translate(const RelOp& op, uint16_t pc);
         std::vector<std::string> translate(const UnaryOp& op);
+        std::vector<std::string> translate_push(const Segment& segment, uint16_t idx);
 };
 
 #endif

@@ -39,7 +39,7 @@ TEST_F(VMTranslator, TranslatesUnaryAluCommands) {
     ASSERT_THAT(result, Eq(expected_result));
 }
 
-TEST_F(VMTranslator, TranslatesPushingOnNamedSegment) {
+TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {
     uint16_t i = 1245;
     std::vector<std::string> expected_result {
         "@LCL", "D=M", "@" + std::to_string(i), "A=D+A", "D=M"
@@ -50,7 +50,7 @@ TEST_F(VMTranslator, TranslatesPushingOnNamedSegment) {
     ASSERT_THAT(result, Eq(expected_result));
 }
 
-TEST_F(VMTranslator, TranslatesPushingOnStaticSegment) {
+TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
     uint16_t i = 5;
     std::string filename {"pong.vm"};
 
@@ -61,5 +61,14 @@ TEST_F(VMTranslator, TranslatesPushingOnStaticSegment) {
     append_push_D(expected_result);
 
     auto result = translator.translate_push_static(filename, i);
+    ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
+    uint16_t i = 3459;
+
+    std::vector<std::string> expected_result { "@" + std::to_string(i), "D=A"};
+    append_push_D(expected_result);
+    auto result = translator.translate_push_constant(i);
     ASSERT_THAT(result, Eq(expected_result));
 }

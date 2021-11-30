@@ -86,3 +86,10 @@ std::vector<std::string> VmTranslator::translate_push_static(const std::string& 
 
     return instructions;
 }
+
+std::vector<std::string> VmTranslator::translate_push_constant(uint16_t idx) {
+    std::vector<std::string> instructions { "@" + std::to_string(idx), "D=A" };
+    append_push_D(instructions);
+
+    return instructions;
+}

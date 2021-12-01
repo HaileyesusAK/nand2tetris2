@@ -1,10 +1,21 @@
+#include <array>
+#include <cstdio>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <string>
+#include <sstream>
+#include <utility>
 #include <vector>
 #include "gmock/gmock.h"
 #include "vmtranslator.h"
 
 
 using namespace testing;
+namespace fs = std::filesystem;
+static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data";
+static const fs::path EXPECTED_DATA_DIR = DATA_DIR / "expected";
+static const fs::path TOOLS_DIR = fs::path(TEST_DIR) / "tools";
 
 class VMTranslator : public Test {
     public:
@@ -17,6 +28,32 @@ class VMTranslator : public Test {
             for(const auto& inst:push_D_inst)
                 instructions.push_back(inst);
         }
+
+        std::pair<std::string, int> run_simulator(const std::string& asm_file) {
+            fs::path asm_path = EXPECTED_DATA_DIR / asm_file;
+
+            fs::path tst_path = asm_path;
+            tst_path.replace_extension(".tst");
+
+            fs::path cmp_path = asm_path;
+            cmp_path.replace_extension(".cmp");
+
+            fs::path executable_path = TOOLS_DIR / "CPUEmulator.sh"; 
+            std::ostringstream cmd_os;
+            cmd_os << executable_path << " " << tst_path << " 2>&1";
+
+            std::array<char, 128> buffer;
+            std::string result;
+            auto pipe = popen(cmd_os.str().c_str(), "r");
+            if (!pipe) throw std::runtime_error("popen() failed!");
+
+            while (!feof(pipe)) {
+                if (fgets(buffer.data(), 128, pipe) != nullptr)
+                    result += buffer.data();
+            }
+
+            return std::make_pair(result, pclose(pipe));
+        }
 };
 
 TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
@@ -25,6 +62,16 @@ TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
     auto result = translator.translate(BinaryAluOp::SUB);
     ASSERT_THAT(result, Eq(expected_result));
 }
+
+TEST_F(VMTranslator, UpdatesStackAfterBinaryArithmeticCommandTranslation) {
+    fs::path asm_path = EXPECTED_DATA_DIR / "sub.asm";
+    std::ofstream ofs {asm_path};
+    for(const auto& inst : translator.translate(BinaryAluOp::SUB))
+        ofs << inst << std::endl;
+    auto result = run_simulator("sub.asm");
+    ASSERT_THAT(result.second, Eq(0));
+}
+
 
 TEST_F(VMTranslator, TranslatesRelationalCommands) {
     std::vector<std::string> expected_result {

@@ -111,7 +111,8 @@ TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterPushingFromNamedSegment) {
-    auto result = run_simulator(translator.translate_push(Segment::ARG, 5), "pushargument.asm");
+    auto instructions = translator.translate_push(Segment::ARG, 5);
+    auto result = run_simulator(instructions, "pushargument.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
@@ -121,12 +122,18 @@ TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
 
     std::vector<std::string> expected_result {
         "@" + filename + "." + std::to_string(i),
-        "D=A"
+        "D=M"
     };
     append_push_D(expected_result);
 
     auto result = translator.translate_push_static(filename, i);
     ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, UpdatesStackAFterPushingFromStaticSegment) {
+    auto instructions = translator.translate_push_static("test.vm", 5);
+    auto result = run_simulator(instructions, "pushstatic.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {

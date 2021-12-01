@@ -82,7 +82,7 @@ std::vector<std::string> VmTranslator::translate_push(const Segment& segment, ui
 std::vector<std::string> VmTranslator::translate_push_static(const std::string& file_name,  uint16_t idx) {
     std::vector<std::string> instructions {
         "@" + file_name + "." + std::to_string(idx),
-        "D=A"
+        "D=M"
     };
     append_push_D(instructions);
 

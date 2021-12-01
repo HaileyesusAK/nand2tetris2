@@ -144,3 +144,9 @@ TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
     auto result = translator.translate_push_constant(i);
     ASSERT_THAT(result, Eq(expected_result));
 }
+
+TEST_F(VMTranslator, UpdatesStackAFterPushingFromConstantSegment) {
+    auto instructions = translator.translate_push_constant(5);
+    auto result = run_simulator(instructions, "pushconstant.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}

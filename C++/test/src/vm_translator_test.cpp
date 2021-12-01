@@ -69,15 +69,27 @@ TEST_F(VMTranslator, UpdatesStackAfterBinaryArithmeticCommandTranslation) {
     for(const auto& inst : translator.translate(BinaryAluOp::SUB))
         ofs << inst << std::endl;
     auto result = run_simulator("sub.asm");
-    ASSERT_THAT(result.second, Eq(0));
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
-
 
 TEST_F(VMTranslator, TranslatesRelationalCommands) {
     std::vector<std::string> expected_result {
-        "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D", "M=-1", "@10", "D;JEQ", "M=0"};
+        "@SP", "AM=M-1", "D=M",
+        "@SP", "A=M-1", "D=M-D", "M=-1",
+        "@12", "D;JEQ", "@SP", "A=M-1", "M=0"
+    };
     auto result = translator.translate(RelOp::EQ, 0);
     ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, UpdatesStackAfterRelationalCommandTranslation) {
+    fs::path asm_path = EXPECTED_DATA_DIR / "eq.asm";
+    std::ofstream ofs {asm_path};
+    for(const auto& inst : translator.translate(RelOp::EQ, 0))
+        ofs << inst << std::endl;
+    auto result = run_simulator("eq.asm");
+
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesUnaryAluCommands) {

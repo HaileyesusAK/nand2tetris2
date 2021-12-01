@@ -21,7 +21,7 @@ std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
     inst.push_back("M=-1");     //Assume the arguments are equal
 
     // the next instruction address to execute immediately if the arguments are not equal
-    pc += inst.size() + 3;
+    pc += inst.size() + 5;
     inst.push_back("@" + std::to_string(pc));
 
     switch(op) {
@@ -30,6 +30,8 @@ std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
         case RelOp::LT: inst.push_back("D;JLT"); break;
     }
 
+    inst.push_back("@SP");
+    inst.push_back("A=M-1");
     inst.push_back("M=0");
 
     return inst;

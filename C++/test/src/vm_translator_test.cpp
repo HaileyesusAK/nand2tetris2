@@ -110,6 +110,11 @@ TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {
     ASSERT_THAT(result, Eq(expected_result));
 }
 
+TEST_F(VMTranslator, UpdatesStackAfterPushingFromNamedSegment) {
+    auto result = run_simulator(translator.translate_push(Segment::ARG, 5), "pushargument.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
 TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
     uint16_t i = 5;
     std::string filename {"pong.vm"};

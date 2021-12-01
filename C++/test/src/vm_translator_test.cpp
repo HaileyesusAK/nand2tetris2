@@ -116,6 +116,23 @@ TEST_F(VMTranslator, UpdatesStackAfterPushingFromNamedSegment) {
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+TEST_F(VMTranslator, TranslatesPopToNamedSegment) {
+    uint16_t i = 5;
+    std::vector<std::string> expected_result {
+        "@" + std::to_string(i), "D=A", "@LCL", "M=D+M",
+        "@SP", "AM=M-1", "D=M",
+        "@LCL", "A=M", "M=D", "@" + std::to_string(i), "D=A", "@LCL", "M=M-D"
+    };
+    auto result = translator.translate_pop(Segment::LCL, i);
+    ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, UpdatesStackAfterPopToNamedSegment) {
+    auto instructions = translator.translate_pop(Segment::LCL, 5);
+    auto result = run_simulator(instructions, "poplocal.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
 TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
     uint16_t i = 5;
     std::string filename {"pong.vm"};

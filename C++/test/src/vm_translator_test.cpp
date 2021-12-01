@@ -29,8 +29,13 @@ class VMTranslator : public Test {
                 instructions.push_back(inst);
         }
 
-        std::pair<std::string, int> run_simulator(const std::string& asm_file) {
+        std::pair<std::string, int> run_simulator(const std::vector<std::string>& asm_instructions,
+                                                  const std::string& asm_file)
+        {
             fs::path asm_path = EXPECTED_DATA_DIR / asm_file;
+            std::ofstream ofs {asm_path};
+            for(const auto& inst : asm_instructions)
+                ofs << inst << std::endl;
 
             fs::path tst_path = asm_path;
             tst_path.replace_extension(".tst");
@@ -38,7 +43,7 @@ class VMTranslator : public Test {
             fs::path cmp_path = asm_path;
             cmp_path.replace_extension(".cmp");
 
-            fs::path executable_path = TOOLS_DIR / "CPUEmulator.sh"; 
+            fs::path executable_path = TOOLS_DIR / "CPUEmulator.sh";
             std::ostringstream cmd_os;
             cmd_os << executable_path << " " << tst_path << " 2>&1";
 
@@ -64,11 +69,7 @@ TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterBinaryArithmeticCommandTranslation) {
-    fs::path asm_path = EXPECTED_DATA_DIR / "sub.asm";
-    std::ofstream ofs {asm_path};
-    for(const auto& inst : translator.translate(BinaryAluOp::SUB))
-        ofs << inst << std::endl;
-    auto result = run_simulator("sub.asm");
+    auto result = run_simulator(translator.translate(BinaryAluOp::SUB), "sub.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
@@ -83,12 +84,7 @@ TEST_F(VMTranslator, TranslatesRelationalCommands) {
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterRelationalCommandTranslation) {
-    fs::path asm_path = EXPECTED_DATA_DIR / "eq.asm";
-    std::ofstream ofs {asm_path};
-    for(const auto& inst : translator.translate(RelOp::EQ, 0))
-        ofs << inst << std::endl;
-    auto result = run_simulator("eq.asm");
-
+    auto result = run_simulator(translator.translate(RelOp::EQ, 0), "eq.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
@@ -96,6 +92,11 @@ TEST_F(VMTranslator, TranslatesUnaryAluCommands) {
     std::vector<std::string> expected_result { "@SP", "A=M-1", "M=!M" };
     auto result = translator.translate(UnaryOp::NOT);
     ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, UpdatesStackAfterUnaryAluCommandTranslation) {
+    auto result = run_simulator(translator.translate(UnaryOp::NOT), "not.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {

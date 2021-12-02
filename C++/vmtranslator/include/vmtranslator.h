@@ -17,6 +17,7 @@ class VmTranslator {
         std::vector<std::string> translate_push(const Segment& segment, uint16_t idx);
         std::vector<std::string> translate_pop(const Segment& segment, uint16_t idx);
         std::vector<std::string> translate_push_static(const std::string& file_name,  uint16_t idx);
+        std::vector<std::string> translate_pop_static(const std::string& file_name,  uint16_t idx);
         std::vector<std::string> translate_push_constant(uint16_t idx);
 
     private:

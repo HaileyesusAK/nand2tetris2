@@ -131,6 +131,16 @@ std::vector<std::string> VmTranslator::translate_push_static(const std::string& 
     return instructions;
 }
 
+std::vector<std::string> VmTranslator::translate_pop_static(const std::string& file_name,  uint16_t idx) {
+    std::vector<std::string> instructions;
+
+    append_pop_D(instructions);
+    instructions.push_back("@" + file_name + "." + std::to_string(idx));
+    instructions.push_back("M=D");
+
+    return instructions;
+}
+
 std::vector<std::string> VmTranslator::translate_push_constant(uint16_t idx) {
     std::vector<std::string> instructions { "@" + std::to_string(idx), "D=A" };
     append_push_D(instructions);

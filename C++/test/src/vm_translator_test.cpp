@@ -153,6 +153,25 @@ TEST_F(VMTranslator, UpdatesStackAFterPushingFromStaticSegment) {
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+TEST_F(VMTranslator, TranslatesPopToStaticSegment) {
+    uint16_t i = 5;
+    std::string filename {"test.vm"};
+    std::vector<std::string> expected_result {
+        "@SP", "AM=M-1", "D=M",
+        "@" + filename + "." + std::to_string(i),
+        "M=D"
+    };
+
+    auto result = translator.translate_pop_static(filename, i);
+    ASSERT_THAT(result, Eq(expected_result));
+}
+
+TEST_F(VMTranslator, UpdatesStackAFterPopToStaticSegment) {
+    auto instructions = translator.translate_pop_static("test.vm", 5);
+    auto result = run_simulator(instructions, "popstatic.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
 TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
     uint16_t i = 3459;
 

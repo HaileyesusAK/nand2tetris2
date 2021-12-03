@@ -199,6 +199,8 @@ InstList VmTranslator::translate_push_constant(uint16_t idx) {
 }
 
 InstList VmTranslator::translate_push(const std::string& segment, uint16_t idx) {
+    if(segment == "constant")
+         return translate_push_constant(idx);
     if(segment == "static")
          return translate_push_static(file_name, idx);
     else

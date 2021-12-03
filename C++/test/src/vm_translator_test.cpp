@@ -231,6 +231,12 @@ TEST_F(VMTranslator, TranslatesFileWithPushFromStaticSegment) {
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+TEST_F(VMTranslator, TranslatesFileWithPopToStaticSegment) {
+    translator.translate(EXPECTED_DATA_DIR / "popstatic.vm");
+    auto result = run_simulator("popstatic.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
 TEST_F(VMTranslator, TranslatesFileWithPushFromConstantSegment) {
     translator.translate(EXPECTED_DATA_DIR / "pushconstant.vm");
     auto result = run_simulator("pushconstant.asm");

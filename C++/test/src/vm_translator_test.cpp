@@ -219,6 +219,12 @@ TEST_F(VMTranslator, TranslatesFileWithPushFromPhysicalSegment) {
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+TEST_F(VMTranslator, TranslatesFileWithPopToPhysicalSegment) {
+    translator.translate(EXPECTED_DATA_DIR / "popargument.vm");
+    auto result = run_simulator("popargument.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
 TEST_F(VMTranslator, TranslatesFileWithPushFromStaticSegment) {
     translator.translate(EXPECTED_DATA_DIR / "pushstatic.vm");
     auto result = run_simulator("pushstatic.asm");

@@ -201,10 +201,17 @@ InstList VmTranslator::translate_push_constant(uint16_t idx) {
 InstList VmTranslator::translate_push(const std::string& segment, uint16_t idx) {
     if(segment == "constant")
          return translate_push_constant(idx);
-    if(segment == "static")
+    else if(segment == "static")
          return translate_push_static(file_name, idx);
     else
         return translate_push(segments.at(segment), idx);
+}
+
+InstList VmTranslator::translate_pop(const std::string& segment, uint16_t idx) {
+    if(segment == "static")
+         return translate_pop_static(file_name, idx);
+    else
+        return translate_pop(segments.at(segment), idx);
 }
 
 InstList VmTranslator::split_command(const std::string& vm_cmd) {
@@ -262,12 +269,14 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
             break;
 
             case 3: // Stack operations
-                if(vm_cmd.front() == "push") {
-                    auto idx = static_cast<uint16_t>(std::stoul(vm_cmd[2])); 
+            {
+                auto idx = static_cast<uint16_t>(std::stoul(vm_cmd[2])); 
+                if(vm_cmd.front() == "push")
                     asm_instructions = translate_push(vm_cmd[1], idx);
-                }
+                else
+                    asm_instructions = translate_pop(vm_cmd[1], idx);
+            }
             break;
-
         }
 
         std::copy(asm_instructions.begin(),

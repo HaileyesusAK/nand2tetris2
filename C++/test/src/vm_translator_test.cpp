@@ -20,8 +20,8 @@ static const fs::path TOOLS_DIR = fs::path(TEST_DIR) / "tools";
 class VMTranslator : public Test {
     public:
         VmTranslator translator;
-        void append_push_D(std::vector<std::string>& instructions) {
-            const static std::vector<std::string> push_D_inst {
+        void append_push_D(InstList& instructions) {
+            const static InstList push_D_inst {
                 "@SP", "A=M", "M=D", "@SP", "M=M+1"
             };
 
@@ -54,7 +54,7 @@ class VMTranslator : public Test {
             return run_simulator(tst_path);
         }
 
-        std::pair<std::string, int> run_simulator(const std::vector<std::string>& asm_instructions,
+        std::pair<std::string, int> run_simulator(const InstList& asm_instructions,
                                                   const std::string& asm_file)
         {
             fs::path asm_path = EXPECTED_DATA_DIR / asm_file;
@@ -70,7 +70,7 @@ class VMTranslator : public Test {
 };
 
 TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
-    std::vector<std::string> expected_result {
+    InstList expected_result {
         "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "M=M-D"};
     auto result = translator.translate(BinaryAluOp::SUB);
     ASSERT_THAT(result, Eq(expected_result));
@@ -82,7 +82,7 @@ TEST_F(VMTranslator, UpdatesStackAfterBinaryArithmeticCommandTranslation) {
 }
 
 TEST_F(VMTranslator, TranslatesRelationalCommands) {
-    std::vector<std::string> expected_result {
+    InstList expected_result {
         "@SP", "AM=M-1", "D=M",
         "@SP", "A=M-1", "D=M-D", "M=-1",
         "@12", "D;JEQ", "@SP", "A=M-1", "M=0"
@@ -97,7 +97,7 @@ TEST_F(VMTranslator, UpdatesStackAfterRelationalCommandTranslation) {
 }
 
 TEST_F(VMTranslator, TranslatesUnaryAluCommands) {
-    std::vector<std::string> expected_result { "@SP", "A=M-1", "M=!M" };
+    InstList expected_result { "@SP", "A=M-1", "M=!M" };
     auto result = translator.translate(UnaryOp::NOT);
     ASSERT_THAT(result, Eq(expected_result));
 }
@@ -109,7 +109,7 @@ TEST_F(VMTranslator, UpdatesStackAfterUnaryAluCommandTranslation) {
 
 TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {
     uint16_t i = 1245;
-    std::vector<std::string> expected_result {
+    InstList expected_result {
         "@LCL", "D=M", "@" + std::to_string(i), "A=D+A", "D=M"
     };
     append_push_D(expected_result);
@@ -126,7 +126,7 @@ TEST_F(VMTranslator, UpdatesStackAfterPushingFromNamedSegment) {
 
 TEST_F(VMTranslator, TranslatesPopToNamedSegment) {
     uint16_t i = 5;
-    std::vector<std::string> expected_result {
+    InstList expected_result {
         "@" + std::to_string(i), "D=A", "@LCL", "M=D+M",
         "@SP", "AM=M-1", "D=M",
         "@LCL", "A=M", "M=D", "@" + std::to_string(i), "D=A", "@LCL", "M=M-D"
@@ -145,7 +145,7 @@ TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
     uint16_t i = 5;
     std::string filename {"pong.vm"};
 
-    std::vector<std::string> expected_result {
+    InstList expected_result {
         "@" + filename + "." + std::to_string(i),
         "D=M"
     };
@@ -164,7 +164,7 @@ TEST_F(VMTranslator, UpdatesStackAFterPushingFromStaticSegment) {
 TEST_F(VMTranslator, TranslatesPopToStaticSegment) {
     uint16_t i = 5;
     std::string filename {"test.vm"};
-    std::vector<std::string> expected_result {
+    InstList expected_result {
         "@SP", "AM=M-1", "D=M",
         "@" + filename + "." + std::to_string(i),
         "M=D"
@@ -183,7 +183,7 @@ TEST_F(VMTranslator, UpdatesStackAFterPopToStaticSegment) {
 TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
     uint16_t i = 3459;
 
-    std::vector<std::string> expected_result { "@" + std::to_string(i), "D=A"};
+    InstList expected_result { "@" + std::to_string(i), "D=A"};
     append_push_D(expected_result);
     auto result = translator.translate_push_constant(i);
     ASSERT_THAT(result, Eq(expected_result));

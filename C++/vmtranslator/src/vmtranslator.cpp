@@ -6,8 +6,8 @@
 #include <vector>
 #include "vmtranslator.h"
 
-std::vector<std::string> VmTranslator::translate(const BinaryAluOp& op) {
-    std::vector<std::string> inst {"@SP", "AM=M-1", "D=M", "@SP", "A=M-1"};
+InstList VmTranslator::translate(const BinaryAluOp& op) {
+    InstList inst {"@SP", "AM=M-1", "D=M", "@SP", "A=M-1"};
 
     switch(op) {
         case BinaryAluOp::ADD: inst.push_back("M=M+D"); break;
@@ -19,8 +19,8 @@ std::vector<std::string> VmTranslator::translate(const BinaryAluOp& op) {
     return inst;
 }
 
-std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
-    std::vector<std::string> inst { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D"};
+InstList VmTranslator::translate(const RelOp& op, uint16_t pc) {
+    InstList inst { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D"};
     inst.push_back("M=-1");     //Assume the arguments are equal
 
     // the next instruction address to execute immediately if the arguments are not equal
@@ -40,8 +40,8 @@ std::vector<std::string> VmTranslator::translate(const RelOp& op, uint16_t pc) {
     return inst;
 }
 
-std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
-    std::vector<std::string> inst { "@SP", "A=M-1" };
+InstList VmTranslator::translate(const UnaryOp& op) {
+    InstList inst { "@SP", "A=M-1" };
     if(op == UnaryOp::NEG)
         inst.push_back("M=-M");
     else
@@ -51,44 +51,44 @@ std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
 }
 
 
-std::vector<std::string> VmTranslator::translate_and() {
+InstList VmTranslator::translate_and() {
     return translate(BinaryAluOp::AND);
 }
 
-std::vector<std::string> VmTranslator::translate_or() {
+InstList VmTranslator::translate_or() {
     return translate(BinaryAluOp::OR);
 }
 
-std::vector<std::string> VmTranslator::translate_add() {
+InstList VmTranslator::translate_add() {
     return translate(BinaryAluOp::ADD);
 }
 
-std::vector<std::string> VmTranslator::translate_sub() {
+InstList VmTranslator::translate_sub() {
     return translate(BinaryAluOp::SUB);
 }
 
-std::vector<std::string> VmTranslator::translate_eq() {
+InstList VmTranslator::translate_eq() {
     return translate(RelOp::EQ, program_counter); 
 }
 
-std::vector<std::string> VmTranslator::translate_lt() {
+InstList VmTranslator::translate_lt() {
     return translate(RelOp::LT, program_counter); 
 }
 
-std::vector<std::string> VmTranslator::translate_gt() {
+InstList VmTranslator::translate_gt() {
     return translate(RelOp::GT, program_counter); 
 }
 
-std::vector<std::string> VmTranslator::translate_not() {
+InstList VmTranslator::translate_not() {
     return translate(UnaryOp::NOT);
 }
 
-std::vector<std::string> VmTranslator::translate_neg() {
+InstList VmTranslator::translate_neg() {
     return translate(UnaryOp::NEG);
 }
 
-void VmTranslator::append_push_D(std::vector<std::string>& instructions) {
-    const static std::vector<std::string> push_D_instructions {
+void VmTranslator::append_push_D(InstList& instructions) {
+    const static InstList push_D_instructions {
         "@SP", "A=M", "M=D", "@SP", "M=M+1"
     };
 
@@ -96,8 +96,8 @@ void VmTranslator::append_push_D(std::vector<std::string>& instructions) {
         instructions.push_back(inst);
 }
 
-void VmTranslator::append_pop_D(std::vector<std::string>& instructions) {
-    const static std::vector<std::string> push_D_instructions {
+void VmTranslator::append_pop_D(InstList& instructions) {
+    const static InstList push_D_instructions {
         "@SP", "AM=M-1", "D=M"
     };
 
@@ -105,7 +105,7 @@ void VmTranslator::append_pop_D(std::vector<std::string>& instructions) {
         instructions.push_back(inst);
 }
 
-std::vector<std::string> VmTranslator::translate_push(const Segment& segment, uint16_t idx) {
+InstList VmTranslator::translate_push(const Segment& segment, uint16_t idx) {
     const static std::unordered_map<Segment, std::string> segments {
         {Segment::ARG, "@ARG"},
         {Segment::LCL, "@LCL"},
@@ -115,7 +115,7 @@ std::vector<std::string> VmTranslator::translate_push(const Segment& segment, ui
         {Segment::TEMP, "@R5"}
     };
 
-    std::vector<std::string> instructions {
+    InstList instructions {
         // Put the ith element from the segment in D
         segments.at(segment),
         "D=M",
@@ -128,7 +128,7 @@ std::vector<std::string> VmTranslator::translate_push(const Segment& segment, ui
     return instructions;
 }
 
-std::vector<std::string> VmTranslator::translate_pop(const Segment& segment, uint16_t idx) {
+InstList VmTranslator::translate_pop(const Segment& segment, uint16_t idx) {
     const static std::unordered_map<Segment, std::string> segments {
         {Segment::ARG, "@ARG"},
         {Segment::LCL, "@LCL"},
@@ -139,7 +139,7 @@ std::vector<std::string> VmTranslator::translate_pop(const Segment& segment, uin
     };
 
     // Move the segment's base pointer to the address of the ith element
-    std::vector<std::string> instructions {
+    InstList instructions {
         "@" + std::to_string(idx),
         "D=A",
         segments.at(segment),
@@ -161,8 +161,8 @@ std::vector<std::string> VmTranslator::translate_pop(const Segment& segment, uin
     return instructions;
 }
 
-std::vector<std::string> VmTranslator::translate_push_static(const std::string& file_name,  uint16_t idx) {
-    std::vector<std::string> instructions {
+InstList VmTranslator::translate_push_static(const std::string& file_name,  uint16_t idx) {
+    InstList instructions {
         "@" + file_name + "." + std::to_string(idx),
         "D=M"
     };
@@ -171,8 +171,8 @@ std::vector<std::string> VmTranslator::translate_push_static(const std::string& 
     return instructions;
 }
 
-std::vector<std::string> VmTranslator::translate_pop_static(const std::string& file_name,  uint16_t idx) {
-    std::vector<std::string> instructions;
+InstList VmTranslator::translate_pop_static(const std::string& file_name,  uint16_t idx) {
+    InstList instructions;
 
     append_pop_D(instructions);
     instructions.push_back("@" + file_name + "." + std::to_string(idx));
@@ -181,21 +181,21 @@ std::vector<std::string> VmTranslator::translate_pop_static(const std::string& f
     return instructions;
 }
 
-std::vector<std::string> VmTranslator::translate_push_constant(uint16_t idx) {
-    std::vector<std::string> instructions { "@" + std::to_string(idx), "D=A" };
+InstList VmTranslator::translate_push_constant(uint16_t idx) {
+    InstList instructions { "@" + std::to_string(idx), "D=A" };
     append_push_D(instructions);
 
     return instructions;
 }
 
-std::vector<std::string> VmTranslator::split_command(const std::string& vm_cmd) {
+InstList VmTranslator::split_command(const std::string& vm_cmd) {
     static std::string segments {"argument|local|this|that|temp|pointer|static"};
     static std::string push_pattern {R"((push)\s+(constant|)" + segments + R"()\s+(\d+))"};
     static std::string pop_pattern {R"((pop)\s+()" + segments + R"()\s+(\d+))"};
     static std::string alu_pattern {"(add|sub|and|or|lt|eq|gt|not|neg)"};
     static std::regex cmd_regex {push_pattern + "|" + pop_pattern + "|" + alu_pattern};
 
-    std::vector<std::string> cmd_parts;
+    InstList cmd_parts;
 
     std::smatch matches;
     if(std::regex_match(vm_cmd, matches, cmd_regex))
@@ -210,7 +210,7 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
     if(!fs::exists(vm_file_path))
         throw std::runtime_error("Input file doesn't exist");
 
-    std::unordered_map<std::string, std::vector<std::string> (VmTranslator::*)()> alu_translators {
+    std::unordered_map<std::string, InstList (VmTranslator::*)()> alu_translators {
         {"add", &VmTranslator::translate_add},
         {"sub", &VmTranslator::translate_sub},
         {"and", &VmTranslator::translate_and},
@@ -232,7 +232,7 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
     while(!ifs.eof()) {
         getline(ifs, line);
 
-        std::vector<std::string> vm_cmd = split_command(line);
+        InstList vm_cmd = split_command(line);
         if(vm_cmd.size() == 1) {
             auto translator = alu_translators.at(vm_cmd[0]);
             auto instructions = (this->*translator)();

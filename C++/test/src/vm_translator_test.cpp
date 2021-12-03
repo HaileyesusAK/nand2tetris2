@@ -29,22 +29,9 @@ class VMTranslator : public Test {
                 instructions.push_back(inst);
         }
 
-        std::pair<std::string, int> run_simulator(const std::vector<std::string>& asm_instructions,
-                                                  const std::string& asm_file)
-        {
-            fs::path asm_path = EXPECTED_DATA_DIR / asm_file;
-            std::ofstream ofs {asm_path};
-            for(const auto& inst : asm_instructions)
-                ofs << inst << std::endl;
-
-            fs::path tst_path = asm_path;
-            tst_path.replace_extension(".tst");
-
-            fs::path cmp_path = asm_path;
-            cmp_path.replace_extension(".cmp");
-
-            fs::path executable_path = TOOLS_DIR / "CPUEmulator.sh";
+        std::pair<std::string, int> run_simulator(const fs::path& tst_path) {
             std::ostringstream cmd_os;
+            fs::path executable_path = TOOLS_DIR / "CPUEmulator.sh";
             cmd_os << executable_path << " " << tst_path << " 2>&1";
 
             std::array<char, 128> buffer;
@@ -58,7 +45,28 @@ class VMTranslator : public Test {
             }
 
             return std::make_pair(result, pclose(pipe));
+
         }
+
+        std::pair<std::string, int> run_simulator(const char* asm_file) {
+            fs::path tst_path = EXPECTED_DATA_DIR / asm_file;
+            tst_path.replace_extension(".tst");
+            return run_simulator(tst_path);
+        }
+
+        std::pair<std::string, int> run_simulator(const std::vector<std::string>& asm_instructions,
+                                                  const std::string& asm_file)
+        {
+            fs::path asm_path = EXPECTED_DATA_DIR / asm_file;
+            std::ofstream ofs {asm_path};
+            for(const auto& inst : asm_instructions)
+                ofs << inst << std::endl;
+
+            fs::path tst_path = asm_path;
+            tst_path.replace_extension(".tst");
+            return run_simulator(tst_path);
+        }
+
 };
 
 TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
@@ -184,5 +192,11 @@ TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
 TEST_F(VMTranslator, UpdatesStackAFterPushingFromConstantSegment) {
     auto instructions = translator.translate_push_constant(5);
     auto result = run_simulator(instructions, "pushconstant.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
+TEST_F(VMTranslator, TranslatesFileWithBinaryAluCommands) {
+    translator.translate(EXPECTED_DATA_DIR / "sub.vm");
+    auto result = run_simulator("sub.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }

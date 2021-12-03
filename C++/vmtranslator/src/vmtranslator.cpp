@@ -1,3 +1,6 @@
+#include <filesystem>
+#include <fstream>
+#include <regex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -47,6 +50,21 @@ std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
     return inst;
 }
 
+std::vector<std::string> VmTranslator::translate_and() {
+    return translate(BinaryAluOp::AND);
+}
+
+std::vector<std::string> VmTranslator::translate_or() {
+    return translate(BinaryAluOp::OR);
+}
+
+std::vector<std::string> VmTranslator::translate_add() {
+    return translate(BinaryAluOp::ADD);
+}
+
+std::vector<std::string> VmTranslator::translate_sub() {
+    return translate(BinaryAluOp::SUB);
+}
 void VmTranslator::append_push_D(std::vector<std::string>& instructions) {
     const static std::vector<std::string> push_D_instructions {
         "@SP", "A=M", "M=D", "@SP", "M=M+1"
@@ -146,4 +164,53 @@ std::vector<std::string> VmTranslator::translate_push_constant(uint16_t idx) {
     append_push_D(instructions);
 
     return instructions;
+}
+
+std::vector<std::string> VmTranslator::split_command(const std::string& vm_cmd) {
+    static std::string segments {"argument|local|this|that|temp|pointer|static"};
+    static std::string push_pattern {R"((push)\s+(constant|)" + segments + R"()\s+(\d+))"};
+    static std::string pop_pattern {R"((pop)\s+()" + segments + R"()\s+(\d+))"};
+    static std::string alu_pattern {"(add|sub|and|or|lt|eq|gt|not|neg)"};
+    static std::regex cmd_regex {push_pattern + "|" + pop_pattern + "|" + alu_pattern};
+
+    std::vector<std::string> cmd_parts;
+
+    std::smatch matches;
+    if(std::regex_match(vm_cmd, matches, cmd_regex))
+        for(size_t i = 1; i < matches.size(); ++i)
+            if(matches[i].matched)
+                cmd_parts.push_back(matches[i].str());
+
+    return cmd_parts;
+}
+
+void VmTranslator::translate(const fs::path& vm_file_path) {
+    std::unordered_map<std::string, std::vector<std::string> (VmTranslator::*)()> alu_translators {
+        {"add", &VmTranslator::translate_add},
+        {"sub", &VmTranslator::translate_sub},
+        {"and", &VmTranslator::translate_and},
+        {"or", &VmTranslator::translate_or}
+    };
+
+    auto asm_file_path = vm_file_path;
+    asm_file_path.replace_extension(".asm");
+
+    std::ifstream ifs {vm_file_path};
+    std::ofstream ofs {asm_file_path};
+
+    std::string line;
+    while(!ifs.eof()) {
+        getline(ifs, line);
+
+        std::vector<std::string> vm_cmd = split_command(line);
+        if(vm_cmd.size() == 1) {
+            auto translator = alu_translators.at(vm_cmd[0]);
+            auto instructions = (this->*translator)();
+            std::copy(instructions.begin(),
+                      instructions.end(),
+                      std::ostream_iterator<std::string>(ofs, "\n"));
+
+            program_counter += instructions.size();
+        }
+    }
 }

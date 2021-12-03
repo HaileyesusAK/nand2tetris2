@@ -39,6 +39,7 @@ class VmTranslator {
         InstList translate_lt();
         InstList translate_not();
         InstList translate_neg();
+        InstList translate_push(const std::string& segment, uint16_t idx);
 };
 
 #endif

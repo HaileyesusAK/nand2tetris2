@@ -212,3 +212,9 @@ TEST_F(VMTranslator, TranslatesFileUnaryAluCommands) {
     auto result = run_simulator("not.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
+
+TEST_F(VMTranslator, TranslatesFileWithPushFromPhysicalSegment) {
+    translator.translate(EXPECTED_DATA_DIR / "pushargument.vm");
+    auto result = run_simulator("pushargument.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}

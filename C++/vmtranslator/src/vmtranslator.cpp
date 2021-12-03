@@ -6,6 +6,16 @@
 #include <vector>
 #include "vmtranslator.h"
 
+
+static const std::unordered_map<std::string, Segment> segments {
+    {"argument", Segment::ARG},
+    {"local", Segment::LCL},
+    {"this", Segment::THIS},
+    {"that", Segment::THAT},
+    {"pointer", Segment::POINTER},
+    {"temp", Segment::TEMP}
+};
+
 InstList VmTranslator::translate(const BinaryAluOp& op) {
     InstList inst {"@SP", "AM=M-1", "D=M", "@SP", "A=M-1"};
 
@@ -188,6 +198,10 @@ InstList VmTranslator::translate_push_constant(uint16_t idx) {
     return instructions;
 }
 
+InstList VmTranslator::translate_push(const std::string& segment, uint16_t idx) {
+	return translate_push(segments.at(segment), idx);
+}
+
 InstList VmTranslator::split_command(const std::string& vm_cmd) {
     static std::string segments {"argument|local|this|that|temp|pointer|static"};
     static std::string push_pattern {R"((push)\s+(constant|)" + segments + R"()\s+(\d+))"};
@@ -229,18 +243,30 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
     std::ofstream ofs {asm_file_path};
 
     std::string line;
+    InstList asm_instructions;
     while(!ifs.eof()) {
         getline(ifs, line);
+        if(line.empty())
+            continue;
 
-        InstList vm_cmd = split_command(line);
-        if(vm_cmd.size() == 1) {
-            auto translator = alu_translators.at(vm_cmd[0]);
-            auto instructions = (this->*translator)();
-            std::copy(instructions.begin(),
-                      instructions.end(),
-                      std::ostream_iterator<std::string>(ofs, "\n"));
+        std::vector<std::string> vm_cmd = split_command(line);
+        switch(vm_cmd.size()) {
+            case 1: // ALU commands
+                asm_instructions = (this->*alu_translators.at(vm_cmd[0]))();
+            break;
 
-            program_counter += instructions.size();
+            case 3: // Stack operations
+                if(vm_cmd.front() == "push") {
+                    auto idx = static_cast<uint16_t>(std::stoul(vm_cmd[2])); 
+                    asm_instructions = translate_push(vm_cmd[1], idx);
+                }
+            break;
+
         }
+
+        std::copy(asm_instructions.begin(),
+                  asm_instructions.end(),
+                  std::ostream_iterator<std::string>(ofs, "\n"));
+        program_counter += asm_instructions.size();
     }
 }

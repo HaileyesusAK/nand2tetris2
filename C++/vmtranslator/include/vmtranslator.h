@@ -33,6 +33,9 @@ class VmTranslator {
         std::vector<std::string> translate_or();
         std::vector<std::string> translate_sub();
         std::vector<std::string> translate_add();
+        std::vector<std::string> translate_eq();
+        std::vector<std::string> translate_gt();
+        std::vector<std::string> translate_lt();
 };
 
 #endif

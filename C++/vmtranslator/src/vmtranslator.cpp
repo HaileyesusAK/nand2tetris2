@@ -50,6 +50,7 @@ std::vector<std::string> VmTranslator::translate(const UnaryOp& op) {
     return inst;
 }
 
+
 std::vector<std::string> VmTranslator::translate_and() {
     return translate(BinaryAluOp::AND);
 }
@@ -64,6 +65,18 @@ std::vector<std::string> VmTranslator::translate_add() {
 
 std::vector<std::string> VmTranslator::translate_sub() {
     return translate(BinaryAluOp::SUB);
+}
+
+std::vector<std::string> VmTranslator::translate_eq() {
+    return translate(RelOp::EQ, program_counter); 
+}
+
+std::vector<std::string> VmTranslator::translate_lt() {
+    return translate(RelOp::LT, program_counter); 
+}
+
+std::vector<std::string> VmTranslator::translate_gt() {
+    return translate(RelOp::GT, program_counter); 
 }
 void VmTranslator::append_push_D(std::vector<std::string>& instructions) {
     const static std::vector<std::string> push_D_instructions {
@@ -185,11 +198,17 @@ std::vector<std::string> VmTranslator::split_command(const std::string& vm_cmd) 
 }
 
 void VmTranslator::translate(const fs::path& vm_file_path) {
+    if(!fs::exists(vm_file_path))
+        throw std::runtime_error("Input file doesn't exist");
+
     std::unordered_map<std::string, std::vector<std::string> (VmTranslator::*)()> alu_translators {
         {"add", &VmTranslator::translate_add},
         {"sub", &VmTranslator::translate_sub},
         {"and", &VmTranslator::translate_and},
-        {"or", &VmTranslator::translate_or}
+        {"or", &VmTranslator::translate_or},
+        {"eq", &VmTranslator::translate_eq},
+        {"lt", &VmTranslator::translate_lt},
+        {"gt", &VmTranslator::translate_gt}
     };
 
     auto asm_file_path = vm_file_path;

@@ -199,7 +199,10 @@ InstList VmTranslator::translate_push_constant(uint16_t idx) {
 }
 
 InstList VmTranslator::translate_push(const std::string& segment, uint16_t idx) {
-	return translate_push(segments.at(segment), idx);
+    if(segment == "static")
+         return translate_push_static(file_name, idx);
+    else
+        return translate_push(segments.at(segment), idx);
 }
 
 InstList VmTranslator::split_command(const std::string& vm_cmd) {
@@ -236,6 +239,7 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
         {"neg", &VmTranslator::translate_neg}
     };
 
+    file_name = vm_file_path.filename();
     auto asm_file_path = vm_file_path;
     asm_file_path.replace_extension(".asm");
 

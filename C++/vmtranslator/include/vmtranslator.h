@@ -26,6 +26,7 @@ class VmTranslator {
 
     private:
         uint16_t program_counter;
+        std::string file_name;
 
         void append_push_D(InstList& instructions);
         void append_pop_D(InstList& instructions);

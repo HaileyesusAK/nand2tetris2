@@ -206,3 +206,9 @@ TEST_F(VMTranslator, TranslatesFileWithRelationalCommands) {
     auto result = run_simulator("eq.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
+
+TEST_F(VMTranslator, TranslatesFileUnaryAluCommands) {
+    translator.translate(EXPECTED_DATA_DIR / "not.vm");
+    auto result = run_simulator("not.asm");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}

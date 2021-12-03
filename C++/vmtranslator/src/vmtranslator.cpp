@@ -78,6 +78,15 @@ std::vector<std::string> VmTranslator::translate_lt() {
 std::vector<std::string> VmTranslator::translate_gt() {
     return translate(RelOp::GT, program_counter); 
 }
+
+std::vector<std::string> VmTranslator::translate_not() {
+    return translate(UnaryOp::NOT);
+}
+
+std::vector<std::string> VmTranslator::translate_neg() {
+    return translate(UnaryOp::NEG);
+}
+
 void VmTranslator::append_push_D(std::vector<std::string>& instructions) {
     const static std::vector<std::string> push_D_instructions {
         "@SP", "A=M", "M=D", "@SP", "M=M+1"
@@ -208,7 +217,9 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
         {"or", &VmTranslator::translate_or},
         {"eq", &VmTranslator::translate_eq},
         {"lt", &VmTranslator::translate_lt},
-        {"gt", &VmTranslator::translate_gt}
+        {"gt", &VmTranslator::translate_gt},
+        {"not", &VmTranslator::translate_not},
+        {"neg", &VmTranslator::translate_neg}
     };
 
     auto asm_file_path = vm_file_path;

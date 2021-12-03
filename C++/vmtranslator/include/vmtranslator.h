@@ -21,7 +21,7 @@ class VmTranslator {
         std::vector<std::string> translate_push_static(const std::string& file_name,  uint16_t idx);
         std::vector<std::string> translate_pop_static(const std::string& file_name,  uint16_t idx);
         std::vector<std::string> translate_push_constant(uint16_t idx);
-		void translate(const std::filesystem::path& vm_file_path);
+        void translate(const std::filesystem::path& vm_file_path);
 
     private:
         uint16_t program_counter;
@@ -36,6 +36,8 @@ class VmTranslator {
         std::vector<std::string> translate_eq();
         std::vector<std::string> translate_gt();
         std::vector<std::string> translate_lt();
+        std::vector<std::string> translate_not();
+        std::vector<std::string> translate_neg();
 };
 
 #endif

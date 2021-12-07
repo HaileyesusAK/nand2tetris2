@@ -1,20 +1,74 @@
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <regex>
+#include <set>
+#include <sstream>
 #include <string>
+#include <stdexcept>
 #include <unordered_map>
+#include <variant>
 #include <vector>
+
 #include "vmtranslator.h"
 
 
-static const std::unordered_map<std::string, Segment> segments {
-    {"argument", Segment::ARG},
-    {"local", Segment::LCL},
-    {"this", Segment::THIS},
-    {"that", Segment::THAT},
-    {"pointer", Segment::POINTER},
-    {"temp", Segment::TEMP}
+using namespace std::placeholders;
+
+using BinaryAluTranslatorType = InstList (VmTranslator::*)(const BinaryAluOp&);
+auto sub_translator = std::bind((BinaryAluTranslatorType)(&VmTranslator::translate), _1, BinaryAluOp::SUB);
+auto add_translator = std::bind((BinaryAluTranslatorType)(&VmTranslator::translate), _1, BinaryAluOp::ADD);
+auto and_translator = std::bind((BinaryAluTranslatorType)(&VmTranslator::translate), _1, BinaryAluOp::AND);
+auto or_translator = std::bind((BinaryAluTranslatorType)(&VmTranslator::translate), _1, BinaryAluOp::OR);
+
+using RelAluTranslatorType = InstList (VmTranslator::*)(const RelOp&);
+auto lt_translator = std::bind((RelAluTranslatorType)(&VmTranslator::translate), _1, RelOp::LT);
+auto eq_translator = std::bind((RelAluTranslatorType)(&VmTranslator::translate), _1, RelOp::EQ);
+auto gt_translator = std::bind((RelAluTranslatorType)(&VmTranslator::translate), _1, RelOp::GT);
+
+using UnaryAluTranslatorType = InstList (VmTranslator::*)(const UnaryOp&);
+auto not_translator = std::bind((UnaryAluTranslatorType)(&VmTranslator::translate), _1, UnaryOp::NOT);
+auto neg_translator = std::bind((UnaryAluTranslatorType)(&VmTranslator::translate), _1, UnaryOp::NEG);
+
+using NoParamTranslator = InstList (VmTranslator::*)();
+using DoubleParamTranslator = InstList (VmTranslator::*)(const std::string&, uint16_t);
+
+using Translator = std::variant<NoParamTranslator,
+							    DoubleParamTranslator,
+								decltype(sub_translator),
+								decltype(lt_translator),
+								decltype(not_translator)>;
+
+struct TranslatorVisitor {
+    VmTranslator* translator_ptr;
+
+    TranslatorVisitor(VmTranslator* obj_ptr) : translator_ptr(obj_ptr) {}
+
+    InstList operator()(NoParamTranslator f) {
+        return (translator_ptr->*f)();
+    }
+
+    InstList operator()(DoubleParamTranslator f) {
+        return (translator_ptr->*f)(translator_ptr->current_command.arg1,
+									translator_ptr->current_command.arg2);
+    }
+	
+    InstList operator()(decltype(sub_translator) f) {
+        return f(translator_ptr);
+	}
+
+    InstList operator()(decltype(lt_translator) f) {
+        return f(translator_ptr);
+	}
+
+    InstList operator()(decltype(not_translator) f) {
+        return f(translator_ptr);
+	}
 };
+
+void VmTranslator::set_filename(const std::string& filename) {
+	file_name = filename;
+}
 
 InstList VmTranslator::translate(const BinaryAluOp& op) {
     InstList inst {"@SP", "AM=M-1", "D=M", "@SP", "A=M-1"};
@@ -29,12 +83,12 @@ InstList VmTranslator::translate(const BinaryAluOp& op) {
     return inst;
 }
 
-InstList VmTranslator::translate(const RelOp& op, uint16_t pc) {
+InstList VmTranslator::translate(const RelOp& op) {
     InstList inst { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D"};
     inst.push_back("M=-1");     //Assume the arguments are equal
 
     // the next instruction address to execute immediately if the arguments are not equal
-    pc += inst.size() + 5;
+    uint16_t pc = program_counter + inst.size() + 5;
     inst.push_back("@" + std::to_string(pc));
 
     switch(op) {
@@ -60,43 +114,6 @@ InstList VmTranslator::translate(const UnaryOp& op) {
     return inst;
 }
 
-
-InstList VmTranslator::translate_and() {
-    return translate(BinaryAluOp::AND);
-}
-
-InstList VmTranslator::translate_or() {
-    return translate(BinaryAluOp::OR);
-}
-
-InstList VmTranslator::translate_add() {
-    return translate(BinaryAluOp::ADD);
-}
-
-InstList VmTranslator::translate_sub() {
-    return translate(BinaryAluOp::SUB);
-}
-
-InstList VmTranslator::translate_eq() {
-    return translate(RelOp::EQ, program_counter); 
-}
-
-InstList VmTranslator::translate_lt() {
-    return translate(RelOp::LT, program_counter); 
-}
-
-InstList VmTranslator::translate_gt() {
-    return translate(RelOp::GT, program_counter); 
-}
-
-InstList VmTranslator::translate_not() {
-    return translate(UnaryOp::NOT);
-}
-
-InstList VmTranslator::translate_neg() {
-    return translate(UnaryOp::NEG);
-}
-
 void VmTranslator::append_push_D(InstList& instructions) {
     const static InstList push_D_instructions {
         "@SP", "A=M", "M=D", "@SP", "M=M+1"
@@ -115,137 +132,174 @@ void VmTranslator::append_pop_D(InstList& instructions) {
         instructions.push_back(inst);
 }
 
-InstList VmTranslator::translate_push(const Segment& segment, uint16_t idx) {
-    const static std::unordered_map<Segment, std::string> segments {
-        {Segment::ARG, "@ARG"},
-        {Segment::LCL, "@LCL"},
-        {Segment::THIS, "@THIS"},
-        {Segment::THAT, "@THAT"},
-        {Segment::POINTER, "@R3"},
-        {Segment::TEMP, "@R5"}
+InstList VmTranslator::translate_push(const PushableSegment& segment, uint16_t idx) {
+    const static std::unordered_map<PushableSegment, std::string> aliases {
+        {PushableSegment::ARG, "ARG"},
+        {PushableSegment::LCL, "LCL"},
+        {PushableSegment::THIS, "THIS"},
+        {PushableSegment::THAT, "THAT"},
+        {PushableSegment::POINTER, "R3"},
+        {PushableSegment::TEMP, "R5"},
+        {PushableSegment::STATIC, ""},	// Static and Constant segment do not have alias symbols
+        {PushableSegment::CONSTANT, ""}
     };
 
-    InstList instructions {
-        // Put the ith element from the segment in D
-        segments.at(segment),
-        "D=M",
-        "@" + std::to_string(idx),
-        "A=D+A",
-        "D=M"
-    };
-    append_push_D(instructions);
-
-    return instructions;
-}
-
-InstList VmTranslator::translate_pop(const Segment& segment, uint16_t idx) {
-    const static std::unordered_map<Segment, std::string> segments {
-        {Segment::ARG, "@ARG"},
-        {Segment::LCL, "@LCL"},
-        {Segment::THIS, "@THIS"},
-        {Segment::THAT, "@THAT"},
-        {Segment::POINTER, "@R3"},
-        {Segment::TEMP, "@R5"}
-    };
-
-    // Move the segment's base pointer to the address of the ith element
-    InstList instructions {
-        "@" + std::to_string(idx),
-        "D=A",
-        segments.at(segment),
-        "M=D+M"
-    };
-
-    // Push D onto to the ith element
-    append_pop_D(instructions);
-    instructions.push_back(segments.at(segment));
-    instructions.push_back("A=M");
-    instructions.push_back("M=D");
-
-    // Move the segment's base pointer to the start of the segment
-    instructions.push_back("@" + std::to_string(idx));
-    instructions.push_back("D=A");
-    instructions.push_back(segments.at(segment));
-    instructions.push_back("M=M-D");
-
-    return instructions;
-}
-
-InstList VmTranslator::translate_push_static(const std::string& file_name,  uint16_t idx) {
-    InstList instructions {
-        "@" + file_name + "." + std::to_string(idx),
-        "D=M"
-    };
-    append_push_D(instructions);
-
-    return instructions;
-}
-
-InstList VmTranslator::translate_pop_static(const std::string& file_name,  uint16_t idx) {
     InstList instructions;
+	switch(segment) {
+		case PushableSegment::STATIC:
+			instructions.push_back("@" + file_name + "." + std::to_string(idx));
+			instructions.push_back("D=M");
+		break;
 
-    append_pop_D(instructions);
-    instructions.push_back("@" + file_name + "." + std::to_string(idx));
-    instructions.push_back("M=D");
+		case PushableSegment::CONSTANT:
+			instructions.push_back("@" + std::to_string(idx));
+			instructions.push_back("D=A");
+		break;
+		
+		default:
+			// Put the ith element from the segment in D
+			instructions.push_back(	"@" + aliases.at(segment));
+			instructions.push_back("D=M");
+			instructions.push_back("@" + std::to_string(idx));
+			instructions.push_back("A=D+A");
+			instructions.push_back("D=M");
+		break;
+	}
+
+    append_push_D(instructions);
 
     return instructions;
 }
 
-InstList VmTranslator::translate_push_constant(uint16_t idx) {
-    InstList instructions { "@" + std::to_string(idx), "D=A" };
-    append_push_D(instructions);
+InstList VmTranslator::translate_pop(const PopableSegment& segment, uint16_t idx) {
+    const static std::unordered_map<PopableSegment, std::string> aliases {
+        {PopableSegment::ARG, "ARG"},
+        {PopableSegment::LCL, "LCL"},
+        {PopableSegment::THIS, "THIS"},
+        {PopableSegment::THAT, "THAT"},
+        {PopableSegment::POINTER, "R3"},
+        {PopableSegment::TEMP, "R5"},
+        {PopableSegment::STATIC, ""}	// Static segment does not have alias symbol
+    };
+
+	InstList instructions;
+
+	if(segment == PopableSegment::STATIC) {
+		append_pop_D(instructions);
+		instructions.push_back("@" + file_name + "." + std::to_string(idx));
+		instructions.push_back("M=D");
+	}
+	else {
+		// Move the segment's base pointer to the address of the ith element
+		instructions.push_back("@" + std::to_string(idx));
+		instructions.push_back("D=A");
+		instructions.push_back("@" + aliases.at(segment));
+		instructions.push_back("M=D+M");
+
+		// Push D onto to the ith element
+		append_pop_D(instructions);
+		instructions.push_back("@" + aliases.at(segment));
+		instructions.push_back("A=M");
+		instructions.push_back("M=D");
+
+		// Move the segment's base pointer to the start of the segment
+		instructions.push_back("@" + std::to_string(idx));
+		instructions.push_back("D=A");
+		instructions.push_back("@" + aliases.at(segment));
+		instructions.push_back("M=M-D");
+	}
 
     return instructions;
 }
 
 InstList VmTranslator::translate_push(const std::string& segment, uint16_t idx) {
-    if(segment == "constant")
-         return translate_push_constant(idx);
-    else if(segment == "static")
-         return translate_push_static(file_name, idx);
-    else
-        return translate_push(segments.at(segment), idx);
+	const static std::unordered_map<std::string, PushableSegment> segments {
+		{"constant", PushableSegment::CONSTANT},
+		{"static", PushableSegment::STATIC},
+		{"local", PushableSegment::LCL},
+		{"argument", PushableSegment::ARG},
+		{"this", PushableSegment::THIS},
+		{"that", PushableSegment::THAT},
+		{"temp", PushableSegment::TEMP},
+		{"pointer", PushableSegment::POINTER}
+	};
+
+	return translate_push(segments.at(segment), idx);
 }
 
 InstList VmTranslator::translate_pop(const std::string& segment, uint16_t idx) {
-    if(segment == "static")
-         return translate_pop_static(file_name, idx);
-    else
-        return translate_pop(segments.at(segment), idx);
+	const static std::unordered_map<std::string, PopableSegment> segments {
+		{"static", PopableSegment::STATIC},
+		{"local", PopableSegment::LCL},
+		{"argument", PopableSegment::ARG},
+		{"this", PopableSegment::THIS},
+		{"that", PopableSegment::THAT},
+		{"temp", PopableSegment::TEMP},
+		{"pointer", PopableSegment::POINTER}
+	};
+
+	return translate_pop(segments.at(segment), idx);
 }
 
-InstList VmTranslator::split_command(const std::string& vm_cmd) {
-    static std::string segments {"argument|local|this|that|temp|pointer|static"};
-    static std::string push_pattern {R"((push)\s+(constant|)" + segments + R"()\s+(\d+))"};
-    static std::string pop_pattern {R"((pop)\s+()" + segments + R"()\s+(\d+))"};
-    static std::string alu_pattern {"(add|sub|and|or|lt|eq|gt|not|neg)"};
-    static std::regex cmd_regex {push_pattern + "|" + pop_pattern + "|" + alu_pattern};
+bool VmTranslator::parse_command(const std::string& vm_cmd) {
+	const static std::set<std::string> commands {
+		"add", "sub", "and", "or", "eq", "lt", "gt", "not", "neg",
+		"push", "pop"
+	};
 
-    InstList cmd_parts;
+	const static std::set<std::string> segments {
+		"constant", "static", "local", "argument", "this", "that", "temp", "pointer"
+	};
 
-    std::smatch matches;
-    if(std::regex_match(vm_cmd, matches, cmd_regex))
-        for(size_t i = 1; i < matches.size(); ++i)
-            if(matches[i].matched)
-                cmd_parts.push_back(matches[i].str());
+	std::istringstream iss {vm_cmd};
+	std::string cmd;
+	std::string arg1;
+	uint16_t arg2;
 
-    return cmd_parts;
+	iss >> cmd;
+	if(!commands.count(cmd))
+		return false;
+
+	if(cmd == "push" || cmd == "pop") {
+		iss >> arg1;
+	
+		// the segment must be known
+		if(!segments.count(arg1))
+			return false;
+
+		// constant doesn't have a physical segment
+		if(cmd == "pop" && arg1 == "constant")
+			return false;
+
+		// attempt to read the index
+		iss >> arg2;
+		if(iss.fail())
+			return false;
+	}
+
+	current_command.cmd = cmd;
+	current_command.arg1 = arg1;
+	current_command.arg2 = arg2;
+	
+	return true;
 }
 
 void VmTranslator::translate(const fs::path& vm_file_path) {
     if(!fs::exists(vm_file_path))
         throw std::runtime_error("Input file doesn't exist");
 
-    std::unordered_map<std::string, InstList (VmTranslator::*)()> alu_translators {
-        {"add", &VmTranslator::translate_add},
-        {"sub", &VmTranslator::translate_sub},
-        {"and", &VmTranslator::translate_and},
-        {"or", &VmTranslator::translate_or},
-        {"eq", &VmTranslator::translate_eq},
-        {"lt", &VmTranslator::translate_lt},
-        {"gt", &VmTranslator::translate_gt},
-        {"not", &VmTranslator::translate_not},
-        {"neg", &VmTranslator::translate_neg}
+    static std::unordered_map<std::string, Translator> translators {
+        {"add", add_translator},
+        {"sub", sub_translator},
+        {"and", and_translator},
+        {"or", or_translator},
+        {"eq", eq_translator},
+        {"lt", lt_translator},
+        {"gt", gt_translator},
+        {"not", not_translator},
+        {"neg", neg_translator},
+		{"push", (DoubleParamTranslator)(&VmTranslator::translate_push)},
+		{"pop", (DoubleParamTranslator)(&VmTranslator::translate_pop)}
     };
 
     file_name = vm_file_path.filename();
@@ -257,27 +311,18 @@ void VmTranslator::translate(const fs::path& vm_file_path) {
 
     std::string line;
     InstList asm_instructions;
+
+	TranslatorVisitor visitor {this};
+
     while(!ifs.eof()) {
         getline(ifs, line);
         if(line.empty())
             continue;
 
-        std::vector<std::string> vm_cmd = split_command(line);
-        switch(vm_cmd.size()) {
-            case 1: // ALU commands
-                asm_instructions = (this->*alu_translators.at(vm_cmd[0]))();
-            break;
+		if(!parse_command(line))
+			throw std::runtime_error("Unknown command: " + line);
 
-            case 3: // Stack operations
-            {
-                auto idx = static_cast<uint16_t>(std::stoul(vm_cmd[2])); 
-                if(vm_cmd.front() == "push")
-                    asm_instructions = translate_push(vm_cmd[1], idx);
-                else
-                    asm_instructions = translate_pop(vm_cmd[1], idx);
-            }
-            break;
-        }
+		asm_instructions = std::visit(visitor, translators.at(current_command.cmd));
 
         std::copy(asm_instructions.begin(),
                   asm_instructions.end(),

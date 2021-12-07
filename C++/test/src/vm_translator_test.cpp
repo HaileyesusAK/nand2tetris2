@@ -87,12 +87,12 @@ TEST_F(VMTranslator, TranslatesRelationalCommands) {
         "@SP", "A=M-1", "D=M-D", "M=-1",
         "@12", "D;JEQ", "@SP", "A=M-1", "M=0"
     };
-    auto result = translator.translate(RelOp::EQ, 0);
+    auto result = translator.translate(RelOp::EQ);
     ASSERT_THAT(result, Eq(expected_result));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterRelationalCommandTranslation) {
-    auto result = run_simulator(translator.translate(RelOp::EQ, 0), "eq.asm");
+    auto result = run_simulator(translator.translate(RelOp::EQ), "eq.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
@@ -114,12 +114,12 @@ TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {
     };
     append_push_D(expected_result);
 
-    auto result = translator.translate_push(Segment::LCL, i);
+    auto result = translator.translate_push(PushableSegment::LCL, i);
     ASSERT_THAT(result, Eq(expected_result));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterPushingFromNamedSegment) {
-    auto instructions = translator.translate_push(Segment::ARG, 5);
+    auto instructions = translator.translate_push(PushableSegment::ARG, 5);
     auto result = run_simulator(instructions, "pushargument.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
@@ -131,12 +131,12 @@ TEST_F(VMTranslator, TranslatesPopToNamedSegment) {
         "@SP", "AM=M-1", "D=M",
         "@LCL", "A=M", "M=D", "@" + std::to_string(i), "D=A", "@LCL", "M=M-D"
     };
-    auto result = translator.translate_pop(Segment::LCL, i);
+    auto result = translator.translate_pop(PopableSegment::LCL, i);
     ASSERT_THAT(result, Eq(expected_result));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterPopToNamedSegment) {
-    auto instructions = translator.translate_pop(Segment::LCL, 5);
+    auto instructions = translator.translate_pop(PopableSegment::LCL, 5);
     auto result = run_simulator(instructions, "poplocal.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
@@ -150,13 +150,15 @@ TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
         "D=M"
     };
     append_push_D(expected_result);
-
-    auto result = translator.translate_push_static(filename, i);
+	translator.set_filename(filename);
+    auto result = translator.translate_push(PushableSegment::STATIC, i);
     ASSERT_THAT(result, Eq(expected_result));
 }
 
 TEST_F(VMTranslator, UpdatesStackAFterPushingFromStaticSegment) {
-    auto instructions = translator.translate_push_static("test.vm", 5);
+    std::string filename {"test.vm"};
+	translator.set_filename(filename);
+    auto instructions = translator.translate_push(PushableSegment::STATIC, 5);
     auto result = run_simulator(instructions, "pushstatic.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
@@ -170,12 +172,15 @@ TEST_F(VMTranslator, TranslatesPopToStaticSegment) {
         "M=D"
     };
 
-    auto result = translator.translate_pop_static(filename, i);
+	translator.set_filename(filename);
+    auto result = translator.translate_pop(PopableSegment::STATIC, i);
     ASSERT_THAT(result, Eq(expected_result));
 }
 
 TEST_F(VMTranslator, UpdatesStackAFterPopToStaticSegment) {
-    auto instructions = translator.translate_pop_static("test.vm", 5);
+    std::string filename {"test.vm"};
+	translator.set_filename(filename);
+    auto instructions = translator.translate_pop(PopableSegment::STATIC, 5);
     auto result = run_simulator(instructions, "popstatic.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
@@ -185,12 +190,12 @@ TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
 
     InstList expected_result { "@" + std::to_string(i), "D=A"};
     append_push_D(expected_result);
-    auto result = translator.translate_push_constant(i);
+    auto result = translator.translate_push(PushableSegment::CONSTANT, i);
     ASSERT_THAT(result, Eq(expected_result));
 }
 
 TEST_F(VMTranslator, UpdatesStackAFterPushingFromConstantSegment) {
-    auto instructions = translator.translate_push_constant(5);
+    auto instructions = translator.translate_push(PushableSegment::CONSTANT, 5);
     auto result = run_simulator(instructions, "pushconstant.asm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }

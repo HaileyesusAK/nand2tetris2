@@ -15,7 +15,7 @@ using namespace testing;
 namespace fs = std::filesystem;
 static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data";
 static const fs::path EXPECTED_DATA_DIR = DATA_DIR / "expected";
-static const fs::path TOOLS_DIR = fs::path(TEST_DIR) / "tools";
+static const fs::path TOOLS_DIR = fs::path(NT_SUITE);
 
 class VMTranslator : public Test {
     public:

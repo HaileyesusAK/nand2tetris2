@@ -1,6 +1,6 @@
 set(BINARY ${CMAKE_PROJECT_NAME})
 
-set(SOURCES assembler.cpp)
+set(SOURCES assembler.cpp instruction.cpp symbol_table.cpp)
 
 add_library(${BINARY} SHARED ${SOURCES})
 

@@ -11,5 +11,5 @@ int main(int argc, char* argv[]) {
     }
 
     Assembler assembler;
-    assembler.translate_file(argv[1]);
+    assembler.translate(argv[1]);
 }

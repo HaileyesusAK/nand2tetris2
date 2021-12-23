@@ -7,8 +7,6 @@
 #include <unordered_map>
 #include <utility>
 
-static const size_t WSIZE = 16;
-static const uint16_t VARIABLE_START_ADDRESS = 16;
 namespace fs = std::filesystem;
 enum class InstType {A, C, LABEL, BLANK, UNKNOWN};
 

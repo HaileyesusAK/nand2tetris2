@@ -11,6 +11,9 @@
 
 #include "assembler.h"
 
+constexpr size_t WSIZE = 16;
+constexpr uint16_t VARIABLE_START_ADDRESS = 16;
+
 static const std::regex valid_symbol_regex(R"([a-zA-Z_.$:][\w.$:]*)");
 
 Assembler::Assembler() {

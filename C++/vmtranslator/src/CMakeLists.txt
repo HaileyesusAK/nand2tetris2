@@ -16,6 +16,7 @@ set(SOURCES vmtranslator.cpp
             push.cpp
             pop.cpp
             push_static.cpp
-            pop_static.cpp)
+            pop_static.cpp
+            factory.cpp)
             
 add_library(${BINARY} SHARED ${SOURCES})

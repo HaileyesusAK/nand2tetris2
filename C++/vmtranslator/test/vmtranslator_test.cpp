@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <filesystem>
@@ -16,6 +17,7 @@ namespace fs = std::filesystem;
 static const fs::path DATA_DIR = fs::path(TEST_DIR) / "data";
 static const fs::path EXPECTED_DATA_DIR = DATA_DIR / "expected";
 static const fs::path TOOLS_DIR = fs::path(NT_SUITE);
+using InstList = std::vector<std::string>;
 
 class VMTranslator : public Test {
     public:
@@ -29,7 +31,15 @@ class VMTranslator : public Test {
                 instructions.push_back(inst);
         }
 
-        std::pair<std::string, int> run_simulator(const fs::path& tst_path) {
+        std::pair<std::string, int> run_simulator(const std::string& vm_file) {
+            fs::path vm_path = EXPECTED_DATA_DIR / vm_file;
+
+            VmTranslator translator;
+            translator.translate(vm_path);
+
+            fs::path tst_path = vm_path;
+            tst_path.replace_extension(".tst");
+
             std::ostringstream cmd_os;
             fs::path executable_path = TOOLS_DIR / "CPUEmulator.sh";
             cmd_os << executable_path << " " << tst_path << " 2>&1";
@@ -45,205 +55,147 @@ class VMTranslator : public Test {
             }
 
             return std::make_pair(result, pclose(pipe));
-
         }
 
-        std::pair<std::string, int> run_simulator(const char* asm_file) {
-            fs::path tst_path = EXPECTED_DATA_DIR / asm_file;
-            tst_path.replace_extension(".tst");
-            return run_simulator(tst_path);
+        std::string create_tmp_file(const std::vector<std::string>& content) {
+            auto tmpf = std::tmpfile();
+
+            //Linux-specific way of retrieving the file path
+            auto filepath = fs::read_symlink(fs::path("/proc/self/fd") / std::to_string(fileno(tmpf)));
+            std::ofstream ofs {filepath};
+            std::copy(content.begin(),
+                      content.end(),
+                      std::ostream_iterator<std::string>(ofs, "\n"));
+
+            return filepath;
         }
 
-        std::pair<std::string, int> run_simulator(const InstList& asm_instructions,
-                                                  const std::string& asm_file)
-        {
-            fs::path asm_path = EXPECTED_DATA_DIR / asm_file;
-            std::ofstream ofs {asm_path};
-            for(const auto& inst : asm_instructions)
-                ofs << inst << std::endl;
+        bool cmpFiles(const fs::path& p1, const fs::path& p2) {
+            std::ifstream file1(p1), file2(p2);
 
-            fs::path tst_path = asm_path;
-            tst_path.replace_extension(".tst");
-            return run_simulator(tst_path);
+            std::string line1, line2;
+            while(!file1.eof() && !file2.eof()) {
+                std::getline(file1, line1);
+                std::getline(file2, line2);
+                if(line1 != line2) {
+                    return false;
+                }
+            }
+
+            return (file1.eof() && file2.eof());
+        }
+
+        bool translates_to_asm(const std::string& vm_file,
+                               const std::vector<std::string>& expected_asm_content) {
+
+            auto vm_path = EXPECTED_DATA_DIR / vm_file;
+            auto asm_path = vm_path;
+            asm_path.replace_extension(".asm");
+            auto expected_asm_file = create_tmp_file(expected_asm_content);
+
+            translator.translate(vm_path);
+            return cmpFiles(expected_asm_file, asm_path);
         }
 
 };
 
 TEST_F(VMTranslator, TranslatesBinaryArithmeticCommands) {
-    InstList expected_result {
-        "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "M=M-D"};
-    auto result = translator.translate(BinaryAluOp::SUB);
-    ASSERT_THAT(result, Eq(expected_result));
+    auto matched = translates_to_asm("sub.vm", { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "M=M-D" });
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterBinaryArithmeticCommandTranslation) {
-    auto result = run_simulator(translator.translate(BinaryAluOp::SUB), "sub.asm");
+    auto result = run_simulator("sub.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesRelationalCommands) {
-    InstList expected_result {
-        "@SP", "AM=M-1", "D=M",
-        "@SP", "A=M-1", "D=M-D", "M=-1",
-        "@12", "D;JEQ", "@SP", "A=M-1", "M=0"
-    };
-    auto result = translator.translate(RelOp::EQ);
-    ASSERT_THAT(result, Eq(expected_result));
+    auto matched = translates_to_asm("eq.vm", { "@SP", "AM=M-1", "D=M", "@SP", "A=M-1", "D=M-D",
+                                                "M=-1", "@12", "D;JEQ", "@SP", "A=M-1", "M=0" });
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterRelationalCommandTranslation) {
-    auto result = run_simulator(translator.translate(RelOp::EQ), "eq.asm");
+    auto result = run_simulator("eq.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+
 TEST_F(VMTranslator, TranslatesUnaryAluCommands) {
-    InstList expected_result { "@SP", "A=M-1", "M=!M" };
-    auto result = translator.translate(UnaryOp::NOT);
-    ASSERT_THAT(result, Eq(expected_result));
+    auto matched = translates_to_asm("not.vm", { "@SP", "A=M-1", "M=!M" });
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterUnaryAluCommandTranslation) {
-    auto result = run_simulator(translator.translate(UnaryOp::NOT), "not.asm");
+    auto result = run_simulator("not.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+
 TEST_F(VMTranslator, TranslatesPushingFromNamedSegment) {
-    uint16_t i = 1245;
     InstList expected_result {
-        "@LCL", "D=M", "@" + std::to_string(i), "A=D+A", "D=M"
+        "@ARG", "D=M", "@5", "A=D+A", "D=M"
     };
     append_push_D(expected_result);
 
-    auto result = translator.translate_push(PushableSegment::LCL, i);
-    ASSERT_THAT(result, Eq(expected_result));
+    auto matched = translates_to_asm("pushargument.vm", expected_result);
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterPushingFromNamedSegment) {
-    auto instructions = translator.translate_push(PushableSegment::ARG, 5);
-    auto result = run_simulator(instructions, "pushargument.asm");
+    auto result = run_simulator("pushargument.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
+
 TEST_F(VMTranslator, TranslatesPopToNamedSegment) {
-    uint16_t i = 5;
     InstList expected_result {
-        "@" + std::to_string(i), "D=A", "@LCL", "M=D+M",
+        "@5",  "D=A", "@ARG", "M=D+M",
         "@SP", "AM=M-1", "D=M",
-        "@LCL", "A=M", "M=D", "@" + std::to_string(i), "D=A", "@LCL", "M=M-D"
+        "@ARG", "A=M", "M=D", "@5", "D=A", "@ARG", "M=M-D"
     };
-    auto result = translator.translate_pop(PopableSegment::LCL, i);
-    ASSERT_THAT(result, Eq(expected_result));
+
+    auto matched = translates_to_asm("popargument.vm", expected_result);
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAfterPopToNamedSegment) {
-    auto instructions = translator.translate_pop(PopableSegment::LCL, 5);
-    auto result = run_simulator(instructions, "poplocal.asm");
+    auto result = run_simulator("popargument.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesPushingFromStaticSegment) {
-    uint16_t i = 5;
-    std::string filename {"pong.vm"};
-
-    InstList expected_result {
-        "@" + filename + "." + std::to_string(i),
-        "D=M"
-    };
+    InstList expected_result { "@pushstatic.vm.5", "D=M" };
     append_push_D(expected_result);
-	translator.set_filename(filename);
-    auto result = translator.translate_push(PushableSegment::STATIC, i);
-    ASSERT_THAT(result, Eq(expected_result));
+
+    auto matched = translates_to_asm("pushstatic.vm", expected_result);
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAFterPushingFromStaticSegment) {
-    std::string filename {"test.vm"};
-	translator.set_filename(filename);
-    auto instructions = translator.translate_push(PushableSegment::STATIC, 5);
-    auto result = run_simulator(instructions, "pushstatic.asm");
+    auto result = run_simulator("pushstatic.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesPopToStaticSegment) {
-    uint16_t i = 5;
-    std::string filename {"test.vm"};
-    InstList expected_result {
-        "@SP", "AM=M-1", "D=M",
-        "@" + filename + "." + std::to_string(i),
-        "M=D"
-    };
-
-	translator.set_filename(filename);
-    auto result = translator.translate_pop(PopableSegment::STATIC, i);
-    ASSERT_THAT(result, Eq(expected_result));
+    auto matched = translates_to_asm("popstatic.vm", { "@SP", "AM=M-1", "D=M", "@popstatic.vm.5", "M=D" });
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAFterPopToStaticSegment) {
-    std::string filename {"test.vm"};
-	translator.set_filename(filename);
-    auto instructions = translator.translate_pop(PopableSegment::STATIC, 5);
-    auto result = run_simulator(instructions, "popstatic.asm");
+    auto result = run_simulator("popstatic.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }
 
 TEST_F(VMTranslator, TranslatesPushingFromConstantSegment) {
-    uint16_t i = 3459;
-
-    InstList expected_result { "@" + std::to_string(i), "D=A"};
+    InstList expected_result { "@5", "D=A"};
     append_push_D(expected_result);
-    auto result = translator.translate_push(PushableSegment::CONSTANT, i);
-    ASSERT_THAT(result, Eq(expected_result));
+
+    auto matched = translates_to_asm("pushconstant.vm", expected_result);
+    ASSERT_THAT(matched, Eq(true));
 }
 
 TEST_F(VMTranslator, UpdatesStackAFterPushingFromConstantSegment) {
-    auto instructions = translator.translate_push(PushableSegment::CONSTANT, 5);
-    auto result = run_simulator(instructions, "pushconstant.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithBinaryAluCommands) {
-    translator.translate(EXPECTED_DATA_DIR / "sub.vm");
-    auto result = run_simulator("sub.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithRelationalCommands) {
-    translator.translate(EXPECTED_DATA_DIR / "eq.vm");
-    auto result = run_simulator("eq.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileUnaryAluCommands) {
-    translator.translate(EXPECTED_DATA_DIR / "not.vm");
-    auto result = run_simulator("not.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithPushFromPhysicalSegment) {
-    translator.translate(EXPECTED_DATA_DIR / "pushargument.vm");
-    auto result = run_simulator("pushargument.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithPopToPhysicalSegment) {
-    translator.translate(EXPECTED_DATA_DIR / "popargument.vm");
-    auto result = run_simulator("popargument.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithPushFromStaticSegment) {
-    translator.translate(EXPECTED_DATA_DIR / "pushstatic.vm");
-    auto result = run_simulator("pushstatic.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithPopToStaticSegment) {
-    translator.translate(EXPECTED_DATA_DIR / "popstatic.vm");
-    auto result = run_simulator("popstatic.asm");
-    ASSERT_THAT(result.second, Eq(0)) << result.first;
-}
-
-TEST_F(VMTranslator, TranslatesFileWithPushFromConstantSegment) {
-    translator.translate(EXPECTED_DATA_DIR / "pushconstant.vm");
-    auto result = run_simulator("pushconstant.asm");
+    auto result = run_simulator("pushconstant.vm");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }

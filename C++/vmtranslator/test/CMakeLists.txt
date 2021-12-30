@@ -1,9 +1,9 @@
 set(BINARY ${CMAKE_PROJECT_NAME}_test)
 
-set(SOURCES vmtranslator_test.cpp
-            command_test.cpp
-            utils.cpp
+set(SOURCES utils.cpp
+            command_test.cpp            
             factory_test.cpp
+            translator_test.cpp
             main.cpp)
 
 include_directories(${GMOCK_HOME}/include ${GTEST_HOME}/include)

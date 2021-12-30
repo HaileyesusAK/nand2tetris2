@@ -34,7 +34,7 @@ namespace vm_command {
 		std::string cmd;
 		iss >> cmd;
 		if(!commands.count(cmd))
-			throw std::invalid_argument(std::string("invalid command: ") + command_line);
+			throw std::invalid_argument(std::string("unknown command: ") + command_line);
 
 		switch(commands.at(cmd)) {
 			case ADD: return std::make_unique<Add>();
@@ -52,12 +52,12 @@ namespace vm_command {
 				std::string arg1;
 				iss >> arg1;
 				if(iss.fail())
-					throw std::invalid_argument(std::string("invalid command: ") + command_line);
+					throw std::invalid_argument(command_line + ": missing segment");
 			
 				uint16_t idx;
 				iss >> idx;
 				if(iss.fail())
-					throw std::invalid_argument(std::string("invalid command: ") + command_line);
+					throw std::invalid_argument(command_line + ": missing index");
 
 				if(commands.at(cmd) == PUSH) {
 					if(arg1 == "static")

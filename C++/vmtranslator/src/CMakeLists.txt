@@ -1,7 +1,6 @@
 set(BINARY ${CMAKE_PROJECT_NAME})
 
-set(SOURCES vmtranslator.cpp
-            command.cpp
+set(SOURCES command.cpp
             binary_alu_cmd.cpp
             add.cpp
             sub.cpp
@@ -17,6 +16,7 @@ set(SOURCES vmtranslator.cpp
             pop.cpp
             push_static.cpp
             pop_static.cpp
-            factory.cpp)
+            factory.cpp
+            translator.cpp)
             
 add_library(${BINARY} SHARED ${SOURCES})

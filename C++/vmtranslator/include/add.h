@@ -5,7 +5,7 @@
 #include "binary_alu_cmd.h"
 
 namespace vm_command {
-
+	
 	class Add : public BinaryALUCommand {
 
 		public:

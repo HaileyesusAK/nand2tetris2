@@ -18,9 +18,13 @@
 
 namespace vm_command {
 
+	/* A class used to generate objects of Command subclasses */
 	class Factory {
-
 		public:
+			/* parses command_line and returns the right kind of Command object pointer.
+			   It requires the name of the vm file from which the command is read so that
+			   it will be used in some Commands such as PushStatic.
+			*/
 			static std::unique_ptr<Command> create_instance(const std::string &command_line,
 															const std::string &file_name);
 	};

@@ -6,11 +6,14 @@
 
 namespace vm_command {
 
-	/* A generic binary ALU vm command */
+	/* A class to represent a generic binary arithmetic and logical vm command */
 	class BinaryALUCommand : public Command {
-
 		protected:
+			/* writes to file assembly instructions necessary before any
+			   translation of arithmetic and logical commands
+			*/
 			void prepend(std::ofstream &out) const;
+
 			virtual ~BinaryALUCommand() = default;
 	};
 

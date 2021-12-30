@@ -15,6 +15,9 @@
 #include "pop.h"
 #include "push_static.h"
 #include "pop_static.h"
+#include "function.h"
+#include "call.h"
+#include "return.h"
 #include "factory.h"
 
 
@@ -22,11 +25,15 @@ namespace vm_command {
 
 	std::unique_ptr<Command> Factory::create_instance(const std::string &command_line,
 													  const std::string &file_name) {
+		enum Command {
+            ADD, SUB, AND, OR, EQ, LT, GT, NOT, NEG, PUSH, POP,
+            FUNCTION, CALL, RETURN
+        };
 
-		enum Command {ADD, SUB, AND, OR, EQ, LT, GT, NOT, NEG, PUSH, POP};
 		const static std::unordered_map<std::string, Command> commands {
 			{"add", ADD}, {"sub", SUB}, {"and", AND}, {"or", OR}, {"eq", EQ}, {"lt", LT},
 			{"gt", GT}, {"not", NOT}, {"neg", NEG}, {"push", PUSH}, {"pop", POP},
+            {"function", FUNCTION}, {"call", CALL}, {"return", RETURN}
 		};
 
 		std::istringstream iss {command_line};
@@ -48,30 +55,46 @@ namespace vm_command {
 			case NEG: return std::make_unique<Neg>();
 			case PUSH:
 			case POP:
+            case FUNCTION:
+            case CALL:
 			{
 				std::string arg1;
 				iss >> arg1;
 				if(iss.fail())
 					throw std::invalid_argument(command_line + ": missing segment");
 			
-				uint16_t idx;
-				iss >> idx;
+				uint16_t arg2;
+				iss >> arg2;
 				if(iss.fail())
 					throw std::invalid_argument(command_line + ": missing index");
 
-				if(commands.at(cmd) == PUSH) {
-					if(arg1 == "static")
-						return std::make_unique<PushStatic>(file_name, idx);
-					else
-						return std::make_unique<Push>(arg1, idx);
-				}
-				else {
-					if(arg1 == "static")
-						return std::make_unique<PopStatic>(file_name, idx);
-					else
-						return std::make_unique<Pop>(arg1, idx);
+                switch(commands.at(cmd)) {
+				    case PUSH:
+                    {
+                        if(arg1 == "static")
+                            return std::make_unique<PushStatic>(file_name, arg2);
+                        else
+                            return std::make_unique<Push>(arg1, arg2);
+                    }
+                    break;
+
+                    case POP:
+                    {
+                        if(arg1 == "static")
+                            return std::make_unique<PopStatic>(file_name, arg2);
+                        else
+                            return std::make_unique<Pop>(arg1, arg2);
+                    }
+                    break;
+                    
+                    case FUNCTION: return std::make_unique<Function>(arg1, arg2);
+                    case CALL:  return std::make_unique<Call>(arg1, arg2);
+                    default:
+                        break;
 				}
 			}
+            case RETURN: return std::make_unique<Return>();
+
 			default:
 				return nullptr;
 		}

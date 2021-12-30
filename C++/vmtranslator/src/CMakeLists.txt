@@ -16,6 +16,9 @@ set(SOURCES command.cpp
             pop.cpp
             push_static.cpp
             pop_static.cpp
+            function.cpp
+            call.cpp
+            return.cpp
             factory.cpp
             translator.cpp)
             

@@ -59,9 +59,19 @@ TEST_F(VMTranslator, TranslatesStaticTest) {
 
 TEST_F(VMTranslator, TranslatesPointerTest) {
 /*
-    PonterTest executes push/pop operations using the virtual memory segments
+    PonterTest.vm executes push/pop operations using the virtual memory segments
     pointer, this, and that.
 */
     auto result = translate("PointerTest");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
+TEST_F(VMTranslator, TranslatesFunctionDeclaration) {
+/*
+    SimpleFunction.vm performs a simple calculation and returns the result.
+    This program provides a basic test of the implementation of the VM
+    commands function and return.
+*/
+    auto result = translate("SimpleFunction");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }

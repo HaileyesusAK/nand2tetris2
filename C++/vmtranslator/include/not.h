@@ -9,7 +9,7 @@ namespace vm_command {
 	class Not : public Command {
 		
 		public:
-			void to_asm(std::ofstream &out) const;
+			void to_asm(std::ofstream &out) const override;
 	};
 }
 

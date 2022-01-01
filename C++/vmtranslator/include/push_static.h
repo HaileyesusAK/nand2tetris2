@@ -15,7 +15,7 @@ namespace vm_command {
 
 		public:
 			PushStatic(const std::string& file_name, uint16_t idx);
-			void to_asm(std::ofstream &out) const ;
+			void to_asm(std::ofstream &out) const override;
 	};
 
 }

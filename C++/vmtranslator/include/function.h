@@ -15,7 +15,7 @@ namespace vm_command {
 		public:
 			Function(const std::string &s, uint16_t n) : name(s), n_locals(n) {}
 
-			void to_asm(std::ofstream &out) const;
+			void to_asm(std::ofstream &out) const override;
 	};
 
 }

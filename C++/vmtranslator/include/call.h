@@ -18,7 +18,7 @@ namespace vm_command {
 		public:
 			Call(const std::string &s, uint16_t n) : function_name(s), n_args(n) {}
 
-			void to_asm(std::ofstream &out) const;
+			void to_asm(std::ofstream &out) const override;
 
 			static const States& state_segments();
 

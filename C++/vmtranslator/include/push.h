@@ -25,7 +25,7 @@ namespace vm_command {
 
 		public:
 			Push(const std::string& segment, uint16_t idx);
-			void to_asm(std::ofstream &out) const ;
+			void to_asm(std::ofstream &out) const override;
 	};
 
 }

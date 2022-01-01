@@ -9,7 +9,7 @@ namespace vm_command {
 	class Or : public BinaryALUCommand {
 
 		public:
-			void to_asm(std::ofstream& out) const;
+			void to_asm(std::ofstream& out) const override;
 	};
 
 }

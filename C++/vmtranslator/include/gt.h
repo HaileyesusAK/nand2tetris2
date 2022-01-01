@@ -9,7 +9,7 @@ namespace vm_command {
 	class Gt : public RelCommand {
 
 		public:
-			void to_asm(std::ofstream &out) const;
+			void to_asm(std::ofstream &out) const override;
 	};
 }
 

@@ -1,39 +1,23 @@
 #include <memory>
 #include <string>
 #include <sstream>
-#include "command.h"
-#include "add.h"
-#include "sub.h"
-#include "and.h"
-#include "or.h"
-#include "eq.h"
-#include "lt.h"
-#include "gt.h"
-#include "not.h"
-#include "neg.h"
-#include "push.h"
-#include "pop.h"
-#include "push_static.h"
-#include "pop_static.h"
-#include "function.h"
-#include "call.h"
-#include "return.h"
+#include "command_types.h"
 #include "factory.h"
 
 
 namespace vm_command {
 
-	std::unique_ptr<Command> Factory::create_instance(const std::string &command_line,
-													  const std::string &file_name) {
+	std::unique_ptr<Command> Factory::create_instance(const std::string &command_line) {
 		enum Command {
             ADD, SUB, AND, OR, EQ, LT, GT, NOT, NEG, PUSH, POP,
-            FUNCTION, CALL, RETURN
+            FUNCTION, CALL, RETURN, LABEL, GOTO, IF_GOTO
         };
 
 		const static std::unordered_map<std::string, Command> commands {
 			{"add", ADD}, {"sub", SUB}, {"and", AND}, {"or", OR}, {"eq", EQ}, {"lt", LT},
 			{"gt", GT}, {"not", NOT}, {"neg", NEG}, {"push", PUSH}, {"pop", POP},
-            {"function", FUNCTION}, {"call", CALL}, {"return", RETURN}
+            {"function", FUNCTION}, {"call", CALL}, {"return", RETURN},
+            {"label", LABEL}, {"goto", GOTO}, {"if-goto", IF_GOTO}
 		};
 
 		std::istringstream iss {command_line};
@@ -72,7 +56,7 @@ namespace vm_command {
 				    case PUSH:
                     {
                         if(arg1 == "static")
-                            return std::make_unique<PushStatic>(file_name, arg2);
+                            return std::make_unique<PushStatic>(_file_name, arg2);
                         else
                             return std::make_unique<Push>(arg1, arg2);
                     }
@@ -81,19 +65,41 @@ namespace vm_command {
                     case POP:
                     {
                         if(arg1 == "static")
-                            return std::make_unique<PopStatic>(file_name, arg2);
+                            return std::make_unique<PopStatic>(_file_name, arg2);
                         else
                             return std::make_unique<Pop>(arg1, arg2);
                     }
                     break;
                     
-                    case FUNCTION: return std::make_unique<Function>(arg1, arg2);
+                    case FUNCTION:
+					{
+						_function_name = arg1;
+						return std::make_unique<Function>(_function_name, arg2);
+					}
+
                     case CALL:  return std::make_unique<Call>(arg1, arg2);
                     default:
                         break;
 				}
 			}
             case RETURN: return std::make_unique<Return>();
+			case LABEL:
+			case GOTO:
+			case IF_GOTO:
+			{
+				std::string label;
+				iss >> label;
+				if(iss.fail())
+					throw std::invalid_argument(command_line + ": missing label");
+
+                switch(commands.at(cmd)) {
+                    case LABEL: return std::make_unique<Label>(_function_name, label);
+                    case GOTO: return std::make_unique<Goto>(_function_name, label);
+                    case IF_GOTO: return std::make_unique<IfGoto>(_function_name, label);
+                    default:
+                        break;
+                }
+			}
 
 			default:
 				return nullptr;

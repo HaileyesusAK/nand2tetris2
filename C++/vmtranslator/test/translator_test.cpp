@@ -22,6 +22,16 @@ class VMTranslator : public Test {
             return Utils::run_cpu_emulator(vm_file_name + ".asm");
         }
 
+        CPUResult translate_dir(const std::string &dir_name) {
+            auto dir_path = EXPECTED_DATA_DIR / dir_name;
+            auto asm_path = dir_path / (dir_name + ".asm");
+            translator.translate(dir_path);
+
+            std::string asm_file = dir_name + "/" + dir_name + ".asm";
+
+            return Utils::run_cpu_emulator(asm_file);
+        }
+
 };
 
 TEST_F(VMTranslator, CreatesOutputFileFromFile) {
@@ -92,5 +102,10 @@ TEST_F(VMTranslator, TranslatesFunctionDeclaration) {
     commands function and return.
 */
     auto result = translate("SimpleFunction");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
+TEST_F(VMTranslator, TranslatesNestedCalls) {
+    auto result = translate_dir("NestedCall");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }

@@ -1,19 +1,6 @@
 #include <string>
 #include "gmock/gmock.h"
-#include "command.h"
-#include "add.h"
-#include "sub.h"
-#include "and.h"
-#include "or.h"
-#include "eq.h"
-#include "lt.h"
-#include "gt.h"
-#include "not.h"
-#include "neg.h"
-#include "push.h"
-#include "pop.h"
-#include "push_static.h"
-#include "pop_static.h"
+#include "command_types.h"
 #include "utils.h"
 
 

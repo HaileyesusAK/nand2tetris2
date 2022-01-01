@@ -19,6 +19,9 @@ set(SOURCES command.cpp
             function.cpp
             call.cpp
             return.cpp
+            label.cpp
+            goto.cpp
+            if-goto.cpp
             factory.cpp
             translator.cpp)
             

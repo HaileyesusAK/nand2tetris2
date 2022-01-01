@@ -40,7 +40,7 @@ void Translator::translate(std::ofstream &ofs, const fs::path& vm_file_path) {
         throw std::runtime_error(std::string("cannot open input file: ") + vm_file_path.string());
 	}
 
-    std::string file_name = vm_file_path.filename();
+	auto factory = Factory(vm_file_path.filename());
     std::string line;
     while(!ifs.eof()) {
         std::getline(ifs, line);
@@ -49,7 +49,7 @@ void Translator::translate(std::ofstream &ofs, const fs::path& vm_file_path) {
             continue;
 		}
 
-		auto command_ptr = Factory::create_instance(line, file_name);
+		auto command_ptr = factory.create_instance(line);
 		command_ptr->to_asm(ofs);
     }
 }

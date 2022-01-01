@@ -9,33 +9,47 @@
 namespace fs = std::filesystem;
 using namespace vm_command;
 
-void Translator::translate(const fs::path& vm_file_path) {
-    if(!fs::exists(vm_file_path))
-        throw std::runtime_error(std::string("input file does not exist: ") + vm_file_path.string());
+void Translator::translate(const fs::path &path) {
+    if(!fs::exists(path)) {
+        throw std::runtime_error(std::string("path does not exist: ") + path.string());
+	}
 
 	// open output file
-    auto asm_file_path = vm_file_path;
-    asm_file_path.replace_extension(".asm");
-	std::ofstream ofs {asm_file_path};
-    if(!ofs.is_open())
-        throw std::runtime_error(std::string("cannot open output file: ") + asm_file_path.string());
+	auto output_path = fs::is_directory(path) ? path / path.filename() : path;
+	output_path.replace_extension(".asm");
+	std::ofstream ofs {output_path};
+	if(!ofs.is_open()) {
+		throw std::runtime_error(std::string("cannot open output file: ") + output_path.string());
+	}
 
-	// open input file
+	if(fs::is_directory(path)) {
+		for(auto const& dir_entry: fs::directory_iterator {path}) {
+			if(dir_entry.is_regular_file() && dir_entry.path().extension() == ".vm") {
+				translate(ofs, dir_entry);
+			}
+		}
+	}
+	else {
+		translate(ofs, path);
+	}
+}
+
+void Translator::translate(std::ofstream &ofs, const fs::path& vm_file_path) {
     std::ifstream ifs {vm_file_path};
-    if(!ifs.is_open())
+    if(!ifs.is_open()) {
         throw std::runtime_error(std::string("cannot open input file: ") + vm_file_path.string());
+	}
 
     std::string file_name = vm_file_path.filename();
-
     std::string line;
     while(!ifs.eof()) {
-        getline(ifs, line);
+        std::getline(ifs, line);
 		Command::compact(line);
-        if(line.empty())
+        if(line.empty()) {
             continue;
+		}
 
 		auto command_ptr = Factory::create_instance(line, file_name);
-
 		command_ptr->to_asm(ofs);
     }
 }

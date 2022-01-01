@@ -24,6 +24,25 @@ class VMTranslator : public Test {
 
 };
 
+TEST_F(VMTranslator, CreatesOutputFileFromFile) {
+	auto vm_file_path = EXPECTED_DATA_DIR / "SimpleAdd.vm";
+	auto asm_file_path = vm_file_path;
+	asm_file_path.replace_extension(".asm");
+	fs::remove(asm_file_path);	//It should be created by the translator
+
+	translator.translate(vm_file_path);
+	ASSERT_TRUE(fs::exists(asm_file_path)) << asm_file_path << " is not created";
+}
+
+TEST_F(VMTranslator, CreatesOutputFileFromDirectory) {
+	auto dir_path = EXPECTED_DATA_DIR / "TranslatorTest";
+	auto asm_file_path = dir_path / "TranslatorTest.asm";
+	fs::remove(asm_file_path);	//It should be created by the translator
+
+	translator.translate(dir_path);
+	ASSERT_TRUE(fs::exists(asm_file_path)) << asm_file_path << " is not created";
+}
+
 TEST_F(VMTranslator, TranslatesSimpleAdd) {
 /*
     SimpleAdd.vm pushes two constants onto the stack and adds them up.

@@ -106,6 +106,26 @@ TEST_F(VMTranslator, TranslatesFunctionDeclaration) {
 }
 
 TEST_F(VMTranslator, TranslatesNestedCalls) {
+/*
+    Tests several requirements of the function calling protocol.
+*/
     auto result = translate_dir("NestedCall");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
+TEST_F(VMTranslator, TranslatesFibonacciElement) {
+/*
+    Tests the handling of the VM's function calling commands,
+    the bootstrap section, and most of the other VM commands. 
+*/
+    auto result = translate_dir("FibonacciElement");
+    ASSERT_THAT(result.second, Eq(0)) << result.first;
+}
+
+TEST_F(VMTranslator, TranslatesStaticsTest) {
+/*
+    Tests handling of the static memory segment
+*/
+    auto result = translate_dir("StaticsTest");
     ASSERT_THAT(result.second, Eq(0)) << result.first;
 }

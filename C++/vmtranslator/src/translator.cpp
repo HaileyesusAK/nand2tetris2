@@ -23,11 +23,22 @@ void Translator::translate(const fs::path &path) {
 	}
 
 	if(fs::is_directory(path)) {
+        ofs << "\t@261" << std::endl;
+        ofs << "\tD=A" << std::endl;
+        ofs << "\t@SP" << std::endl;
+        ofs << "\tM=D" << std::endl;
+        ofs << "\t@Sys.init" << std::endl;
+        ofs << "\t0;JMP" << std::endl;
+
 		for(auto const& dir_entry: fs::directory_iterator {path}) {
 			if(dir_entry.is_regular_file() && dir_entry.path().extension() == ".vm") {
 				translate(ofs, dir_entry);
 			}
 		}
+
+        ofs << "(END)" << std::endl;
+        ofs << "\t@END" << std::endl;
+        ofs << "\t0;JMP" << std::endl;
 	}
 	else {
 		translate(ofs, path);

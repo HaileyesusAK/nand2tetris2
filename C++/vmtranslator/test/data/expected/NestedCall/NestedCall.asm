@@ -1,3 +1,9 @@
+	@261
+	D=A
+	@SP
+	M=D
+	@Sys.init
+	0;JMP
 // function Sys.init 0
 	(Sys.init)
 	@LCL
@@ -556,4 +562,7 @@
 	M=D
 	@ret
 	A=M
+	0;JMP
+(END)
+	@END
 	0;JMP

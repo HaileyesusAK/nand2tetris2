@@ -80,3 +80,16 @@ TEST(TokenParser, HandlesKeywords) {
     ASSERT_THAT(token.type(), Eq(TokenType::KEYWORD));
     ASSERT_THAT(token.value(), Eq("null"));
 }
+
+TEST(TokenParser, HandlesIdentifiers) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "age_";
+    }
+
+    ifstream ifs {file_name};
+    auto token = Token::parse(ifs);
+    ASSERT_THAT(token.type(), Eq(TokenType::IDENTIFIER));
+    ASSERT_THAT(token.value(), Eq("age_"));
+}

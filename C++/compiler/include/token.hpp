@@ -7,7 +7,7 @@
 
 namespace ntt {
 
-	enum class TokenType { UNKNOWN, SYMBOL, KEYWORD };
+	enum class TokenType { UNKNOWN, SYMBOL, KEYWORD, IDENTIFIER };
 
 	class Token {
 		public:
@@ -22,6 +22,8 @@ namespace ntt {
             static bool is_symbol(char c);
 
             static bool is_keyword(const std::string& word);
+
+            static bool is_identifier(const std::string& word);
 
             std::string value() const;
 

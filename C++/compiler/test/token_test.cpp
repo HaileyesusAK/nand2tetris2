@@ -65,3 +65,18 @@ TEST(TokenParser, IgnoresWhitespaceCharacters) {
     ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
     ASSERT_THAT(token.value(), Eq(","));
 }
+
+TEST(TokenParser, HandlesKeywords) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "// comment ..." << endl;
+        ofs << "// comment ..." << endl;
+        ofs << "null";
+    }
+
+    ifstream ifs {file_name};
+    auto token = Token::parse(ifs);
+    ASSERT_THAT(token.type(), Eq(TokenType::KEYWORD));
+    ASSERT_THAT(token.value(), Eq("null"));
+}

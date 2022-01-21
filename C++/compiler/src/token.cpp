@@ -7,31 +7,44 @@ namespace ntt {
 
     bool Token::is_symbol(char c) { return symbols_.count(c) != 0; }
 
+    bool Token::is_keyword(const std::string& word) { return keywords_.count(word) != 0; }
+
     TokenType Token::type() const { return type_; }
 
     std::string Token::value() const { return value_; }
 
-	Token Token::parse(std::ifstream& ifs) {
-        if(!ifs.good())
-            return Token {""};
+    void Token::remove_leading_ws(std::ifstream& ifs) {
+        while(true) {
+            std::ws(ifs);   
+            if(!ifs.good())
+                return;
+       
+            char c = ifs.get();
+            if(c == '/' && ifs.peek() == '/')
+                while(ifs.good() && ifs.get() != '\n');
+            else {
+                ifs.putback(c);
+                break;
+            }
+        }
+    }
 
-        std::ws(ifs);   
+	Token Token::parse(std::ifstream& ifs) {
+        Token::remove_leading_ws(ifs);
         if(!ifs.good())
             return Token {""};
 
         char c = ifs.get();
         if(Token::is_symbol(c)) {
-            // if a single line comment, consume all characters until the end of the line
-            if(c == '/' && ifs.peek() == '/') {
-                ifs.get();
-                while(ifs.good() && ifs.get() != '\n');
+            return Token {std::string {c}, TokenType::SYMBOL};
+        }
+        else {
+            ifs.putback(c);
+			std::string word;
+			ifs >> word;
 
-                c = ifs.get();
-                if(ifs.good())
-                    return Token {std::string {c}, TokenType::SYMBOL};
-            }
-            else
-                return Token {std::string {c}, TokenType::SYMBOL};
+			if(Token::is_keyword(word))
+				return Token {word, TokenType::KEYWORD};
         }
 
         return Token {""};

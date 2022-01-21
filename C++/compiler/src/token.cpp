@@ -11,12 +11,24 @@ namespace ntt {
     std::string Token::value() const { return value_; }
 
 	Token Token::parse(std::ifstream& ifs) {
-        if(ifs.good()) {
-            char c = ifs.get();
-            if(Token::is_symbol(c)) {
-                return Token {std::string {c}, TokenType::SYMBOL};
+        if(!ifs.good())
+            return Token {""};
+
+        char c = ifs.get();
+        if(Token::is_symbol(c)) {
+            // if a single line comment, consume all characters until the end of the line
+            if(c == '/' && ifs.peek() == '/') {
+                ifs.get();
+                while(ifs.good() && ifs.get() != '\n');
+
+                c = ifs.get();
+                if(ifs.good())
+                    return Token {std::string {c}, TokenType::SYMBOL};
             }
+            else
+                return Token {std::string {c}, TokenType::SYMBOL};
         }
+
         return Token {""};
     }
 }

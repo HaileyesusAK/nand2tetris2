@@ -15,15 +15,15 @@ namespace ntt {
                            const TokenType& type = TokenType::UNKNOWN)
                            : value_(value), type_(type) {}
 
-			static Token parse(std::ifstream& ifs);
+			static Token parse(std::ifstream&);
 
-            static void remove_leading_ws(std::ifstream& ifs);
+            static void remove_leading_ws(std::ifstream&);
             
-            static bool is_symbol(char c);
+            static bool is_symbol(char);
 
-            static bool is_keyword(const std::string& word);
+            static bool is_keyword(const std::string&);
 
-            static bool is_identifier(const std::string& word);
+            static bool is_identifier(const std::string&);
 
             std::string value() const;
 

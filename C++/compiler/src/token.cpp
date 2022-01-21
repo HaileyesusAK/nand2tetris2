@@ -2,6 +2,7 @@
 #include <cctype>
 #include <fstream>
 #include <istream>
+#include <stdexcept>
 #include <string>
 #include "token.hpp"
 
@@ -16,7 +17,7 @@ namespace ntt {
             An identifier is a sequence of letters, digits, and underscore ('_')
             not starting with a digit.
         */
-        
+
         if(token.empty())
             return false;
 
@@ -24,7 +25,23 @@ namespace ntt {
             return false;
 
         auto is_valid = [](unsigned char c) { return std::isalnum(c) || c == '_'; };
-        return std::all_of(token.begin(), token.end(), is_valid); 
+        return std::all_of(token.begin(), token.end(), is_valid);
+    }
+
+    bool Token::is_integer(const std::string& token) {
+        /* An integer is a decimal number in the range 0 .. 32767 */
+
+        if(token.empty())
+            return false;
+
+        try {
+            std::size_t pos;
+            auto n = std::stoul(token, &pos);
+            return n <= 32767 && pos == token.size();
+        }
+        catch(const std::exception&) {
+            return false;
+        }
     }
 
     TokenType Token::type() const { return type_; }
@@ -33,10 +50,10 @@ namespace ntt {
 
     void Token::remove_leading_ws(std::ifstream& ifs) {
         while(true) {
-            std::ws(ifs);   
+            std::ws(ifs);
             if(!ifs.good())
                 return;
-       
+
             char c = ifs.get();
             if(c == '/' && ifs.peek() == '/')
                 while(ifs.good() && ifs.get() != '\n');
@@ -65,7 +82,8 @@ namespace ntt {
 				return Token {token, TokenType::KEYWORD};
 			else if(Token::is_identifier(token))
 				return Token {token, TokenType::IDENTIFIER};
-
+            else if(Token::is_integer(token))
+				return Token {token, TokenType::INTEGER};
         }
 
         return Token {""};

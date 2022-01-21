@@ -52,3 +52,16 @@ TEST(TokenParser, HandlesLineCommentWithoutNewLine) {
     ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
     ASSERT_THAT(token.value(), Eq(""));
 }
+
+TEST(TokenParser, IgnoresWhitespaceCharacters) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\t\n\r\f\v ,";
+    }
+
+    ifstream ifs {file_name};
+    auto token = Token::parse(ifs);
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+    ASSERT_THAT(token.value(), Eq(","));
+}

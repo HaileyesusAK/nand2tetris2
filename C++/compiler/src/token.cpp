@@ -1,4 +1,5 @@
 #include <fstream>
+#include <istream>
 #include <string>
 #include "token.hpp"
 
@@ -11,6 +12,10 @@ namespace ntt {
     std::string Token::value() const { return value_; }
 
 	Token Token::parse(std::ifstream& ifs) {
+        if(!ifs.good())
+            return Token {""};
+
+        std::ws(ifs);   
         if(!ifs.good())
             return Token {""};
 

@@ -7,7 +7,7 @@
 
 namespace ntt {
 
-	enum class TokenType { UNKNOWN };
+	enum class TokenType { UNKNOWN, SYMBOL };
 
 	class Token {
 		public:
@@ -17,12 +17,19 @@ namespace ntt {
 
 			static Token parse(std::ifstream& ifs);
             
+            static bool is_symbol(char c);
+
             std::string value() const;
 
             TokenType type() const;
 
 		private:
+			static const inline std::unordered_set<char> symbols_ {
+				'{', '}', '(', ')', '[', ']', '.', ',', ';', '+', '-', '*', 
+				'/', '&', '|', '<', '>', '=', '_', '~' };
+
 			std::string value_;
+
 			TokenType type_;
 	};
 }

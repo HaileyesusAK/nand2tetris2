@@ -12,3 +12,16 @@ TEST(TokenParser, HandlesEmptyStream) {
     ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
     ASSERT_THAT(token.value(), Eq(""));
 }
+
+TEST(TokenParser, HandlesSymbols) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "{" << endl;
+    }
+
+    ifstream ifs {file_name};
+    auto token = Token::parse(ifs);
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+    ASSERT_THAT(token.value(), Eq("{"));
+}

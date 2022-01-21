@@ -106,3 +106,16 @@ TEST(TokenParser, HandlesIntegers) {
     ASSERT_THAT(token.type(), Eq(TokenType::INTEGER));
     ASSERT_THAT(token.value(), Eq("123"));
 }
+
+TEST(TokenParser, HandlesStrings) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"str\"";
+    }
+
+    ifstream ifs {file_name};
+    auto token = Token::parse(ifs);
+    ASSERT_THAT(token.type(), Eq(TokenType::STRING));
+    ASSERT_THAT(token.value(), Eq("str"));
+}

@@ -7,7 +7,7 @@
 
 namespace ntt {
 
-	enum class TokenType { UNKNOWN, SYMBOL, KEYWORD, IDENTIFIER, INTEGER };
+	enum class TokenType { UNKNOWN, SYMBOL, KEYWORD, IDENTIFIER, INTEGER, STRING };
 
 	class Token {
 		public:

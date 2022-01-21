@@ -73,6 +73,26 @@ namespace ntt {
         if(Token::is_symbol(c)) {
             return Token {std::string {c}, TokenType::SYMBOL};
         }
+        else if(c == '"') {
+            /*
+                A string is a sequence of zero or more characters surrounded by double quotes.
+                It cannot contain a newline character.
+            */
+
+            std::string token;
+            bool has_new_line = false;
+            while(ifs.good() && !has_new_line) {
+                c = ifs.get();
+                if(c == '"')
+                    break;
+
+                token.push_back(c);
+                has_new_line = (c == '\n');
+            }
+
+            if(ifs.good() && !has_new_line)
+              return Token {token, TokenType::STRING};
+        }
         else {
             ifs.putback(c);
 			std::string token;

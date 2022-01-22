@@ -1,6 +1,7 @@
 set(BINARY ${CMAKE_PROJECT_NAME}_test)
 
 set(SOURCES token_test.cpp
+            tokenizer_test.cpp
             main.cpp)
 
 include_directories(${GMOCK_HOME}/include ${GTEST_HOME}/include)

@@ -119,3 +119,27 @@ TEST(TokenParser, HandlesStrings) {
     ASSERT_THAT(token.type(), Eq(TokenType::STRING));
     ASSERT_THAT(token.value(), Eq("str"));
 }
+
+TEST(TokenParser, HandlesMultilineComments) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+
+
+        ofs << "/*" << endl;
+        ofs << "comment ... " << endl;
+        ofs << "comment ... " << endl;
+        ofs << "*/" << endl;
+
+        ofs << "/*" << endl;
+        ofs << "comment ... " << endl;
+        ofs << "comment ... " << endl;
+        ofs << "*/" << endl;
+        ofs << "~";
+    }
+
+    ifstream ifs {file_name};
+    auto token = Token::parse(ifs);
+    ASSERT_THAT(token.value(), Eq("~"));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+}

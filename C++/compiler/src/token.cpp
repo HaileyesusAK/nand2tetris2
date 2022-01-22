@@ -55,8 +55,14 @@ namespace ntt {
                 return;
 
             char c = ifs.get();
-            if(c == '/' && ifs.peek() == '/')
+            if(c == '/' && ifs.peek() == '/') {
                 while(ifs.good() && ifs.get() != '\n');
+            }
+            else if(c == '/' && ifs.peek() == '*') {
+                ifs.get(); // consume '*'
+                while(ifs.good() && !(ifs.get() == '*' && ifs.peek() == '/'));
+                ifs.get(); // consume '/'
+            }
             else {
                 ifs.putback(c);
                 break;

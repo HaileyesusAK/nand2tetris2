@@ -8,6 +8,8 @@ include_directories(${GMOCK_HOME}/include ${GTEST_HOME}/include)
 
 link_directories(${GOOGLETEST_LIB})
 
+add_definitions(-DTEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
 add_executable(${BINARY} ${SOURCES})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})

@@ -2,12 +2,17 @@
 #define __TOKENIZER_H__
 
 #include <fstream>
+#include <string>
+#include "token.hpp"
 
 namespace ntt {
 
 	class Tokenizer {
 		public:
-            static void parse(std::ifstream&, std::ofstream&);
+            static void to_xml(std::ifstream&, std::ofstream&);
+
+        private:
+            static inline void write_xml(std::ofstream&, const Token&);
 	};
 
 }

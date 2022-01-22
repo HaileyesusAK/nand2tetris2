@@ -9,8 +9,8 @@ using namespace testing;
 TEST(TokenParser, HandlesEmptyStream) {
     ifstream ifs;
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
     ASSERT_THAT(token.value(), Eq(""));
+    ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
 }
 
 TEST(TokenParser, HandlesSymbols) {
@@ -22,8 +22,8 @@ TEST(TokenParser, HandlesSymbols) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
     ASSERT_THAT(token.value(), Eq("{"));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
 }
 
 TEST(TokenParser, HandlesSymbolsAfterSingleLineComment) {
@@ -36,8 +36,8 @@ TEST(TokenParser, HandlesSymbolsAfterSingleLineComment) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
     ASSERT_THAT(token.value(), Eq("."));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
 }
 
 TEST(TokenParser, HandlesLineCommentWithoutNewLine) {
@@ -49,8 +49,8 @@ TEST(TokenParser, HandlesLineCommentWithoutNewLine) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
     ASSERT_THAT(token.value(), Eq(""));
+    ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
 }
 
 TEST(TokenParser, IgnoresWhitespaceCharacters) {
@@ -62,8 +62,8 @@ TEST(TokenParser, IgnoresWhitespaceCharacters) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
     ASSERT_THAT(token.value(), Eq(","));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
 }
 
 TEST(TokenParser, HandlesKeywords) {
@@ -72,26 +72,26 @@ TEST(TokenParser, HandlesKeywords) {
         ofstream ofs {file_name};
         ofs << "// comment ..." << endl;
         ofs << "// comment ..." << endl;
-        ofs << "null";
+        ofs << "field";
     }
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
+    ASSERT_THAT(token.value(), Eq("field"));
     ASSERT_THAT(token.type(), Eq(TokenType::KEYWORD));
-    ASSERT_THAT(token.value(), Eq("null"));
 }
 
 TEST(TokenParser, HandlesIdentifiers) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
-        ofs << "age_";
+        ofs << "age_of_empire_;//...";
     }
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
+    ASSERT_THAT(token.value(), Eq("age_of_empire_"));
     ASSERT_THAT(token.type(), Eq(TokenType::IDENTIFIER));
-    ASSERT_THAT(token.value(), Eq("age_"));
 }
 
 TEST(TokenParser, HandlesIntegers) {
@@ -103,8 +103,8 @@ TEST(TokenParser, HandlesIntegers) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::INTEGER));
     ASSERT_THAT(token.value(), Eq("123"));
+    ASSERT_THAT(token.type(), Eq(TokenType::INTEGER));
 }
 
 TEST(TokenParser, HandlesStrings) {
@@ -116,8 +116,8 @@ TEST(TokenParser, HandlesStrings) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.type(), Eq(TokenType::STRING));
     ASSERT_THAT(token.value(), Eq("str"));
+    ASSERT_THAT(token.type(), Eq(TokenType::STRING));
 }
 
 TEST(TokenParser, HandlesMultilineComments) {
@@ -140,6 +140,6 @@ TEST(TokenParser, HandlesMultilineComments) {
 
     ifstream ifs {file_name};
     auto token = Token::parse(ifs);
-    ASSERT_THAT(token.value(), Eq("~"));
     ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+    ASSERT_THAT(token.value(), Eq("~"));
 }

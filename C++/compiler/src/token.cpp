@@ -101,8 +101,18 @@ namespace ntt {
         }
         else {
             ifs.putback(c);
+
 			std::string token;
-			ifs >> token;
+
+            /* read all characters until a whitespace or a symbol that is not an underscore is found */
+            auto is_valid = [](char c) {
+                return (c != ' ' && (c == '_' || !Token::is_symbol(c)));
+            };
+            while((c=ifs.get()) && ifs.good() && is_valid(c))
+                token.push_back(c);
+
+            // putback the last invalid character consumed
+            ifs.putback(c);        
 
 			if(Token::is_keyword(token))
 				return Token {token, TokenType::KEYWORD};

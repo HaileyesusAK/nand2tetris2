@@ -17,16 +17,6 @@ namespace ntt {
 
 			static Token parse(std::ifstream&);
 
-            static void remove_leading_ws(std::ifstream&);
-
-            static bool is_symbol(char);
-
-            static bool is_keyword(const std::string&);
-
-            static bool is_identifier(const std::string&);
-
-            static bool is_integer(const std::string&);
-
             std::string value() const;
 
             TokenType type() const;
@@ -46,6 +36,16 @@ namespace ntt {
 			std::string value_;
 
 			TokenType type_;
+
+            static void remove_leading_ws(std::ifstream&);
+
+            static bool is_symbol(char);
+
+            static bool is_keyword(const std::string&);
+
+            static bool is_identifier(const std::string&);
+
+            static bool is_integer(const std::string&);
 	};
 }
 

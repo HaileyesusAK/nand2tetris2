@@ -8,6 +8,33 @@
 
 namespace ntt {
 
+    std::string Token::to_xml() const {
+        static const std::unordered_map<TokenType, std::string> tag {
+            {TokenType::STRING, "stringConstant"},
+            {TokenType::INTEGER, "integerConstant"},
+            {TokenType::SYMBOL, "symbol"},
+            {TokenType::IDENTIFIER, "identifier"},
+            {TokenType::KEYWORD, "keyword"},
+            {TokenType::UNKNOWN, "unknown"}
+        };
+
+        static const std::unordered_map<std::string, std::string> xml_symbols { 
+            {">", "&gt;"}, {"<", "&lt;"}, {"\"", "&quot;"}, {"&", "&amp;"}
+        };
+
+        std::string xml {"<" + tag.at(type_) + "> "};
+        if(xml_symbols.count(value_))
+            xml.append(xml_symbols.at(value_));
+        else
+            xml.append(value_);
+
+        xml.append(" </");
+        xml.append(tag.at(type_));
+        xml.append(">");
+
+        return xml;
+    }
+
     bool Token::is_symbol(char token) { return symbols_.count(token) != 0; }
 
     bool Token::is_keyword(const std::string& token) { return keywords_.count(token) != 0; }

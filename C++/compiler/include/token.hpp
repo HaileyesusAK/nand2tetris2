@@ -17,6 +17,8 @@ namespace ntt {
 
 			static Token parse(std::ifstream&);
 
+            std::string to_xml() const;
+
             std::string value() const;
 
             TokenType type() const;

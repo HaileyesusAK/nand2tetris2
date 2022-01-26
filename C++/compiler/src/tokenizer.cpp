@@ -7,27 +7,6 @@
 #include "tokenizer.hpp"
 
 namespace ntt {
-    
-    void Tokenizer::write_xml(std::ofstream& ofs, const Token& token) {
-        static const std::unordered_map<TokenType, std::string> tag {
-            {TokenType::STRING, "stringConstant"},
-            {TokenType::INTEGER, "integerConstant"},
-            {TokenType::SYMBOL, "symbol"},
-            {TokenType::IDENTIFIER, "identifier"},
-            {TokenType::KEYWORD, "keyword"}
-        };
-
-        static const std::unordered_map<std::string, std::string> xml_symbols { 
-            {">", "&gt;"}, {"<", "&lt;"}, {"\"", "&quot;"}, {"&", "&amp;"}
-        };
-
-        ofs << "<" << tag.at(token.type()) << "> ";
-        if(xml_symbols.count(token.value()))
-            ofs << xml_symbols.at(token.value());
-        else
-            ofs << token.value();
-        ofs << " </" << tag.at(token.type()) << ">" << std::endl;
-    }
 
     void Tokenizer::to_xml(std::ifstream& ifs, std::ofstream& ofs) {
         if(!ifs.is_open() || !ofs.is_open())
@@ -40,7 +19,7 @@ namespace ntt {
             if(ifs.peek() == EOF)
                 break;
 
-            write_xml(ofs, Token::parse(ifs));
+            ofs << Token::parse(ifs).to_xml() << std::endl;
         }
         ofs << "</tokens>" << std::endl;
     }

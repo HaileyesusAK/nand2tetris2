@@ -12,45 +12,6 @@ namespace fs = std::filesystem;
 
 const fs::path DATA_DIR = fs::path{TEST_DIR} / "data";
 
-TEST(Parser, HandlesIntegerConstantTerm) {
-    string file_name {"test.jack"};
-    {
-        ofstream ofs {file_name};
-        ofs << "5";
-    }
-
-    ifstream ifs {file_name};
-    auto parser = Parser(ifs);
-    auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<term>\n    <integerConstant> 5 </integerConstant>\n</term>\n");
-}
-
-TEST(Parser, HandlesStringConstantTerm) {
-    string file_name {"test.jack"};
-    {
-        ofstream ofs {file_name};
-        ofs << "\"ciao\"";
-    }
-
-    ifstream ifs {file_name};
-    auto parser = Parser(ifs);
-    auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<term>\n    <stringConstant> ciao </stringConstant>\n</term>\n");
-}
-
-TEST(Parser, HandlesKeywordConstantTerm) {
-    string file_name {"test.jack"};
-    {
-        ofstream ofs {file_name};
-        ofs << "this";
-    }
-
-    ifstream ifs {file_name};
-    auto parser = Parser(ifs);
-    auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<term>\n    <keyword> this </keyword>\n</term>\n");
-}
-
 TEST(Parser, ThrowsExceptionForInvalidKeywordConstant) {
     string file_name {"test.jack"};
     {
@@ -64,18 +25,19 @@ TEST(Parser, ThrowsExceptionForInvalidKeywordConstant) {
 }
 
 TEST(Parser, HandlesIdentifierTerm) {
-    string file_name {"test.jack"};
-    {
-        ofstream ofs {file_name};
-        ofs << "age";
-    }
-
-    ifstream ifs {file_name};
+    fs::path input_file { DATA_DIR / "identifier_term.jack" };
+    ifstream ifs {input_file};
     auto parser = Parser(ifs);
     auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<term>\n    <identifier> age </identifier>\n</term>\n");
-}
 
+    fs::path output_file { DATA_DIR / "tmp.xml" };
+    {
+        ofstream ofs {output_file};
+        ofs << tree->to_xml();
+    }
+
+    ASSERT_THAT(Utils::cmpFiles(output_file, DATA_DIR / "identifier_term.xml"), Eq(true));
+}
 
 TEST(Parser, HandlesExpression) {
     fs::path input_file { DATA_DIR / "expression.jack" };

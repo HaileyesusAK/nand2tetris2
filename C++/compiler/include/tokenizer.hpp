@@ -11,7 +11,7 @@ namespace ntt {
 	class Tokenizer {
 		public:
 
-            Tokenizer(std::ifstream& ifs) : ifs_(ifs) {}
+            explicit Tokenizer(std::ifstream& ifs);
             
             Token get();
 
@@ -20,8 +20,6 @@ namespace ntt {
             void to_xml(std::ofstream&);
 
         private:
-
-            std::ifstream& ifs_;
 
             std::queue<Token> tokens_;
 	};

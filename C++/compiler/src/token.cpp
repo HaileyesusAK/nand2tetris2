@@ -14,8 +14,7 @@ namespace ntt {
             {TokenType::INTEGER, "integerConstant"},
             {TokenType::SYMBOL, "symbol"},
             {TokenType::IDENTIFIER, "identifier"},
-            {TokenType::KEYWORD, "keyword"},
-            {TokenType::UNKNOWN, "unknown"}
+            {TokenType::KEYWORD, "keyword"}
         };
 
         static const std::unordered_map<std::string, std::string> xml_symbols { 

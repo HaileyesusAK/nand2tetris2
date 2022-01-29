@@ -94,3 +94,39 @@ TEST_F(TokenizerTester, ParsesArrayMain){
     fs::path expected_output_rel_path = fs::path{"ArrayTest"} / fs::path{"MainT.xml"};
     ASSERT_THAT(tokenize(input_rel_path, expected_output_rel_path), Eq(true));
 }
+
+TEST_F(TokenizerTester, CanExtractToken) {
+    string file {"test.jack"};
+    {
+        ofstream ofs {file};
+        ofs << 42;
+    }
+
+    ifstream ifs {file};
+    ASSERT_THAT(Tokenizer(ifs).get().value(), Eq("42"));
+}
+
+TEST_F(TokenizerTester, RecognizesEmptyTokenStream) {
+
+    string file {"test.jack"};
+    {
+        ofstream ofs {file};
+        ofs << 42;
+    }
+
+    ifstream ifs {file};
+    Tokenizer tokenizer {ifs};
+    tokenizer.get();
+    ASSERT_THAT(Tokenizer(ifs).has_token(), Eq(false)); 
+}
+
+TEST_F(TokenizerTester, TellsIfTokenizerHasTokens) {
+    string file {"test.jack"};
+    {
+        ofstream ofs {file};
+        ofs << 42;
+    }
+
+    ifstream ifs {file};
+    ASSERT_THAT(Tokenizer(ifs).has_token(), Eq(true)); 
+}

@@ -2,17 +2,22 @@
 #define __TOKEN_H__
 
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_set>
 
 namespace ntt {
 
-	enum class TokenType { UNKNOWN, SYMBOL, KEYWORD, IDENTIFIER, INTEGER, STRING };
+	enum class TokenType { SYMBOL, KEYWORD, IDENTIFIER, INTEGER, STRING };
+
+    class NoTokenErr : public std::runtime_error {
+        public:
+            NoTokenErr() : std::runtime_error("No more tokens") {}
+    };
 
 	class Token {
 		public:
-			explicit Token(const std::string& value,
-                           const TokenType& type = TokenType::UNKNOWN)
+			explicit Token(const std::string& value, const TokenType& type)
                            : value_(value), type_(type) {}
 
 			static Token parse(std::ifstream&);

@@ -123,8 +123,10 @@ namespace ntt {
                 has_new_line = (c == '\n');
             }
 
-            if(ifs.good() && !has_new_line)
-              return Token {token, TokenType::STRING};
+            if(!ifs.good() || has_new_line)
+                throw std::domain_error("invalid string");
+
+            return Token {token, TokenType::STRING};
         }
         else {
             ifs.putback(c);
@@ -147,6 +149,8 @@ namespace ntt {
 				return Token {token, TokenType::IDENTIFIER};
             else if(Token::is_integer(token))
 				return Token {token, TokenType::INTEGER};
+            else
+                throw std::domain_error("invalid string");
         }
 
         return Token {""};

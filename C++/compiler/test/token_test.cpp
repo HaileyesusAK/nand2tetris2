@@ -1,4 +1,5 @@
 #include <fstream>
+#include <stdexcept>
 #include "token.hpp"
 #include "gmock/gmock.h"
 
@@ -120,11 +121,43 @@ TEST(TokenParser, HandlesStrings) {
     ASSERT_THAT(token.type(), Eq(TokenType::STRING));
 }
 
+TEST(TokenParser, ThrowsExceptionForUnterminatedString) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"str";
+    }
+
+    ifstream ifs {file_name};
+    ASSERT_THROW(Token::parse(ifs), domain_error);
+}
+
+TEST(TokenParser, ThrowsExceptionForNewlineInString) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"str\nstr\"";
+    }
+
+    ifstream ifs {file_name};
+    ASSERT_THROW(Token::parse(ifs), domain_error);
+}
+
+TEST(TokenParser, ThrowsExceptionForUnknownToken) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "123456";
+    }
+
+    ifstream ifs {file_name};
+    ASSERT_THROW(Token::parse(ifs), domain_error);
+}
+
 TEST(TokenParser, HandlesMultilineComments) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
-
 
         ofs << "/*" << endl;
         ofs << "comment ... " << endl;

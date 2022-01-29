@@ -15,6 +15,8 @@ namespace ntt {
             
             Token get();
 
+            const Token& peek();
+
             bool has_token();
 
             void to_xml(std::ofstream&);

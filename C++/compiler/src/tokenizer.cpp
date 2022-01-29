@@ -23,6 +23,13 @@ namespace ntt {
         tokens_.pop();
         return token;
     }
+    
+    const Token& Tokenizer::peek() { 
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        return tokens_.front();
+    }
 
     bool Tokenizer::has_token() {
         return !tokens_.empty();

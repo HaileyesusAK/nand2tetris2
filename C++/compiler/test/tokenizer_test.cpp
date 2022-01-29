@@ -130,3 +130,27 @@ TEST_F(TokenizerTester, TellsIfTokenizerHasTokens) {
     ifstream ifs {file};
     ASSERT_THAT(Tokenizer(ifs).has_token(), Eq(true)); 
 }
+
+TEST_F(TokenizerTester, CanPeekFrontOfTokenStream) {
+    string file {"test.jack"};
+    {
+        ofstream ofs {file};
+        ofs << 42;
+    }
+
+    ifstream ifs {file};
+    Tokenizer tokenizer {ifs};
+    tokenizer.peek();
+    ASSERT_THAT(tokenizer.peek().value(), Eq("42"));
+}
+
+TEST_F(TokenizerTester, ThrowsExceptionWhenAttemptsToPeekOnEmptyTokenStream) {
+    string file {"tmp.jack"};
+    {
+        ofstream ofs {file};
+        ofs << endl;
+    }
+    ifstream ifs {"tmp.jack"};
+    Tokenizer tokenizer {ifs};
+    ASSERT_THROW(tokenizer.peek(), domain_error);
+}

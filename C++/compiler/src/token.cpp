@@ -98,9 +98,12 @@ namespace ntt {
     }
 
 	Token Token::parse(std::ifstream& ifs) {
+        if(ifs.eof())
+            throw NoTokenErr();
+
         Token::remove_leading_ws(ifs);
-        if(!ifs.good())
-            return Token {""};
+        if(ifs.eof())
+            throw NoTokenErr();
 
         char c = ifs.get();
         if(Token::is_symbol(c)) {
@@ -152,7 +155,5 @@ namespace ntt {
             else
                 throw std::domain_error("invalid string");
         }
-
-        return Token {""};
     }
 }

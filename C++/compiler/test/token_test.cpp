@@ -9,9 +9,7 @@ using namespace testing;
 
 TEST(TokenParser, HandlesEmptyStream) {
     ifstream ifs;
-    auto token = Token::parse(ifs);
-    ASSERT_THAT(token.value(), Eq(""));
-    ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
+    ASSERT_THROW(Token::parse(ifs), runtime_error);
 }
 
 TEST(TokenParser, HandlesSymbols) {
@@ -49,9 +47,7 @@ TEST(TokenParser, HandlesLineCommentWithoutNewLine) {
     }
 
     ifstream ifs {file_name};
-    auto token = Token::parse(ifs);
-    ASSERT_THAT(token.value(), Eq(""));
-    ASSERT_THAT(token.type(), Eq(TokenType::UNKNOWN));
+    ASSERT_THROW(Token::parse(ifs), NoTokenErr);
 }
 
 TEST(TokenParser, IgnoresWhitespaceCharacters) {

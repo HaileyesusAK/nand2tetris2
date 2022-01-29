@@ -133,7 +133,7 @@ namespace ntt {
 
             /* read all characters until a whitespace or a symbol that is not an underscore is found */
             auto is_valid = [](char c) {
-                return (c != ' ' && (c == '_' || !Token::is_symbol(c)));
+                return (!std::isspace(c) && (c == '_' || !Token::is_symbol(c)));
             };
             while((c=ifs.get()) && ifs.good() && is_valid(c))
                 token.push_back(c);

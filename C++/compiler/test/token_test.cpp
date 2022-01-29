@@ -98,7 +98,7 @@ TEST(TokenParser, HandlesIntegers) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
-        ofs << "123";
+        ofs << "123" << endl;
     }
 
     ifstream ifs {file_name};

@@ -1,8 +1,9 @@
 #ifndef __SYNTAX_TREE__
-#define __SYNTAX_TREE_
+#define __SYNTAX_TREE__
 
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <vector>
 
 #include "token.hpp"
@@ -16,24 +17,18 @@ namespace ntt {
     class SyntaxTree {
 
         public:
-            SyntaxTree(const Token& root) : root_(root) {}
+            explicit SyntaxTree(const Token& root) : root_(root) {}
 
-            void add_child(Tree sub_tree);
-
-            static Tree parse(std::ifstream&);
+            std::string to_xml(int level = 0);
 
         private:
             Token root_;
+
+            std::string label_;
+
             std::vector<Tree> children_;
 
-            static Tree parse_var_dec(std::ifstream&);
-
-            static Token consume_type(std::ifstream&);
-
-            static Token consume_identifier(std::ifstream&);
-
-            static Token consume_symbol(std::ifstream&, const std::string&);
-
+            void write_line(std::ostringstream&, const std::string&, int level);
     };
 }
 

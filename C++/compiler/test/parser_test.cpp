@@ -33,3 +33,28 @@ TEST(Parser, HandlesStringConstant) {
     auto tree = parser.parse_term();
     ASSERT_THAT(tree->to_xml(), "<stringConstant> ciao </stringConstant>\n");
 }
+
+TEST(Parser, HandlesKeywordConstant) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "this";
+    }
+
+    ifstream ifs {file_name};
+    auto parser = Parser(ifs);
+    auto tree = parser.parse_term();
+    ASSERT_THAT(tree->to_xml(), "<keyword> this </keyword>\n");
+}
+
+TEST(Parser, ThrowsExceptionForInvalidKeywordConstant) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "int";
+    }
+
+    ifstream ifs {file_name};
+    auto parser = Parser(ifs);
+    ASSERT_THROW(parser.parse_term(), runtime_error);
+}

@@ -53,3 +53,18 @@ TEST(Parser, HandlesExpression) {
 
     ASSERT_THAT(Utils::cmpFiles(output_file, DATA_DIR / "expression.xml"), Eq(true));
 }
+
+TEST(Parser, HandlesArrayTerm) {
+    fs::path input_file { DATA_DIR / "array_term.jack" };
+    ifstream ifs {input_file};
+    auto parser = Parser(ifs);
+    auto tree = parser.parse_term();
+
+    fs::path output_file { DATA_DIR / "tmp.xml" };
+    {
+        ofstream ofs {output_file};
+        ofs << tree->to_xml();
+    }
+
+    ASSERT_THAT(Utils::cmpFiles(output_file, DATA_DIR / "array_term.xml"), Eq(true));
+}

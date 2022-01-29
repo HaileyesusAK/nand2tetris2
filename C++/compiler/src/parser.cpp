@@ -15,6 +15,8 @@ namespace ntt {
         subroutineCall  : subroutineName '(' expressionList ')' |
                           (className | varName) '.' subroutineName '(' expressionList ')'
         subroutineName  : identifier
+        varName         : identifier
+        className       : identifier
     */
     Tree Parser::parse_term() {
         if(!tokenizer.has_token())
@@ -40,6 +42,13 @@ namespace ntt {
 
             case TokenType::IDENTIFIER:
                 tree->add_child(std::make_unique<Leaf>(token));
+                if(tokenizer.has_token()) {
+                    if(tokenizer.peek().value() == "[") { // Array expression
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // add [
+                        tree->add_child(parse_exp()); // add exp
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add ]
+                    }
+                }
             break;
 
             default:

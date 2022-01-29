@@ -20,3 +20,16 @@ TEST(Parser, HandlesIntegerConstant) {
     auto tree = parser.parse_term();
     ASSERT_THAT(tree->to_xml(), "<integerConstant> 5 </integerConstant>\n");
 }
+
+TEST(Parser, HandlesStringConstant) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"ciao\"";
+    }
+
+    ifstream ifs {file_name};
+    auto parser = Parser(ifs);
+    auto tree = parser.parse_term();
+    ASSERT_THAT(tree->to_xml(), "<stringConstant> ciao </stringConstant>\n");
+}

@@ -21,10 +21,10 @@ namespace ntt {
         auto token = tokenizer.get();
         switch(token.type()) {
             case TokenType::INTEGER:
+            case TokenType::STRING:
                 return std::make_unique<SyntaxTree>(token);
             default:
                 return nullptr;
-
         }
     }
 }

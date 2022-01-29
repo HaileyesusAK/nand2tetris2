@@ -18,7 +18,7 @@ TEST(Parser, HandlesIntegerConstantTerm) {
     ifstream ifs {file_name};
     auto parser = Parser(ifs);
     auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<integerConstant> 5 </integerConstant>\n");
+    ASSERT_THAT(tree->to_xml(), "<term>\n    <integerConstant> 5 </integerConstant>\n</term>\n");
 }
 
 TEST(Parser, HandlesStringConstantTerm) {
@@ -31,7 +31,7 @@ TEST(Parser, HandlesStringConstantTerm) {
     ifstream ifs {file_name};
     auto parser = Parser(ifs);
     auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<stringConstant> ciao </stringConstant>\n");
+    ASSERT_THAT(tree->to_xml(), "<term>\n    <stringConstant> ciao </stringConstant>\n</term>\n");
 }
 
 TEST(Parser, HandlesKeywordConstantTerm) {
@@ -44,7 +44,7 @@ TEST(Parser, HandlesKeywordConstantTerm) {
     ifstream ifs {file_name};
     auto parser = Parser(ifs);
     auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<keyword> this </keyword>\n");
+    ASSERT_THAT(tree->to_xml(), "<term>\n    <keyword> this </keyword>\n</term>\n");
 }
 
 TEST(Parser, ThrowsExceptionForInvalidKeywordConstant) {
@@ -69,5 +69,5 @@ TEST(Parser, HandlesIdentifierTerm) {
     ifstream ifs {file_name};
     auto parser = Parser(ifs);
     auto tree = parser.parse_term();
-    ASSERT_THAT(tree->to_xml(), "<identifier> age </identifier>\n");
+    ASSERT_THAT(tree->to_xml(), "<term>\n    <identifier> age </identifier>\n</term>\n");
 }

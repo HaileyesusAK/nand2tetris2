@@ -16,16 +16,23 @@ namespace ntt {
     std::string SyntaxTree::to_xml(int level) {
         std::ostringstream oss;
 
-        if(children_.empty()) {
-            write_line(oss, root_.to_xml(), level);
-        }
-        else {
-            write_line(oss, "<" + label_ + ">", level);
-            for(auto &sub_tree : children_)
-                oss << sub_tree->to_xml(level + 1);
-            write_line(oss, "</" + label_ + ">", level);
-        }
+        write_line(oss, "<" + label_ + ">", level);
 
+        for(auto &sub_tree : children_)
+            oss << sub_tree->to_xml(level + 1);
+
+        write_line(oss, "</" + label_ + ">", level);
+
+        return oss.str();
+    }
+    
+    void SyntaxTree::add_child(Tree tree) {
+        children_.push_back(std::move(tree));
+    }
+
+    std::string Leaf::to_xml(int level) {
+        std::ostringstream oss;
+        write_line(oss, token_.to_xml(), level);
         return oss.str();
     }
 }

@@ -21,23 +21,31 @@ namespace ntt {
             throw NoTokenErr();
 
         static std::unordered_set<std::string> keywords {"true", "false", "null", "this"};
+        
+        auto tree = std::make_unique<SyntaxTree>("term");
+
         auto token = tokenizer.get();
         switch(token.type()) {
             case TokenType::INTEGER:
             case TokenType::STRING:
-                return std::make_unique<SyntaxTree>(token);
+                tree->add_child(std::make_unique<Leaf>(token));
+            break;
 
             case TokenType::KEYWORD:
                 if(!keywords.count(token.value()))
                     throw std::runtime_error("invalid keyword constant");
                 else
-                    return std::make_unique<SyntaxTree>(token);
+                    tree->add_child(std::make_unique<Leaf>(token));
+            break;
 
             case TokenType::IDENTIFIER:
-                return std::make_unique<SyntaxTree>(token);
+                tree->add_child(std::make_unique<Leaf>(token));
+            break;
 
             default:
                 return nullptr;
         }
+
+        return tree;
     }
 }

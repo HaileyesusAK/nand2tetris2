@@ -5,7 +5,6 @@
 #include <memory>
 #include <sstream>
 #include <vector>
-
 #include "token.hpp"
 
 namespace ntt {
@@ -17,18 +16,29 @@ namespace ntt {
     class SyntaxTree {
 
         public:
-            explicit SyntaxTree(const Token& root) : root_(root) {}
+            SyntaxTree(const std::string& label) : label_(label) {}
 
-            std::string to_xml(int level = 0);
+            virtual std::string to_xml(int level = 0);
+
+            void add_child(Tree tree);
+
+        protected:
+            void write_line(std::ostringstream&, const std::string&, int level);
 
         private:
-            Token root_;
-
             std::string label_;
 
             std::vector<Tree> children_;
+    };
 
-            void write_line(std::ostringstream&, const std::string&, int level);
+    class Leaf final : public SyntaxTree {
+        public:
+            Leaf(const Token& token) : SyntaxTree(""), token_(token) {}
+
+            std::string to_xml(int level) override;
+
+        private:
+            Token token_;
     };
 }
 

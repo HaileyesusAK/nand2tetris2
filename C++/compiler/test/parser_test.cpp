@@ -8,7 +8,7 @@ using namespace std;
 using namespace testing;
 
 
-TEST(Parser, HandlesIntegerConstant) {
+TEST(Parser, HandlesIntegerConstantTerm) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
@@ -21,7 +21,7 @@ TEST(Parser, HandlesIntegerConstant) {
     ASSERT_THAT(tree->to_xml(), "<integerConstant> 5 </integerConstant>\n");
 }
 
-TEST(Parser, HandlesStringConstant) {
+TEST(Parser, HandlesStringConstantTerm) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
@@ -34,7 +34,7 @@ TEST(Parser, HandlesStringConstant) {
     ASSERT_THAT(tree->to_xml(), "<stringConstant> ciao </stringConstant>\n");
 }
 
-TEST(Parser, HandlesKeywordConstant) {
+TEST(Parser, HandlesKeywordConstantTerm) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
@@ -57,4 +57,17 @@ TEST(Parser, ThrowsExceptionForInvalidKeywordConstant) {
     ifstream ifs {file_name};
     auto parser = Parser(ifs);
     ASSERT_THROW(parser.parse_term(), runtime_error);
+}
+
+TEST(Parser, HandlesIdentifierTerm) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "age";
+    }
+
+    ifstream ifs {file_name};
+    auto parser = Parser(ifs);
+    auto tree = parser.parse_term();
+    ASSERT_THAT(tree->to_xml(), "<identifier> age </identifier>\n");
 }

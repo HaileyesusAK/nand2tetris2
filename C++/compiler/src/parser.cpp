@@ -26,11 +26,16 @@ namespace ntt {
             case TokenType::INTEGER:
             case TokenType::STRING:
                 return std::make_unique<SyntaxTree>(token);
+
             case TokenType::KEYWORD:
                 if(!keywords.count(token.value()))
                     throw std::runtime_error("invalid keyword constant");
                 else
                     return std::make_unique<SyntaxTree>(token);
+
+            case TokenType::IDENTIFIER:
+                return std::make_unique<SyntaxTree>(token);
+
             default:
                 return nullptr;
         }

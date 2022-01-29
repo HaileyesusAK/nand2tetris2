@@ -8,20 +8,30 @@
 
 namespace ntt {
 
-    void Tokenizer::to_xml(std::ifstream& ifs, std::ofstream& ofs) {
-        if(!ifs.is_open() || !ofs.is_open())
+    Token Tokenizer::get() {
+        if(tokens_.empty())
+            tokens_.push(Token::parse(ifs_));
+
+        auto token = tokens_.front();
+        tokens_.pop();
+        return token;
+    }
+
+    bool Tokenizer::has_token() {
+        tokens_.push(Token::parse(ifs_));
+        return tokens_.front().type() != TokenType::UNKNOWN;
+    }
+
+    void Tokenizer::to_xml(std::ofstream& ofs) {
+        if(!ofs.is_open())
             throw std::runtime_error("file is not open");
 
         ofs << "<tokens>" << std::endl;
-        while(ifs.peek() != EOF) {
-            /* remove any whitespace characters */
-            std::ws(ifs);
-            if(ifs.peek() == EOF)
-                break;
-
-            ofs << Token::parse(ifs).to_xml() << std::endl;
+        while(has_token()) {
+            auto token = get();
+            //ofs << Token::parse(ifs).to_xml() << std::endl;
+            ofs << token.to_xml() << std::endl;
         }
         ofs << "</tokens>" << std::endl;
     }
-
 }

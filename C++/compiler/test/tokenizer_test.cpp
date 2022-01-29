@@ -36,7 +36,7 @@ class TokenizerTester : public Test {
             ifstream ifs {input_path};
             ofstream ofs {output_path};
 
-            Tokenizer::to_xml(ifs, ofs);
+            Tokenizer(ifs).to_xml(ofs);
             fs::path expected_output_path = DATA_DIR / fs::path{"expected"} / expected_file_path;
             return cmpFiles(output_path, expected_output_path);
         }
@@ -46,7 +46,7 @@ TEST_F(TokenizerTester, InvalidFileStream) {
     ifstream ifs;
     ofstream ofs;
 
-    ASSERT_THROW(Tokenizer::to_xml(ifs, ofs), runtime_error);
+    ASSERT_THROW(Tokenizer(ifs).to_xml(ofs), runtime_error);
 }
 
 /*

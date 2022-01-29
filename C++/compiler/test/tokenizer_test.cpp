@@ -9,8 +9,7 @@ using namespace std;
 using namespace testing;
 namespace fs = std::filesystem;
 
-fs::path DATA_DIR = fs::path{TEST_DIR} / "data";
-
+const fs::path DATA_DIR = fs::path{TEST_DIR} / "data";
 
 class TokenizerTester : public Test {
     public:

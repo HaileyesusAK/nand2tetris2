@@ -27,7 +27,14 @@ namespace ntt {
 
             Tree parse_return_statement();
 
+            Tree parse_if_statement();
+
         private:
+
+            Tree parse_statement();
+
+            Tree parse_statements();
+
             Tokenizer tokenizer;
 
     };

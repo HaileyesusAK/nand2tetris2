@@ -39,6 +39,10 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_return_statement(), expected_output_file);
         }
 
+        bool parse_if_statement(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_if_statement(), expected_output_file);
+        }
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -117,4 +121,12 @@ TEST_F(FParser, HandlesDoStatement) {
 
 TEST_F(FParser, HandlesVoidReturnStatement) {
     ASSERT_THAT(parse_return_statement("return_void.jack", "return_void.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesIfStatement) {
+    ASSERT_THAT(parse_if_statement("if.jack", "if.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesIfElseStatement) {
+    ASSERT_THAT(parse_if_statement("if_else.jack", "if_else.xml"), Eq(true));
 }

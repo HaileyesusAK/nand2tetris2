@@ -2,8 +2,9 @@
 #define __TOKENIZER_H__
 
 #include <fstream>
-#include <queue>
+#include <deque>
 #include <string>
+#include <unordered_set>
 #include "token.hpp"
 
 namespace ntt {
@@ -15,6 +16,8 @@ namespace ntt {
             
             Token get();
 
+            void put(const Token& token);
+
             const Token& peek();
 
             bool has_token();
@@ -23,13 +26,13 @@ namespace ntt {
 
             Token consume_identifier();
 
-            Token consume_keyword(const std::string&);
+            Token consume_keyword(const std::unordered_set<std::string>&);
 
             Token consume_symbol(const std::string&);
 
         private:
 
-            std::queue<Token> tokens_;
+            std::deque<Token> tokens_;
 	};
 
 }

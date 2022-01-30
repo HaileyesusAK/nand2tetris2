@@ -1,0 +1,7 @@
+if (~true) {
+	let a = 10;
+}
+else {
+	do cmp(a, b);
+	return a + b;
+}

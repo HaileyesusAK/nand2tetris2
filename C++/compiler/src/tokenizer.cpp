@@ -1,5 +1,6 @@
 #include <fstream>
 #include <stdexcept>
+#include <unordered_set>
 #include "token.hpp"
 #include "tokenizer.hpp"
 
@@ -10,7 +11,7 @@ namespace ntt {
         while(true) {
             try {
                 auto token = Token::parse(ifs);
-                tokens_.push(token);
+                tokens_.push_back(token);
             }
             catch(NoTokenErr&) {
                 break;
@@ -20,8 +21,12 @@ namespace ntt {
 
     Token Tokenizer::get() {
         auto token = tokens_.front();
-        tokens_.pop();
+        tokens_.pop_front();
         return token;
+    }
+
+    void Tokenizer::put(const Token& token) {
+        tokens_.push_front(token);
     }
     
     const Token& Tokenizer::peek() { 
@@ -43,11 +48,11 @@ namespace ntt {
         if(token.type() != TokenType::IDENTIFIER)
             throw std::domain_error("token is not an identifier");
 
-        tokens_.pop();
+        tokens_.pop_front();
         return token;
     }
     
-    Token Tokenizer::consume_keyword(const std::string& value) {
+    Token Tokenizer::consume_keyword(const std::unordered_set<std::string>& values) {
         if(tokens_.empty())
             throw std::domain_error("empty token stream");
 
@@ -55,10 +60,10 @@ namespace ntt {
         if(token.type() != TokenType::KEYWORD)
             throw std::domain_error("token is not a keyword");
 
-        if(token.value() != value)
+        if(!values.empty() && !values.count(token.value()))
             throw std::domain_error("unexpected keyword");
             
-        tokens_.pop();
+        tokens_.pop_front();
         return token;
     }
 
@@ -73,7 +78,7 @@ namespace ntt {
         if(token.value() != value)
             throw std::domain_error("unexpected symbol");
             
-        tokens_.pop();
+        tokens_.pop_front();
         return token;
     }
 

@@ -1,11 +1,13 @@
 #include <fstream>
 #include <memory>
 #include <stdexcept>
+#include <unordered_map>
 #include <unordered_set>
 #include "parser.hpp"
 #include "syntax_tree.hpp"
 #include "token.hpp"
 #include <iostream>
+
 namespace ntt {
 
     /*
@@ -150,7 +152,7 @@ namespace ntt {
 
         auto tree = std::make_unique<SyntaxTree>("letStatement");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword("let")));
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"let"})));
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));
         if(tokenizer.peek().value() == "[") {
             tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // [
@@ -172,7 +174,7 @@ namespace ntt {
             throw NoTokenErr();
 
         auto tree = std::make_unique<SyntaxTree>("doStatement");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword("do")));   // do
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"do"})));   // do
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // identifier 
 
         if(tokenizer.peek().value() == "(") { // subroutine call
@@ -204,11 +206,83 @@ namespace ntt {
             throw NoTokenErr();
 
         auto tree = std::make_unique<SyntaxTree>("returnStatement");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword("return")));   // return 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"return"})));   // return 
         if(tokenizer.peek().value() != ";")
             tree->add_child(parse_exp());
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ; 
 
         return tree;
+    }
+
+
+    /*
+    ifStatement : 'if' '(' expression ')' '{' statements '}'
+                  ('else' '{' statements '}')?
+    */
+    Tree Parser::parse_if_statement() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("ifStatement");
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"if"})));   // if 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // ( 
+        tree->add_child(parse_exp());   // expression
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));   // {
+
+        auto stats_tree = parse_statements();
+        if(stats_tree != nullptr)
+            tree->add_child(std::move(stats_tree));
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // } 
+
+        if(tokenizer.has_token() && tokenizer.peek().value() == "else") {
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // else 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));   // {
+
+            auto stats_tree = parse_statements();
+            if(stats_tree != nullptr)
+                tree->add_child(std::move(stats_tree));
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // } 
+        }
+
+        return tree;
+    }
+
+    /*
+        statements : statement*
+    */
+    Tree Parser::parse_statements() {
+        /*
+            statements are evaluated in the context of a block, that is, inside a brace pair ({}).
+            Therefore, continue evaluating the token stream until '}' is encountered.
+        */
+        if(tokenizer.peek().value() != "}") {
+            auto tree = std::make_unique<SyntaxTree>("statements");
+            while(tokenizer.peek().value() != "}") {
+                tree->add_child(parse_statement()); // parse statements
+            }
+            return tree;
+        }
+
+        return nullptr;
+    }
+
+    /*
+        statement  : letStatement | ifStatement | whileStatement | doStatement | returnStatement
+    */
+    Tree Parser::parse_statement() {
+        const static std::unordered_map<std::string, Tree(Parser::*)()> parsers {
+            {"let", &Parser::parse_let_statement},
+            {"if", &Parser::parse_if_statement},
+            {"return", &Parser::parse_return_statement},
+            {"do", &Parser::parse_do_statement}
+        };
+
+        auto token = tokenizer.consume_keyword({"let", "if", "return", "do"});
+        tokenizer.put(token);
+
+        auto parser = parsers.at(token.value());
+        return (this->*parser)();
     }
 }

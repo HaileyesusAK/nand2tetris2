@@ -14,6 +14,7 @@ namespace ntt {
         keywordConstant : 'true' | 'false' | 'null' | 'this'
         subroutineCall  : subroutineName '(' expressionList ')' |
                           (className | varName) '.' subroutineName '(' expressionList ')'
+        unaryOP         : '-' | '~'
         subroutineName  : identifier
         varName         : identifier
         className       : identifier
@@ -49,6 +50,16 @@ namespace ntt {
                         tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add ]
                     }
                 }
+            break;
+
+            case TokenType::SYMBOL:
+                if(token.value() == "(") {
+                    tree->add_child(std::make_unique<Leaf>(token)); // add (
+                    tree->add_child(parse_exp());   // add exp
+                    tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add )
+                }
+                else
+                    throw std::runtime_error("invalid symbol token");
             break;
 
             default:

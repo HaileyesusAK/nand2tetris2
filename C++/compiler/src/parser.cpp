@@ -250,6 +250,28 @@ namespace ntt {
     }
 
     /*
+       whileStatement : 'while' '(' expression ')' '{' statements '}' 
+    */
+    Tree Parser::parse_while_statement() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("whileStatement");
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"while"})));  // while
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("("))); // (
+        tree->add_child(parse_exp());   // expression
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{"))); // {
+        auto stats_tree = parse_statements();   // statements
+        if(stats_tree != nullptr)
+            tree->add_child(std::move(stats_tree)); 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}"))); // }
+
+        return tree;
+    }
+
+    /*
         statements : statement*
     */
     Tree Parser::parse_statements() {
@@ -276,10 +298,11 @@ namespace ntt {
             {"let", &Parser::parse_let_statement},
             {"if", &Parser::parse_if_statement},
             {"return", &Parser::parse_return_statement},
-            {"do", &Parser::parse_do_statement}
+            {"do", &Parser::parse_do_statement},
+            {"while", &Parser::parse_while_statement}
         };
 
-        auto token = tokenizer.consume_keyword({"let", "if", "return", "do"});
+        auto token = tokenizer.consume_keyword({"let", "if", "return", "do", "while"});
         tokenizer.put(token);
 
         auto parser = parsers.at(token.value());

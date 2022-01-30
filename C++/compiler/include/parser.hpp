@@ -29,6 +29,8 @@ namespace ntt {
 
             Tree parse_if_statement();
 
+            Tree parse_while_statement();
+
         private:
 
             Tree parse_statement();

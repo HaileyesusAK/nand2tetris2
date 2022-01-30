@@ -43,6 +43,10 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_if_statement(), expected_output_file);
         }
 
+        bool parse_while_statement(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_while_statement(), expected_output_file);
+        }
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -129,4 +133,8 @@ TEST_F(FParser, HandlesIfStatement) {
 
 TEST_F(FParser, HandlesIfElseStatement) {
     ASSERT_THAT(parse_if_statement("if_else.jack", "if_else.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesWhileStatement) {
+    ASSERT_THAT(parse_while_statement("while.jack", "while.xml"), Eq(true));
 }

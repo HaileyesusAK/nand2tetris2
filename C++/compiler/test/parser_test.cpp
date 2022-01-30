@@ -55,6 +55,10 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_parameter_list(), expected_output_file);
         }
 
+        bool parse_subroutine_body(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_subroutine_body(), expected_output_file);
+        }
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -157,4 +161,8 @@ TEST_F(FParser, HandlesMultiVariableDeclaration) {
 
 TEST_F(FParser, HandlesParameterList) {
     ASSERT_THAT(parse_parameter_list("parameter_list.jack", "parameter_list.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesSubroutineBody) {
+    ASSERT_THAT(parse_subroutine_body("subroutine_body.jack", "subroutine_body.xml"), Eq(true));
 }

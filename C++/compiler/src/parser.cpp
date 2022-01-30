@@ -359,4 +359,27 @@ namespace ntt {
 
         return tree;
     }
+
+    /*
+        subroutineBody : '{' varDec* statements '}'
+    */
+    Tree Parser::parse_subroutine_body() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+        
+        auto tree = std::make_unique<SyntaxTree>("subroutineBody");
+        
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{"))); // {
+
+        while(tokenizer.peek().value() == "var")
+            tree->add_child(parse_var_dec());   // varDec*
+
+        auto stats_tree = parse_statements();
+        if(stats_tree != nullptr)
+            tree->add_child(std::move(stats_tree));   // statements 
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}"))); // }
+
+        return tree;
+    }
 }

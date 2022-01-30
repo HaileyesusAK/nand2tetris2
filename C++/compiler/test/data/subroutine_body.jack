@@ -1,0 +1,5 @@
+{ 
+	var int a;
+	var boolean fixed;
+	var char ch;
+}

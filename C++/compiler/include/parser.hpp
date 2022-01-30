@@ -35,6 +35,8 @@ namespace ntt {
 
             Tree parse_parameter_list();
 
+            Tree parse_subroutine_body();
+
         private:
 
             Tree parse_statement();

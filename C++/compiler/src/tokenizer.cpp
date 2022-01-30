@@ -35,6 +35,18 @@ namespace ntt {
         return !tokens_.empty();
     }
 
+    Token Tokenizer::consume_identifier() {
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        auto token = tokens_.front();
+        if(token.type() != TokenType::IDENTIFIER)
+            throw std::domain_error("token is not an identifier");
+
+        tokens_.pop();
+        return token;
+    }
+
     void Tokenizer::to_xml(std::ofstream& ofs) {
         if(!ofs.is_open())
             throw std::runtime_error("file is not open");

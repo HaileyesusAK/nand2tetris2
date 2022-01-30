@@ -45,27 +45,34 @@ namespace ntt {
                 tree->add_child(std::make_unique<Leaf>(token));
                 if(tokenizer.has_token()) {
                     if(tokenizer.peek().value() == "[") { // Array expression
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // add [
-                        tree->add_child(parse_exp()); // add exp
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add ]
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // [
+                        tree->add_child(parse_exp()); // exp
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ]
                     }
                     else if(tokenizer.peek().value() == "(") { // subroutine call
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // add (
-                        tree->add_child(parse_exp_list()); // add exp list
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add )
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
+                        tree->add_child(parse_exp_list()); // exp list
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // )
+                    }
+                    else if(tokenizer.peek().value() == ".") { // method call
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // .
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));    // method name
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
+                        tree->add_child(parse_exp_list()); // exp list
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // )
                     }
                 }
             break;
 
             case TokenType::SYMBOL:
                 if(token.value() == "(") {
-                    tree->add_child(std::make_unique<Leaf>(token)); // add (
-                    tree->add_child(parse_exp());   // add exp
-                    tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add )
+                    tree->add_child(std::make_unique<Leaf>(token)); // (
+                    tree->add_child(parse_exp());   // exp
+                    tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // )
                 }
                 else if (token.value() == "-" || token.value() == "~") {
-                    tree->add_child(std::make_unique<Leaf>(token)); // add unaryOp
-                    tree->add_child(parse_term());   // add term 
+                    tree->add_child(std::make_unique<Leaf>(token)); // unaryOp
+                    tree->add_child(parse_term());   // term 
                 }
                 else
                     throw std::runtime_error("invalid symbol token");

@@ -21,6 +21,8 @@ namespace ntt {
 
             void to_xml(std::ofstream&);
 
+            Token consume_identifier();
+
         private:
 
             std::queue<Token> tokens_;

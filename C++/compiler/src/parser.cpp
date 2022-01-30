@@ -80,7 +80,7 @@ namespace ntt {
 
     Tree Parser::parse_exp() {
         static std::unordered_set<std::string> ops {
-            "+" ,  "-" ,  "*" ,  "/" ,  "&" ,  "," ,  "<" ,  ">" ,  "="
+            "+" ,  "-" ,  "*" ,  "/" ,  "&" ,  "|" ,  "<" ,  ">" ,  "="
         };
 
         if(!tokenizer.has_token())
@@ -99,6 +99,30 @@ namespace ntt {
 
             tree->add_child(std::make_unique<Leaf>(tokenizer.get()));
             tree->add_child(parse_term());
+        }
+
+        return tree;
+    }
+
+    /*
+        expressionList : (expression (',' expression)*)?
+    */
+    Tree Parser::parse_exp_list() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("expressionList");
+        /*
+            expressionList is evaluated in the context of subroutine call; hence,
+            by checking the value of the next token, it is possible to determine
+            wether the expression list is empty or not.
+        */
+        if(tokenizer.peek().value() != ")") {
+            tree->add_child(parse_exp());
+            while(tokenizer.has_token() && tokenizer.peek().value() == ",") {
+                tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // add ,
+                tree->add_child(parse_exp());
+            }
         }
 
         return tree;

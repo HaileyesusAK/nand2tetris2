@@ -1,0 +1,4 @@
+class Circle {
+	field int radius;
+	static int instances;
+}

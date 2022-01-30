@@ -41,6 +41,8 @@ namespace ntt {
 
             Tree parse_class_var_dec();
 
+            Tree parse_class();
+
         private:
 
             Tree parse_statement();

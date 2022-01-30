@@ -26,7 +26,7 @@ namespace ntt {
             throw NoTokenErr();
 
         static std::unordered_set<std::string> keywords {"true", "false", "null", "this"};
-        
+
         auto tree = std::make_unique<SyntaxTree>("term");
 
         auto token = tokenizer.get();
@@ -74,7 +74,7 @@ namespace ntt {
                 }
                 else if (token.value() == "-" || token.value() == "~") {
                     tree->add_child(std::make_unique<Leaf>(token)); // unaryOp
-                    tree->add_child(parse_term());   // term 
+                    tree->add_child(parse_term());   // term
                 }
                 else
                     throw std::runtime_error("invalid symbol token");
@@ -161,7 +161,7 @@ namespace ntt {
         }
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("=")));   // =
         tree->add_child(parse_exp());   // expression
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ; 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ;
 
         return tree;
     }
@@ -175,7 +175,7 @@ namespace ntt {
 
         auto tree = std::make_unique<SyntaxTree>("doStatement");
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"do"})));   // do
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // identifier 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // identifier
 
         if(tokenizer.peek().value() == "(") { // subroutine call
             tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
@@ -192,7 +192,7 @@ namespace ntt {
         else
             throw std::runtime_error("invalid token");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ; 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ;
 
         return tree;
     }
@@ -206,10 +206,10 @@ namespace ntt {
             throw NoTokenErr();
 
         auto tree = std::make_unique<SyntaxTree>("returnStatement");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"return"})));   // return 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"return"})));   // return
         if(tokenizer.peek().value() != ";")
             tree->add_child(parse_exp());
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ; 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ;
 
         return tree;
     }
@@ -225,8 +225,8 @@ namespace ntt {
 
         auto tree = std::make_unique<SyntaxTree>("ifStatement");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"if"})));   // if 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // ( 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"if"})));   // if
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
         tree->add_child(parse_exp());   // expression
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));   // {
@@ -234,23 +234,23 @@ namespace ntt {
         auto stats_tree = parse_statements();
         if(stats_tree != nullptr)
             tree->add_child(std::move(stats_tree));
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // } 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // }
 
         if(tokenizer.has_token() && tokenizer.peek().value() == "else") {
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // else 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // else
             tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));   // {
 
             auto stats_tree = parse_statements();
             if(stats_tree != nullptr)
                 tree->add_child(std::move(stats_tree));
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // } 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // }
         }
 
         return tree;
     }
 
     /*
-       whileStatement : 'while' '(' expression ')' '{' statements '}' 
+       whileStatement : 'while' '(' expression ')' '{' statements '}'
     */
     Tree Parser::parse_while_statement() {
         if(!tokenizer.has_token())
@@ -265,7 +265,7 @@ namespace ntt {
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{"))); // {
         auto stats_tree = parse_statements();   // statements
         if(stats_tree != nullptr)
-            tree->add_child(std::move(stats_tree)); 
+            tree->add_child(std::move(stats_tree));
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}"))); // }
 
         return tree;
@@ -322,18 +322,18 @@ namespace ntt {
 
         auto tree = std::make_unique<SyntaxTree>("varDec");
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"var"})));    // var
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName
 
         while(tokenizer.has_token() && tokenizer.peek().value() != ";") {
             tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(",")));     // ,
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName
         }
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));     // ;
 
         return tree;
     }
-    
+
     /*
         parameterList : ((type varName)(',' type varName)*)?
     */
@@ -349,11 +349,11 @@ namespace ntt {
         */
         if(tokenizer.peek().value() != ")") {
             tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName
             while(tokenizer.has_token() && tokenizer.peek().value() == ",") {
                 tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ,
                 tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
-                tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName 
+                tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName
             }
         }
 
@@ -366,9 +366,9 @@ namespace ntt {
     Tree Parser::parse_subroutine_body() {
         if(!tokenizer.has_token())
             throw NoTokenErr();
-        
+
         auto tree = std::make_unique<SyntaxTree>("subroutineBody");
-        
+
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{"))); // {
 
         while(tokenizer.peek().value() == "var")
@@ -376,7 +376,7 @@ namespace ntt {
 
         auto stats_tree = parse_statements();
         if(stats_tree != nullptr)
-            tree->add_child(std::move(stats_tree));   // statements 
+            tree->add_child(std::move(stats_tree));   // statements
 
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}"))); // }
 
@@ -391,42 +391,69 @@ namespace ntt {
     Tree Parser::parse_subroutine_dec() {
         if(!tokenizer.has_token())
             throw NoTokenErr();
-        
+
         auto tree = std::make_unique<SyntaxTree>("subroutineDec");
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"constructor", "function", "method"})));
 
         if(tokenizer.peek().value() == "void")
             tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // void
         else
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // subrouteName 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // ( 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // subrouteName
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
         tree->add_child(parse_parameter_list());    // parameterList
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")")));   // ) 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")")));   // )
         tree->add_child(parse_subroutine_body());
 
         return tree;
     }
-   
+
     /*
-        classVarDec : ('static' | 'field') type varName(','varName)* ';' 
+        classVarDec : ('static' | 'field') type varName(','varName)* ';'
     */
     Tree Parser::parse_class_var_dec() {
         if(!tokenizer.has_token())
             throw NoTokenErr();
-        
+
         auto tree = std::make_unique<SyntaxTree>("classVarDec");
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"static", "field"})));
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));  // type
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName
 
         while(tokenizer.peek().value() == ",") {
             tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ,
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName 
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName
         }
 
         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ;
+
+        return tree;
+    }
+
+    /*
+        class     : 'class' className '{' classVarDec* subroutineDec* '}'
+        className : identifier
+    */
+    Tree Parser::parse_class() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("class");
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"class"})));
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // className
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));  // {
+
+        while(tokenizer.peek().value() == "static" || tokenizer.peek().value() == "field")
+            tree->add_child(parse_class_var_dec());
+
+        while(tokenizer.peek().value() == "constructor" ||
+              tokenizer.peek().value() == "function" ||
+              tokenizer.peek().value() == "method") {
+            tree->add_child(parse_subroutine_dec());
+        }
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));  // }
 
         return tree;
     }

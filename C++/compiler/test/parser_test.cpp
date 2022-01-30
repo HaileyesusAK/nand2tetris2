@@ -67,6 +67,10 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_class_var_dec(), expected_output_file);
         }
 
+        bool parse_class(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_class(), expected_output_file);
+        }
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -75,7 +79,7 @@ class FParser : public Test {
         }
 
         bool cmp_xml(Tree tree, const std::string& expected_output_file) {
-        
+
             fs::path output_file { DATA_DIR / "tmp.xml" };
             {
                 ofstream ofs {output_file};
@@ -84,7 +88,7 @@ class FParser : public Test {
 
             return Utils::cmpFiles(output_file, DATA_DIR / expected_output_file);
         }
-         
+
 };
 
 TEST_F(FParser, ThrowsExceptionForInvalidKeywordConstant) {
@@ -177,4 +181,16 @@ TEST_F(FParser, HandlesSubroutineBody) {
 
 TEST_F(FParser, HandlesClassVarDec){
     ASSERT_THAT(parse_class_var_dec("class_var_dec.jack", "class_var_dec.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesEmptyClass){
+    ASSERT_THAT(parse_class("class_empty.jack", "class_empty.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesClassWithData){
+    ASSERT_THAT(parse_class("class_data.jack", "class_data.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesClassWitMethod){
+    ASSERT_THAT(parse_class("class_method.jack", "class_method.xml"), Eq(true));
 }

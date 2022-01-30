@@ -63,6 +63,10 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_subroutine_dec(), expected_output_file);
         }
 
+        bool parse_class_var_dec(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_class_var_dec(), expected_output_file);
+        }
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -171,6 +175,6 @@ TEST_F(FParser, HandlesSubroutineBody) {
     ASSERT_THAT(parse_subroutine_body("subroutine_body.jack", "subroutine_body.xml"), Eq(true));
 }
 
-TEST_F(FParser, HandlesSubroutineDec) {
-    ASSERT_THAT(parse_subroutine_dec("subroutine_dec.jack", "subroutine_dec.xml"), Eq(true));
+TEST_F(FParser, HandlesClassVarDec){
+    ASSERT_THAT(parse_class_var_dec("class_var_dec.jack", "class_var_dec.xml"), Eq(true));
 }

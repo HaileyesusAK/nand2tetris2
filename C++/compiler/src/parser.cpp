@@ -408,4 +408,26 @@ namespace ntt {
 
         return tree;
     }
+   
+    /*
+        classVarDec : ('static' | 'field') type varName(','varName)* ';' 
+    */
+    Tree Parser::parse_class_var_dec() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+        
+        auto tree = std::make_unique<SyntaxTree>("classVarDec");
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"static", "field"})));
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));  // type
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName 
+
+        while(tokenizer.peek().value() == ",") {
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ,
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName 
+        }
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ;
+
+        return tree;
+    }
 }

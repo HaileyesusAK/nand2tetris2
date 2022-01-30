@@ -163,4 +163,35 @@ namespace ntt {
 
         return tree;
     }
+
+    /*
+        doStatement : 'do' subroutineCall ';'
+    */
+    Tree Parser::parse_do_statement() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("doStatement");
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword("do")));   // do
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // identifier 
+
+        if(tokenizer.peek().value() == "(") { // subroutine call
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
+            tree->add_child(parse_exp_list()); // exp list
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+        }
+        else if(tokenizer.peek().value() == ".") { // method call
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // .
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));    // method name
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
+            tree->add_child(parse_exp_list()); // exp list
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+        }
+        else
+            throw std::runtime_error("invalid token");
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ; 
+
+        return tree;
+    }
 }

@@ -1,0 +1,3 @@
+constructor void circle(int radius) {
+	let r = radius; 
+}

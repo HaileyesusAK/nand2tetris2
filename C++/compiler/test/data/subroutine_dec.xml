@@ -1,0 +1,28 @@
+<subroutineDec>
+    <keyword> constructor </keyword>
+    <keyword> void </keyword>
+    <identifier> circle </identifier>
+    <symbol> ( </symbol>
+    <parameterList>
+        <keyword> int </keyword>
+        <identifier> radius </identifier>
+    </parameterList>
+    <symbol> ) </symbol>
+    <subroutineBody>
+        <symbol> { </symbol>
+        <statements>
+            <letStatement>
+                <keyword> let </keyword>
+                <identifier> r </identifier>
+                <symbol> = </symbol>
+                <expression>
+                    <term>
+                        <identifier> radius </identifier>
+                    </term>
+                </expression>
+                <symbol> ; </symbol>
+            </letStatement>
+        </statements>
+        <symbol> } </symbol>
+    </subroutineBody>
+</subroutineDec>

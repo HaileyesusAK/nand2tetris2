@@ -382,4 +382,30 @@ namespace ntt {
 
         return tree;
     }
+
+    /*
+        subroutineDec : ('constructor' | 'function' | 'method') ('void' | type) subroutineName '(' parameterList ')'
+                        subroutineBody
+        subroutineName : identifier
+    */
+    Tree Parser::parse_subroutine_dec() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+        
+        auto tree = std::make_unique<SyntaxTree>("subroutineDec");
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"constructor", "function", "method"})));
+
+        if(tokenizer.peek().value() == "void")
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // void
+        else
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type 
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // subrouteName 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // ( 
+        tree->add_child(parse_parameter_list());    // parameterList
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")")));   // ) 
+        tree->add_child(parse_subroutine_body());
+
+        return tree;
+    }
 }

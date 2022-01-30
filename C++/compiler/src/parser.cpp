@@ -58,6 +58,10 @@ namespace ntt {
                     tree->add_child(parse_exp());   // add exp
                     tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add )
                 }
+                else if (token.value() == "-" || token.value() == "~") {
+                    tree->add_child(std::make_unique<Leaf>(token)); // add unaryOp
+                    tree->add_child(parse_term());   // add term 
+                }
                 else
                     throw std::runtime_error("invalid symbol token");
             break;

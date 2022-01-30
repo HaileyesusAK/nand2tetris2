@@ -71,6 +71,10 @@ TEST_F(FParser, HandlesArrayTerm) {
     ASSERT_THAT(parse_term("array_term.jack", "array_term.xml"), Eq(true));
 }
 
-TEST_F(FParser, HandlesUnaryTerm) {
+TEST_F(FParser, HandlesParenthesizedTerm) {
     ASSERT_THAT(parse_term("parenthesized_term.jack", "parenthesized_term.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesUnaryTerm) {
+    ASSERT_THAT(parse_term("unaryop_terms.jack", "unaryop_terms.xml"), Eq(true));
 }

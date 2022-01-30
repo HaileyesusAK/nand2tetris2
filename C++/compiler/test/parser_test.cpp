@@ -35,6 +35,10 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_do_statement(), expected_output_file);
         }
 
+        bool parse_return_statement(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_return_statement(), expected_output_file);
+        }
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -109,4 +113,8 @@ TEST_F(FParser, HandlesArrayElementAssignment) {
 
 TEST_F(FParser, HandlesDoStatement) {
     ASSERT_THAT(parse_do_statement("do.jack", "do.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesVoidReturnStatement) {
+    ASSERT_THAT(parse_return_statement("return_void.jack", "return_void.xml"), Eq(true));
 }

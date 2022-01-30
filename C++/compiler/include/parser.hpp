@@ -25,6 +25,8 @@ namespace ntt {
 
             Tree parse_do_statement();
 
+            Tree parse_return_statement();
+
         private:
             Tokenizer tokenizer;
 

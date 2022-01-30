@@ -194,4 +194,21 @@ namespace ntt {
 
         return tree;
     }
+
+
+    /*
+        returnStatement : 'return' expression? ';'
+    */
+    Tree Parser::parse_return_statement() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("returnStatement");
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword("return")));   // return 
+        if(tokenizer.peek().value() != ";")
+            tree->add_child(parse_exp());
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ; 
+
+        return tree;
+    }
 }

@@ -333,4 +333,30 @@ namespace ntt {
 
         return tree;
     }
+    
+    /*
+        parameterList : ((type varName)(',' type varName)*)?
+    */
+    Tree Parser::parse_parameter_list() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("parameterList");
+
+        /*
+            parameter list are defined in the context of function definition;
+            therefore, continue checking the token stream until ')' is encountered.
+        */
+        if(tokenizer.peek().value() != ")") {
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName 
+            while(tokenizer.has_token() && tokenizer.peek().value() == ",") {
+                tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ,
+                tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
+                tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName 
+            }
+        }
+
+        return tree;
+    }
 }

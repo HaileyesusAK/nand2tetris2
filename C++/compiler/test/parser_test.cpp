@@ -51,6 +51,9 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_var_dec(), expected_output_file);
         }
 
+        bool parse_parameter_list(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_parameter_list(), expected_output_file);
+        }
 
     private:
         Parser get_parser(const std::string& input_file) {
@@ -150,4 +153,8 @@ TEST_F(FParser, HandlesSingleVariableDeclaration) {
 
 TEST_F(FParser, HandlesMultiVariableDeclaration) {
     ASSERT_THAT(parse_var_dec("multi_var_dec.jack", "multi_var_dec.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesParameterList) {
+    ASSERT_THAT(parse_parameter_list("parameter_list.jack", "parameter_list.xml"), Eq(true));
 }

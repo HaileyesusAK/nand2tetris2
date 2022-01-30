@@ -46,6 +46,36 @@ namespace ntt {
         tokens_.pop();
         return token;
     }
+    
+    Token Tokenizer::consume_keyword(const std::string& value) {
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        auto token = tokens_.front();
+        if(token.type() != TokenType::KEYWORD)
+            throw std::domain_error("token is not a keyword");
+
+        if(token.value() != value)
+            throw std::domain_error("unexpected keyword");
+            
+        tokens_.pop();
+        return token;
+    }
+
+    Token Tokenizer::consume_symbol(const std::string& value) {
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        auto token = tokens_.front();
+        if(token.type() != TokenType::SYMBOL)
+            throw std::domain_error("token is not a symbol");
+
+        if(token.value() != value)
+            throw std::domain_error("unexpected symbol");
+            
+        tokens_.pop();
+        return token;
+    }
 
     void Tokenizer::to_xml(std::ofstream& ofs) {
         if(!ofs.is_open())

@@ -16,41 +16,30 @@ class FParser : public Test {
 
     public:
         bool parse_term(std::string input_file, std::string expected_output_file) {
-            fs::path input_path { DATA_DIR / input_file };
-            ifstream ifs {input_path};
-            auto parser = ntt::Parser(ifs);
-            auto tree = parser.parse_term();
-
-            fs::path output_file { DATA_DIR / "tmp.xml" };
-            {
-                ofstream ofs {output_file};
-                ofs << tree->to_xml();
-            }
-
-            return Utils::cmpFiles(output_file, DATA_DIR / expected_output_file);
+            return cmp_xml(get_parser(input_file).parse_term(), expected_output_file);
         }
 
         bool parse_exp(std::string input_file, std::string expected_output_file) {
-            fs::path input_path { DATA_DIR / input_file };
-            ifstream ifs {input_path};
-            auto parser = ntt::Parser(ifs);
-            auto tree = parser.parse_exp();
-
-            fs::path output_file { DATA_DIR / "tmp.xml" };
-            {
-                ofstream ofs {output_file};
-                ofs << tree->to_xml();
-            }
-
-            return Utils::cmpFiles(output_file, DATA_DIR / expected_output_file);
+            return cmp_xml(get_parser(input_file).parse_exp(), expected_output_file);
         }
 
         bool parse_exp_list(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_exp_list(), expected_output_file);
+        }
+
+        bool parse_let_statement(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_let_statement(), expected_output_file);
+        }
+
+    private:
+        Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
             ifstream ifs {input_path};
-            auto parser = ntt::Parser(ifs);
-            auto tree = parser.parse_exp_list();
+            return ntt::Parser(ifs);
+        }
 
+        bool cmp_xml(Tree tree, const std::string& expected_output_file) {
+        
             fs::path output_file { DATA_DIR / "tmp.xml" };
             {
                 ofstream ofs {output_file};
@@ -104,4 +93,12 @@ TEST_F(FParser, HandlesSubroutineCall) {
 
 TEST_F(FParser, HandlesMethodCall) {
     ASSERT_THAT(parse_term("method_call.jack", "method_call.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesVariableAssignment) {
+    ASSERT_THAT(parse_let_statement("let_statement_variable.jack", "let_statement_variable.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesArrayElementAssignment) {
+    ASSERT_THAT(parse_let_statement("let_statement_array.jack", "let_statement_array.xml"), Eq(true));
 }

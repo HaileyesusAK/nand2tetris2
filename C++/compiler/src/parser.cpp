@@ -47,19 +47,19 @@ namespace ntt {
                     if(tokenizer.peek().value() == "[") { // Array expression
                         tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // [
                         tree->add_child(parse_exp()); // exp
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ]
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("]"))); // ]
                     }
                     else if(tokenizer.peek().value() == "(") { // subroutine call
                         tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
                         tree->add_child(parse_exp_list()); // exp list
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // )
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
                     }
                     else if(tokenizer.peek().value() == ".") { // method call
                         tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // .
                         tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));    // method name
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
                         tree->add_child(parse_exp_list()); // exp list
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // )
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
                     }
                 }
             break;
@@ -136,6 +136,30 @@ namespace ntt {
                 tree->add_child(parse_exp());
             }
         }
+
+        return tree;
+    }
+
+    /*
+        letStatement : 'let' varName ('[' expression ']')? '=' expression ';'
+        varName      : identifier
+    */
+    Tree Parser::parse_let_statement() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("letStatement");
+
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword("let")));
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));
+        if(tokenizer.peek().value() == "[") {
+            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // [
+            tree->add_child(parse_exp());   // expression
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("]")));   // ]
+        }
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("=")));   // =
+        tree->add_child(parse_exp());   // expression
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ; 
 
         return tree;
     }

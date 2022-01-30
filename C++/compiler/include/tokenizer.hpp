@@ -23,6 +23,10 @@ namespace ntt {
 
             Token consume_identifier();
 
+            Token consume_keyword(const std::string&);
+
+            Token consume_symbol(const std::string&);
+
         private:
 
             std::queue<Token> tokens_;

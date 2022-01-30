@@ -21,6 +21,8 @@ namespace ntt {
 
             Tree parse_exp_list();
 
+            Tree parse_let_statement();
+
         private:
             Tokenizer tokenizer;
 

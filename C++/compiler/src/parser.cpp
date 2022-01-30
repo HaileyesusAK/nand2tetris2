@@ -49,6 +49,11 @@ namespace ntt {
                         tree->add_child(parse_exp()); // add exp
                         tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add ]
                     }
+                    else if(tokenizer.peek().value() == "(") { // subroutine call
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // add (
+                        tree->add_child(parse_exp_list()); // add exp list
+                        tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // add )
+                    }
                 }
             break;
 

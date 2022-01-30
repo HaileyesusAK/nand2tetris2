@@ -97,3 +97,7 @@ TEST_F(FParser, HandlesUnaryTerm) {
 TEST_F(FParser, HandlesExpressionList) {
     ASSERT_THAT(parse_exp_list("expression_list.jack", "expression_list.xml"), Eq(true));
 }
+
+TEST_F(FParser, HandlesSubroutine) {
+    ASSERT_THAT(parse_term("subroutine_call.jack", "subroutine_call.xml"), Eq(true));
+}

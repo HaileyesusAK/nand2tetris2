@@ -67,6 +67,22 @@ namespace ntt {
         return token;
     }
 
+    Token Tokenizer::consume_type() {
+        static const std::unordered_set<std::string> builtin_types { "int", "char", "boolean" };
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        auto token = tokens_.front();
+        if(token.type() != TokenType::KEYWORD && token.type() != TokenType::IDENTIFIER)
+            throw std::domain_error("token is not a type");
+
+        if(token.type() == TokenType::KEYWORD && !builtin_types.count(token.value()))
+            throw std::domain_error("token is not a type");
+
+        tokens_.pop_front();
+        return token;
+    }
+
     Token Tokenizer::consume_symbol(const std::string& value) {
         if(tokens_.empty())
             throw std::domain_error("empty token stream");

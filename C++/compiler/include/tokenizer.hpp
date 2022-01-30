@@ -30,6 +30,8 @@ namespace ntt {
 
             Token consume_symbol(const std::string&);
 
+            Token consume_type();
+
         private:
 
             std::deque<Token> tokens_;

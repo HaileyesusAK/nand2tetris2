@@ -31,6 +31,8 @@ namespace ntt {
 
             Tree parse_while_statement();
 
+            Tree parse_var_dec();
+
         private:
 
             Tree parse_statement();

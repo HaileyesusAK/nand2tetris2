@@ -308,4 +308,29 @@ namespace ntt {
         auto parser = parsers.at(token.value());
         return (this->*parser)();
     }
+
+    /*
+        varDec  : 'var' type varName(','varName)*';'
+        type    : 'int' | 'char' | 'boolean' | className
+        varName : identifier
+        className : identifier
+
+    */
+    Tree Parser::parse_var_dec() {
+        if(!tokenizer.has_token())
+            throw NoTokenErr();
+
+        auto tree = std::make_unique<SyntaxTree>("varDec");
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"var"})));    // var
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type 
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName 
+
+        while(tokenizer.has_token() && tokenizer.peek().value() != ";") {
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(",")));     // ,
+            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName 
+        }
+        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));     // ;
+
+        return tree;
+    }
 }

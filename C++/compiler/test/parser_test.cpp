@@ -47,6 +47,11 @@ class FParser : public Test {
             return cmp_xml(get_parser(input_file).parse_while_statement(), expected_output_file);
         }
 
+        bool parse_var_dec(std::string input_file, std::string expected_output_file) {
+            return cmp_xml(get_parser(input_file).parse_var_dec(), expected_output_file);
+        }
+
+
     private:
         Parser get_parser(const std::string& input_file) {
             fs::path input_path { DATA_DIR / input_file };
@@ -137,4 +142,12 @@ TEST_F(FParser, HandlesIfElseStatement) {
 
 TEST_F(FParser, HandlesWhileStatement) {
     ASSERT_THAT(parse_while_statement("while.jack", "while.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesSingleVariableDeclaration) {
+    ASSERT_THAT(parse_var_dec("single_var_dec.jack", "single_var_dec.xml"), Eq(true));
+}
+
+TEST_F(FParser, HandlesMultiVariableDeclaration) {
+    ASSERT_THAT(parse_var_dec("multi_var_dec.jack", "multi_var_dec.xml"), Eq(true));
 }

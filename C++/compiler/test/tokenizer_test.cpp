@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include "tokenizer.hpp"
+#include "token.hpp"
 #include "gmock/gmock.h"
 
 using namespace ntt;
@@ -41,11 +42,170 @@ class TokenizerTester : public Test {
         }
 };
 
+
 TEST_F(TokenizerTester, InvalidFileStream) {
     ifstream ifs;
     ofstream ofs;
 
     ASSERT_THROW(Tokenizer(ifs).to_xml(ofs), runtime_error);
+}
+
+TEST_F(TokenizerTester, HandlesSymbols) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "{" << endl;
+    }
+
+    ifstream ifs {file_name};
+    auto tokenizer = Tokenizer(ifs);
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq("{"));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+}
+
+TEST_F(TokenizerTester, HandlesSymbolsAfterSingleLineComment) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "// comment ..." << endl;
+        ofs << ".";
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer(ifs);
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq("."));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+}
+
+TEST_F(TokenizerTester, IgnoresWhitespaceCharacters) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\t\n\r\f\v ,";
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer {ifs};
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq(","));
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+}
+
+TEST_F(TokenizerTester, HandlesKeywords) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "// comment ..." << endl;
+        ofs << "// comment ..." << endl;
+        ofs << "field";
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer {ifs};
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq("field"));
+    ASSERT_THAT(token.type(), Eq(TokenType::KEYWORD));
+}
+
+TEST_F(TokenizerTester, HandlesIdentifiers) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "age_of_empire_;//...";
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer {ifs};
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq("age_of_empire_"));
+    ASSERT_THAT(token.type(), Eq(TokenType::IDENTIFIER));
+}
+
+TEST_F(TokenizerTester, HandlesIntegers) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "123" << endl;
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer {ifs};
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq("123"));
+    ASSERT_THAT(token.type(), Eq(TokenType::INTEGER));
+}
+
+TEST_F(TokenizerTester, HandlesStrings) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"str\"";
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer {ifs};
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.value(), Eq("str"));
+    ASSERT_THAT(token.type(), Eq(TokenType::STRING));
+}
+
+TEST_F(TokenizerTester, ThrowsExceptionForUnterminatedString) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"str";
+    }
+
+    ifstream ifs {file_name};
+    ASSERT_THROW(Tokenizer {ifs}, domain_error);
+}
+
+TEST_F(TokenizerTester, ThrowsExceptionForNewlineInString) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "\"str\nstr\"";
+    }
+
+    ifstream ifs {file_name};
+    ASSERT_THROW(Tokenizer {ifs}, domain_error);
+}
+
+TEST_F(TokenizerTester, ThrowsExceptionForUnknownToken) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+        ofs << "123456";
+    }
+
+    ifstream ifs {file_name};
+    ASSERT_THROW(Tokenizer {ifs}, domain_error);
+}
+
+TEST_F(TokenizerTester, HandlesMultilineComments) {
+    string file_name {"test.jack"};
+    {
+        ofstream ofs {file_name};
+
+        ofs << "/*" << endl;
+        ofs << "comment ... " << endl;
+        ofs << "comment ... " << endl;
+        ofs << "*/" << endl;
+
+        ofs << "/*" << endl;
+        ofs << "comment ... " << endl;
+        ofs << "comment ... " << endl;
+        ofs << "*/" << endl;
+        ofs << "~";
+    }
+
+    ifstream ifs {file_name};
+    Tokenizer tokenizer {ifs};
+    auto token = tokenizer.get();
+    ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+    ASSERT_THAT(token.value(), Eq("~"));
 }
 
 /*

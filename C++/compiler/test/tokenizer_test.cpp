@@ -54,7 +54,8 @@ TEST_F(TokenizerTester, HandlesSymbols) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
-        ofs << "{" << endl;
+        ofs << std::endl;
+        ofs << " {" << endl;
     }
 
     ifstream ifs {file_name};
@@ -62,6 +63,8 @@ TEST_F(TokenizerTester, HandlesSymbols) {
     auto token = tokenizer.get();
     ASSERT_THAT(token.value(), Eq("{"));
     ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+    ASSERT_THAT(static_cast<int>(token.line_no()), Eq(2));
+    ASSERT_THAT(static_cast<int>(token.col_no()), Eq(2));
 }
 
 TEST_F(TokenizerTester, HandlesSymbolsAfterSingleLineComment) {
@@ -77,6 +80,8 @@ TEST_F(TokenizerTester, HandlesSymbolsAfterSingleLineComment) {
     auto token = tokenizer.get();
     ASSERT_THAT(token.value(), Eq("."));
     ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
+    ASSERT_THAT(static_cast<int>(token.line_no()), Eq(2));
+    ASSERT_THAT(static_cast<int>(token.col_no()), Eq(1));
 }
 
 TEST_F(TokenizerTester, IgnoresWhitespaceCharacters) {
@@ -127,7 +132,8 @@ TEST_F(TokenizerTester, HandlesIntegers) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
-        ofs << "123" << endl;
+        ofs << std::endl;
+        ofs << " 123" << endl;
     }
 
     ifstream ifs {file_name};
@@ -135,13 +141,16 @@ TEST_F(TokenizerTester, HandlesIntegers) {
     auto token = tokenizer.get();
     ASSERT_THAT(token.value(), Eq("123"));
     ASSERT_THAT(token.type(), Eq(TokenType::INTEGER));
+    ASSERT_THAT(static_cast<int>(token.line_no()), Eq(2));
+    ASSERT_THAT(static_cast<int>(token.col_no()), Eq(2));
 }
 
 TEST_F(TokenizerTester, HandlesStrings) {
     string file_name {"test.jack"};
     {
         ofstream ofs {file_name};
-        ofs << "\"str\"";
+        ofs << std::endl;
+        ofs << " \"str\";";
     }
 
     ifstream ifs {file_name};
@@ -149,6 +158,12 @@ TEST_F(TokenizerTester, HandlesStrings) {
     auto token = tokenizer.get();
     ASSERT_THAT(token.value(), Eq("str"));
     ASSERT_THAT(token.type(), Eq(TokenType::STRING));
+    ASSERT_THAT(static_cast<int>(token.line_no()), Eq(2));
+    ASSERT_THAT(static_cast<int>(token.col_no()), Eq(2));
+
+    token = tokenizer.get();
+    ASSERT_THAT(static_cast<int>(token.line_no()), Eq(2));
+    ASSERT_THAT(static_cast<int>(token.col_no()), Eq(7));   // must consider the quotes
 }
 
 TEST_F(TokenizerTester, ThrowsExceptionForUnterminatedString) {
@@ -193,12 +208,12 @@ TEST_F(TokenizerTester, HandlesMultilineComments) {
         ofs << "comment ... " << endl;
         ofs << "comment ... " << endl;
         ofs << "*/" << endl;
-
+        ofs << "\t  " << endl;
         ofs << "/*" << endl;
         ofs << "comment ... " << endl;
         ofs << "comment ... " << endl;
         ofs << "*/" << endl;
-        ofs << "~";
+        ofs << "  ~";
     }
 
     ifstream ifs {file_name};
@@ -206,6 +221,8 @@ TEST_F(TokenizerTester, HandlesMultilineComments) {
     auto token = tokenizer.get();
     ASSERT_THAT(token.type(), Eq(TokenType::SYMBOL));
     ASSERT_THAT(token.value(), Eq("~"));
+    ASSERT_THAT(static_cast<int>(token.line_no()), Eq(10));
+    ASSERT_THAT(static_cast<int>(token.col_no()), Eq(3));
 }
 
 /*

@@ -52,7 +52,9 @@ namespace ntt {
 
             std::deque<Token> tokens_;
 
-            static void remove_leading_ws(std::ifstream&);
+            void tokenize(std::ifstream&);
+
+            static void remove_leading_ws(std::ifstream&, size_t&, size_t&);
 
             static bool is_symbol(char);
 
@@ -61,6 +63,8 @@ namespace ntt {
             static bool is_identifier(const std::string&);
 
             static bool is_integer(const std::string&);
+
+            static void consume_multiline_comment(std::ifstream&, size_t&, size_t&);
 	};
 
 }

@@ -37,4 +37,12 @@ namespace ntt {
     TokenType Token::type() const { return type_; }
 
     std::string Token::value() const { return value_; }
+
+    size_t Token::line_no() const { return line_no_; }
+
+    size_t Token::col_no() const { return col_no_; }
+
+    std::string Token::pos() const { 
+        return "(" + std::to_string(line_no_) + ", " + std::to_string(col_no_) + ")";
+    }
 }

@@ -27,53 +27,53 @@ namespace ntt {
 
         static std::unordered_set<std::string> keywords {"true", "false", "null", "this"};
 
-        auto tree = std::make_unique<SyntaxTree>("term");
+        auto tree = std::make_shared<SyntaxTree>("term");
 
         auto token = tokenizer.get();
         switch(token.type()) {
             case TokenType::INTEGER:
             case TokenType::STRING:
-                tree->add_child(std::make_unique<Leaf>(token));
+                tree->add_child(std::make_shared<Leaf>(token));
             break;
 
             case TokenType::KEYWORD:
                 if(!keywords.count(token.value()))
                     throw std::runtime_error("invalid keyword constant");
                 else
-                    tree->add_child(std::make_unique<Leaf>(token));
+                    tree->add_child(std::make_shared<Leaf>(token));
             break;
 
             case TokenType::IDENTIFIER:
-                tree->add_child(std::make_unique<Leaf>(token));
+                tree->add_child(std::make_shared<Leaf>(token));
                 if(tokenizer.has_token()) {
                     if(tokenizer.peek().value() == "[") { // Array expression
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // [
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // [
                         tree->add_child(parse_exp()); // exp
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("]"))); // ]
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("]"))); // ]
                     }
                     else if(tokenizer.peek().value() == "(") { // subroutine call
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // (
                         tree->add_child(parse_exp_list()); // exp list
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")"))); // )
                     }
                     else if(tokenizer.peek().value() == ".") { // method call
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // .
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));    // method name
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // .
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));    // method name
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("(")));   // (
                         tree->add_child(parse_exp_list()); // exp list
-                        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+                        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")"))); // )
                     }
                 }
             break;
 
             case TokenType::SYMBOL:
                 if(token.value() == "(") {
-                    tree->add_child(std::make_unique<Leaf>(token)); // (
+                    tree->add_child(std::make_shared<Leaf>(token)); // (
                     tree->add_child(parse_exp());   // exp
-                    tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // )
+                    tree->add_child(std::make_shared<Leaf>(tokenizer.get())); // )
                 }
                 else if (token.value() == "-" || token.value() == "~") {
-                    tree->add_child(std::make_unique<Leaf>(token)); // unaryOp
+                    tree->add_child(std::make_shared<Leaf>(token)); // unaryOp
                     tree->add_child(parse_term());   // term
                 }
                 else
@@ -100,7 +100,7 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("expression");
+        auto tree = std::make_shared<SyntaxTree>("expression");
         tree->add_child(parse_term());
 
         while(true) {
@@ -111,7 +111,7 @@ namespace ntt {
             if(!ops.count(token.value()))
                 break;
 
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get()));
             tree->add_child(parse_term());
         }
 
@@ -125,7 +125,7 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("expressionList");
+        auto tree = std::make_shared<SyntaxTree>("expressionList");
         /*
             expressionList is evaluated in the context of subroutine call; hence,
             by checking the value of the next token, it is possible to determine
@@ -134,7 +134,7 @@ namespace ntt {
         if(tokenizer.peek().value() != ")") {
             tree->add_child(parse_exp());
             while(tokenizer.has_token() && tokenizer.peek().value() == ",") {
-                tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // add ,
+                tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // add ,
                 tree->add_child(parse_exp());
             }
         }
@@ -150,18 +150,18 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("letStatement");
+        auto tree = std::make_shared<SyntaxTree>("letStatement");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"let"})));
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"let"})));
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));
         if(tokenizer.peek().value() == "[") {
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // [
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // [
             tree->add_child(parse_exp());   // expression
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("]")));   // ]
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("]")));   // ]
         }
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("=")));   // =
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("=")));   // =
         tree->add_child(parse_exp());   // expression
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ;
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(";")));   // ;
 
         return tree;
     }
@@ -173,26 +173,26 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("doStatement");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"do"})));   // do
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // identifier
+        auto tree = std::make_shared<SyntaxTree>("doStatement");
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"do"})));   // do
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));   // identifier
 
         if(tokenizer.peek().value() == "(") { // subroutine call
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // (
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // (
             tree->add_child(parse_exp_list()); // exp list
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")"))); // )
         }
         else if(tokenizer.peek().value() == ".") { // method call
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // .
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));    // method name
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // .
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));    // method name
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("(")));   // (
             tree->add_child(parse_exp_list()); // exp list
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")"))); // )
         }
         else
             throw std::runtime_error("invalid token");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ;
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(";"))); // ;
 
         return tree;
     }
@@ -205,11 +205,11 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("returnStatement");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"return"})));   // return
+        auto tree = std::make_shared<SyntaxTree>("returnStatement");
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"return"})));   // return
         if(tokenizer.peek().value() != ";")
             tree->add_child(parse_exp());
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));   // ;
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(";")));   // ;
 
         return tree;
     }
@@ -223,27 +223,27 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("ifStatement");
+        auto tree = std::make_shared<SyntaxTree>("ifStatement");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"if"})));   // if
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"if"})));   // if
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("(")));   // (
         tree->add_child(parse_exp());   // expression
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));   // {
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")"))); // )
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("{")));   // {
 
         auto stats_tree = parse_statements();
         if(stats_tree != nullptr)
-            tree->add_child(std::move(stats_tree));
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // }
+            tree->add_child(stats_tree);
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("}")));   // }
 
         if(tokenizer.has_token() && tokenizer.peek().value() == "else") {
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // else
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));   // {
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // else
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("{")));   // {
 
             auto stats_tree = parse_statements();
             if(stats_tree != nullptr)
-                tree->add_child(std::move(stats_tree));
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));   // }
+                tree->add_child(stats_tree);
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("}")));   // }
         }
 
         return tree;
@@ -256,17 +256,17 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("whileStatement");
+        auto tree = std::make_shared<SyntaxTree>("whileStatement");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"while"})));  // while
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("("))); // (
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"while"})));  // while
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("("))); // (
         tree->add_child(parse_exp());   // expression
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")"))); // )
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{"))); // {
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")"))); // )
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("{"))); // {
         auto stats_tree = parse_statements();   // statements
         if(stats_tree != nullptr)
-            tree->add_child(std::move(stats_tree));
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}"))); // }
+            tree->add_child(stats_tree);
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("}"))); // }
 
         return tree;
     }
@@ -280,7 +280,7 @@ namespace ntt {
             Therefore, continue evaluating the token stream until '}' is encountered.
         */
         if(tokenizer.peek().value() != "}") {
-            auto tree = std::make_unique<SyntaxTree>("statements");
+            auto tree = std::make_shared<SyntaxTree>("statements");
             while(tokenizer.peek().value() != "}") {
                 tree->add_child(parse_statement()); // parse statements
             }
@@ -320,16 +320,16 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("varDec");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"var"})));    // var
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName
+        auto tree = std::make_shared<SyntaxTree>("varDec");
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"var"})));    // var
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_type()));   // type
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));   //varName
 
         while(tokenizer.has_token() && tokenizer.peek().value() != ";") {
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(",")));     // ,
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   //varName
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(",")));     // ,
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));   //varName
         }
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";")));     // ;
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(";")));     // ;
 
         return tree;
     }
@@ -341,19 +341,19 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("parameterList");
+        auto tree = std::make_shared<SyntaxTree>("parameterList");
 
         /*
             parameter list are defined in the context of function definition;
             therefore, continue checking the token stream until ')' is encountered.
         */
         if(tokenizer.peek().value() != ")") {
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_type()));   // type
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));   // varName
             while(tokenizer.has_token() && tokenizer.peek().value() == ",") {
-                tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ,
-                tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
-                tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // varName
+                tree->add_child(std::make_shared<Leaf>(tokenizer.get())); // ,
+                tree->add_child(std::make_shared<Leaf>(tokenizer.consume_type()));   // type
+                tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));   // varName
             }
         }
 
@@ -367,18 +367,18 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("subroutineBody");
+        auto tree = std::make_shared<SyntaxTree>("subroutineBody");
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{"))); // {
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("{"))); // {
 
         while(tokenizer.peek().value() == "var")
             tree->add_child(parse_var_dec());   // varDec*
 
         auto stats_tree = parse_statements();
         if(stats_tree != nullptr)
-            tree->add_child(std::move(stats_tree));   // statements
+            tree->add_child(stats_tree);   // statements
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}"))); // }
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("}"))); // }
 
         return tree;
     }
@@ -392,18 +392,18 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("subroutineDec");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"constructor", "function", "method"})));
+        auto tree = std::make_shared<SyntaxTree>("subroutineDec");
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"constructor", "function", "method"})));
 
         if(tokenizer.peek().value() == "void")
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get()));   // void
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get()));   // void
         else
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));   // type
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_type()));   // type
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));   // subrouteName
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("(")));   // (
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));   // subrouteName
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("(")));   // (
         tree->add_child(parse_parameter_list());    // parameterList
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(")")));   // )
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(")")));   // )
         tree->add_child(parse_subroutine_body());
 
         return tree;
@@ -416,17 +416,17 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("classVarDec");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"static", "field"})));
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_type()));  // type
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName
+        auto tree = std::make_shared<SyntaxTree>("classVarDec");
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"static", "field"})));
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_type()));  // type
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));  // varName
 
         while(tokenizer.peek().value() == ",") {
-            tree->add_child(std::make_unique<Leaf>(tokenizer.get())); // ,
-            tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // varName
+            tree->add_child(std::make_shared<Leaf>(tokenizer.get())); // ,
+            tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));  // varName
         }
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol(";"))); // ;
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol(";"))); // ;
 
         return tree;
     }
@@ -439,10 +439,10 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_unique<SyntaxTree>("class");
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_keyword({"class"})));
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_identifier()));  // className
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("{")));  // {
+        auto tree = std::make_shared<SyntaxTree>("class");
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_keyword({"class"})));
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_identifier()));  // className
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("{")));  // {
 
         while(tokenizer.peek().value() == "static" || tokenizer.peek().value() == "field")
             tree->add_child(parse_class_var_dec());
@@ -453,7 +453,7 @@ namespace ntt {
             tree->add_child(parse_subroutine_dec());
         }
 
-        tree->add_child(std::make_unique<Leaf>(tokenizer.consume_symbol("}")));  // }
+        tree->add_child(std::make_shared<Leaf>(tokenizer.consume_symbol("}")));  // }
 
         return tree;
     }

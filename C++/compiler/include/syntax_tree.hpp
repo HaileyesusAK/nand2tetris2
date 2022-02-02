@@ -11,7 +11,7 @@ namespace ntt {
 
     class SyntaxTree;
 
-    using Tree = std::unique_ptr<SyntaxTree>;
+    using Tree = std::shared_ptr<SyntaxTree>;
 
     class SyntaxTree {
 

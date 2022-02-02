@@ -27,7 +27,7 @@ namespace ntt {
     }
     
     void SyntaxTree::add_child(Tree tree) {
-        children_.push_back(std::move(tree));
+        children_.push_back(tree);
     }
 
     std::string Leaf::to_xml(int level) {

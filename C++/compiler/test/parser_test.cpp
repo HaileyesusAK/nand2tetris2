@@ -1,7 +1,9 @@
 #include <fstream>
+#include <iostream>
 #include <filesystem>
 #include "parser.hpp"
 #include "token.hpp"
+#include "syntax_tree.hpp"
 #include "utils.hpp"
 #include "gmock/gmock.h"
 
@@ -69,6 +71,36 @@ class FParser : public Test {
 
         bool parse_class(std::string input_file, std::string expected_output_file) {
             return cmp_xml(get_parser(input_file).parse_class(), expected_output_file);
+        }
+
+        bool cmpFiles(const fs::path& p1, const fs::path& p2) {
+            ifstream file1(p1), file2(p2);
+
+            string line1, line2;
+            while(!file1.eof() && !file2.eof()) {
+                std::getline(file1, line1);
+                std::getline(file2, line2);
+                
+                if(line1 != line2)
+                    return false;
+            }
+
+            return (file1.eof() && file2.eof());
+        }
+
+        bool parse(const fs::path& jack_file_path, const fs::path& expected_file_path) {
+            fs::path input_path = DATA_DIR / jack_file_path;
+            fs::path output_path { input_path };
+            output_path.replace_extension(".xml");
+
+            {
+                ifstream ifs {input_path};
+                ofstream ofs {output_path};
+                ofs << Parser{ifs}.parse_class()->to_xml();
+            }
+
+            fs::path expected_output_path = DATA_DIR / fs::path{"expected"} / expected_file_path;
+            return cmpFiles(output_path, expected_output_path);
         }
 
     private:
@@ -193,4 +225,45 @@ TEST_F(FParser, HandlesClassWithData){
 
 TEST_F(FParser, HandlesClassWitMethod){
     ASSERT_THAT(parse_class("class_method.jack", "class_method.xml"), Eq(true));
+}
+
+TEST_F(FParser, ParsesSquareDanceMain){
+    /*
+       Main.jack: initializes and starts a new "square dance" session.
+     */
+
+    fs::path input_rel_path = fs::path{"Square"} / fs::path{"Main.jack"};
+    fs::path expected_output_rel_path = fs::path{"Square"} / fs::path{"Main.xml"};
+    ASSERT_THAT(parse(input_rel_path, expected_output_rel_path), Eq(true));
+}
+
+TEST_F(FParser, ParsesSquareDanceSquare){
+    /*
+       Square.jack: implements an animated square.
+     */
+
+    fs::path input_rel_path = fs::path{"Square"} / fs::path{"Square.jack"};
+    fs::path expected_output_rel_path = fs::path{"Square"} / fs::path{"Square.xml"};
+    ASSERT_THAT(parse(input_rel_path, expected_output_rel_path), Eq(true));
+}
+
+TEST_F(FParser, ParsesSquareDanceSquareGame){
+    /*
+       SquareGame.jack: runs the show according to the game rules.
+     */
+
+    fs::path input_rel_path = fs::path{"Square"} / fs::path{"SquareGame.jack"};
+    fs::path expected_output_rel_path = fs::path{"Square"} / fs::path{"SquareGame.xml"};
+    ASSERT_THAT(parse(input_rel_path, expected_output_rel_path), Eq(true));
+}
+
+TEST_F(FParser, ParsesArrayMain){
+    /*
+       Main.jack: computes the average of a user-supplied sequence of integers using an
+       array data structure and array manipulation command
+     */
+
+    fs::path input_rel_path = fs::path{"ArrayTest"} / fs::path{"Main.jack"};
+    fs::path expected_output_rel_path = fs::path{"ArrayTest"} / fs::path{"Main.xml"};
+    ASSERT_THAT(parse(input_rel_path, expected_output_rel_path), Eq(true));
 }

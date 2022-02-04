@@ -5,40 +5,35 @@
 #include <memory>
 #include <sstream>
 #include <vector>
+#include <variant>
 #include "token.hpp"
 
 namespace ntt {
 
     class SyntaxTree;
-
     using Tree = std::shared_ptr<SyntaxTree>;
+    using Node = std::variant<Token, Tree>;
 
     class SyntaxTree {
 
         public:
             SyntaxTree(const std::string& label) : label_(label) {}
 
-            virtual std::string to_xml(int level = 0);
+            std::string to_xml(int level = 0) const;
 
-            void add_child(Tree tree);
+            void add_child(const Node& node);
 
-        protected:
-            void write_line(std::ostringstream&, const std::string&, int level);
 
         private:
             std::string label_;
 
-            std::vector<Tree> children_;
-    };
+            std::vector<Node> children_;
 
-    class Leaf final : public SyntaxTree {
-        public:
-            Leaf(const Token& token) : SyntaxTree(""), token_(token) {}
+            void write_line(std::ostringstream&, const std::string&, int level) const;
 
-            std::string to_xml(int level) override;
+            void open_tag(std::ostringstream&, int) const;
 
-        private:
-            Token token_;
+            void close_tag(std::ostringstream&, int) const;
     };
 }
 

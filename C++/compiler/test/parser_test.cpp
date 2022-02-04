@@ -207,6 +207,10 @@ TEST_F(FParser, HandlesParameterList) {
     ASSERT_THAT(parse_parameter_list("parameter_list.jack", "parameter_list.xml"), Eq(true));
 }
 
+TEST_F(FParser, HandlesSubroutineDec) {
+    ASSERT_THAT(parse_subroutine_dec("subroutine_dec.jack", "subroutine_dec.xml"), Eq(true));
+}
+
 TEST_F(FParser, HandlesSubroutineBody) {
     ASSERT_THAT(parse_subroutine_body("subroutine_body.jack", "subroutine_body.xml"), Eq(true));
 }

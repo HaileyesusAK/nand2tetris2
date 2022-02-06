@@ -41,7 +41,7 @@ namespace ntt {
 
             void operator()(const Token& token) {
                 //It must be the case that (stack.top().node == tree) is true
-                oss << std::setw(token.to_xml().size() + INDENT_WIDTH * level) << token.to_xml() << std::endl;
+                oss << token.to_xml(level, INDENT_WIDTH) << std::endl;
                 stack.pop();
             }
 
@@ -71,6 +71,7 @@ namespace ntt {
 
         stack.push({std::make_shared<SyntaxTree>(*this), false});
         while(!stack.empty()) {
+            // print the current node and push all its children onto the stack
             std::visit(printer, stack.top().node);
         }
 

@@ -8,7 +8,7 @@
 
 namespace ntt {
 
-    std::string Token::to_xml() const {
+    std::string Token::to_xml(int level, int indent_width) const {
         static const std::unordered_map<TokenType, std::string> tag {
             {TokenType::STRING, "stringConstant"},
             {TokenType::INTEGER, "integerConstant"},
@@ -21,7 +21,9 @@ namespace ntt {
             {">", "&gt;"}, {"<", "&lt;"}, {"\"", "&quot;"}, {"&", "&amp;"}
         };
 
-        std::string xml {"<" + tag.at(type_) + "> "};
+        std::string xml(level * indent_width, ' ');
+
+        xml.append("<" + tag.at(type_) + "> ");
         if(xml_symbols.count(value_))
             xml.append(xml_symbols.at(value_));
         else

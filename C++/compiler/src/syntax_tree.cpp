@@ -1,6 +1,7 @@
 #include <iomanip>
 #include <iostream>
 #include <stack>
+#include <deque>
 #include <string>
 #include <sstream>
 #include <variant>
@@ -13,6 +14,58 @@ constexpr int INDENT_WIDTH = 4;
 using namespace std;
 
 namespace ntt {
+
+    struct Item {
+        Node node;
+        bool opened;
+    };
+
+    class NodePrinter {
+        public:
+            NodePrinter(std::ostringstream& oss) : oss_(oss) {}
+
+            void print(const Tree& tree, int level) {
+                stack_.clear();
+                level_ = level;
+
+                stack_.push_back({tree, false});
+                while(!stack_.empty()) {
+                    // print the current node and push all its children onto the stack_
+                    std::visit(*this, stack_.back().node);
+                }
+            }
+
+            void operator()(const Token& token) {
+                //It must be the case that (stack_.top().node == token) is true
+                oss_ << token.to_xml(level_, INDENT_WIDTH) << std::endl;
+                stack_.pop_back();
+            }
+
+            void operator()(const Tree& tree) {
+                auto top = stack_.back(); //It must be the case that (top.node == tree) is true
+                stack_.pop_back();
+
+                if(top.opened) {
+                    level_--;
+                    tree->close_tag(oss_, level_);
+                }
+                else {
+                    tree->open_tag(oss_, level_);
+                    level_++;
+                    top.opened = true;
+                    stack_.push_back(top);
+
+                    for(auto it = tree->children_.rbegin(); it != tree->children_.rend(); ++it) {
+                        stack_.push_back({*it, false});
+                    }
+                }
+            }
+
+        private:
+            std::ostringstream& oss_;
+            std::deque<Item> stack_;
+            int level_;
+    };
 
     void SyntaxTree::write_line(std::ostringstream& oss, const std::string& s, int level) const {
         oss << std::setw(s.size() + INDENT_WIDTH * level) << s << std::endl;
@@ -28,53 +81,9 @@ namespace ntt {
 
     std::string SyntaxTree::to_xml(int level) const {
         std::ostringstream oss;
-        
-        struct Item {
-            Node node;
-            bool opened;
-        };
+        NodePrinter printer {oss};
 
-        struct NodePrinter {
-            std::ostringstream& oss;
-            std::stack<Item>& stack;
-            int level;
-
-            void operator()(const Token& token) {
-                //It must be the case that (stack.top().node == tree) is true
-                oss << token.to_xml(level, INDENT_WIDTH) << std::endl;
-                stack.pop();
-            }
-
-            void operator()(const Tree& tree) {
-                auto top = stack.top(); //It must be the case that (top.node == tree) is true
-                stack.pop();
-
-                if(top.opened) {
-                    level--;
-                    tree->close_tag(oss, level);
-                }
-                else {
-                    tree->open_tag(oss, level);
-                    level++;
-                    top.opened = true;
-                    stack.push(top);
-
-                    for(auto it = tree->children_.rbegin(); it != tree->children_.rend(); ++it) {
-                        stack.push({*it, false});
-                    }
-                }
-            }
-        };
-
-        std::stack<Item> stack;
-        NodePrinter printer{oss, stack, level};
-
-        stack.push({std::make_shared<SyntaxTree>(*this), false});
-        while(!stack.empty()) {
-            // print the current node and push all its children onto the stack
-            std::visit(printer, stack.top().node);
-        }
-
+        printer.print(std::make_shared<SyntaxTree>(*this), level);
         return oss.str();
     }
 

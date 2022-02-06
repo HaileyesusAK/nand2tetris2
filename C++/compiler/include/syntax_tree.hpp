@@ -34,6 +34,8 @@ namespace ntt {
             void open_tag(std::ostringstream&, int) const;
 
             void close_tag(std::ostringstream&, int) const;
+            
+            friend class NodePrinter;
     };
 }
 

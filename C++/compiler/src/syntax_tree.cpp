@@ -5,9 +5,9 @@
 #include <string>
 #include <sstream>
 #include <variant>
-
 #include "syntax_tree.hpp"
 #include "tokenizer.hpp"
+#include "types.hpp"
 
 constexpr int INDENT_WIDTH = 4;
 
@@ -72,11 +72,11 @@ namespace ntt {
     }
 
     void SyntaxTree::open_tag(std::ostringstream& oss, int level) const {
-        write_line(oss, "<" + label_ + ">", level);
+        write_line(oss, "<" + SyntaxTree::tags_.at(gen_type_) + ">", level);
     }
 
     void SyntaxTree::close_tag(std::ostringstream& oss, int level) const {
-        write_line(oss, "</" + label_ + ">", level);
+        write_line(oss, "</" + SyntaxTree::tags_.at(gen_type_) + ">", level);
     }
 
     std::string SyntaxTree::to_xml(int level) const {
@@ -89,5 +89,9 @@ namespace ntt {
 
     void SyntaxTree::add_child(const Node& node) {
         children_.push_back(node);
+    }
+
+    void SyntaxTree::set_gen_type(const CodeGeneratorType& type) {
+        gen_type_ = type;
     }
 }

@@ -6,6 +6,7 @@
 #include "parser.hpp"
 #include "syntax_tree.hpp"
 #include "token.hpp"
+#include "types.hpp"
 #include <iostream>
 
 namespace ntt {
@@ -27,12 +28,17 @@ namespace ntt {
 
         static std::unordered_set<std::string> keywords {"true", "false", "null", "this"};
 
-        auto tree = std::make_shared<SyntaxTree>("term");
+        auto tree = std::make_shared<SyntaxTree>();
 
         auto token = tokenizer.get();
         switch(token.type()) {
             case TokenType::INTEGER:
+                tree->set_gen_type(CodeGeneratorType::INTEGER_TERM);
+                tree->add_child(token);
+            break;
+
             case TokenType::STRING:
+                tree->set_gen_type(CodeGeneratorType::STRING_TERM);
                 tree->add_child(token);
             break;
 
@@ -41,6 +47,7 @@ namespace ntt {
                     throw std::runtime_error("invalid keyword constant");
                 else
                     tree->add_child(token);
+                tree->set_gen_type(CodeGeneratorType::KEYWORD_TERM);
             break;
 
             case TokenType::IDENTIFIER:
@@ -50,11 +57,13 @@ namespace ntt {
                         tree->add_child(tokenizer.get());   // [
                         tree->add_child(parse_exp()); // exp
                         tree->add_child(tokenizer.consume_symbol("]")); // ]
+                        tree->set_gen_type(CodeGeneratorType::ARRAY_TERM);
                     }
                     else if(tokenizer.peek().value() == "(") { // subroutine call
                         tree->add_child(tokenizer.get());   // (
                         tree->add_child(parse_exp_list()); // exp list
                         tree->add_child(tokenizer.consume_symbol(")")); // )
+                        tree->set_gen_type(CodeGeneratorType::CALL_TERM);
                     }
                     else if(tokenizer.peek().value() == ".") { // method call
                         tree->add_child(tokenizer.get());   // .
@@ -62,8 +71,11 @@ namespace ntt {
                         tree->add_child(tokenizer.consume_symbol("("));   // (
                         tree->add_child(parse_exp_list()); // exp list
                         tree->add_child(tokenizer.consume_symbol(")")); // )
+                        tree->set_gen_type(CodeGeneratorType::CALL_TERM);
                     }
                 }
+                else
+                    tree->set_gen_type(CodeGeneratorType::IDENTIFIER_TERM);
             break;
 
             case TokenType::SYMBOL:
@@ -71,10 +83,12 @@ namespace ntt {
                     tree->add_child(token); // (
                     tree->add_child(parse_exp());   // exp
                     tree->add_child(tokenizer.get()); // )
+                    tree->set_gen_type(CodeGeneratorType::PARENTHESIS_TERM);
                 }
                 else if (token.value() == "-" || token.value() == "~") {
                     tree->add_child(token); // unaryOp
                     tree->add_child(parse_term());   // term
+                    tree->set_gen_type(CodeGeneratorType::UNARY_TERM);
                 }
                 else
                     throw std::runtime_error("invalid symbol token");
@@ -100,8 +114,9 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("expression");
+        auto tree = std::make_shared<SyntaxTree>();
         tree->add_child(parse_term());
+        tree->set_gen_type(CodeGeneratorType::EXPRESSION);
 
         while(true) {
             if(!tokenizer.has_token())
@@ -125,7 +140,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("expressionList");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::EXPRESSION_LIST);
         /*
             expressionList is evaluated in the context of subroutine call; hence,
             by checking the value of the next token, it is possible to determine
@@ -150,7 +166,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("letStatement");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::LET);
 
         tree->add_child(tokenizer.consume_keyword({"let"}));
         tree->add_child(tokenizer.consume_identifier());
@@ -173,7 +190,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("doStatement");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::DO);
         tree->add_child(tokenizer.consume_keyword({"do"}));   // do
         tree->add_child(tokenizer.consume_identifier());   // identifier
 
@@ -205,7 +223,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("returnStatement");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::RETURN);
         tree->add_child(tokenizer.consume_keyword({"return"}));   // return
         if(tokenizer.peek().value() != ";")
             tree->add_child(parse_exp());
@@ -223,7 +242,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("ifStatement");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::IF);
 
         tree->add_child(tokenizer.consume_keyword({"if"}));   // if
         tree->add_child(tokenizer.consume_symbol("("));   // (
@@ -256,7 +276,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("whileStatement");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::WHILE);
 
         tree->add_child(tokenizer.consume_keyword({"while"}));  // while
         tree->add_child(tokenizer.consume_symbol("(")); // (
@@ -280,7 +301,8 @@ namespace ntt {
             Therefore, continue evaluating the token stream until '}' is encountered.
         */
         if(tokenizer.peek().value() != "}") {
-            auto tree = std::make_shared<SyntaxTree>("statements");
+            auto tree = std::make_shared<SyntaxTree>();
+            tree->set_gen_type(CodeGeneratorType::STATEMENTS);
             while(tokenizer.peek().value() != "}") {
                 tree->add_child(parse_statement()); // parse statements
             }
@@ -320,7 +342,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("varDec");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::VAR_DEC);
         tree->add_child(tokenizer.consume_keyword({"var"}));    // var
         tree->add_child(tokenizer.consume_type());   // type
         tree->add_child(tokenizer.consume_identifier());   //varName
@@ -341,7 +364,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("parameterList");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::PARAMETER_LIST);
 
         /*
             parameter list are defined in the context of function definition;
@@ -367,7 +391,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("subroutineBody");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::SUBROUTINE_BODY);
 
         tree->add_child(tokenizer.consume_symbol("{")); // {
 
@@ -392,7 +417,9 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("subroutineDec");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::SUBROUTINE_DEC);
+
         tree->add_child(tokenizer.consume_keyword({"constructor", "function", "method"}));
 
         if(tokenizer.peek().value() == "void")
@@ -416,7 +443,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("classVarDec");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::CLASS_VAR_DEC);
         tree->add_child(tokenizer.consume_keyword({"static", "field"}));
         tree->add_child(tokenizer.consume_type());  // type
         tree->add_child(tokenizer.consume_identifier());  // varName
@@ -439,7 +467,8 @@ namespace ntt {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
-        auto tree = std::make_shared<SyntaxTree>("class");
+        auto tree = std::make_shared<SyntaxTree>();
+        tree->set_gen_type(CodeGeneratorType::CLASS);
         tree->add_child(tokenizer.consume_keyword({"class"}));
         tree->add_child(tokenizer.consume_identifier());  // className
         tree->add_child(tokenizer.consume_symbol("{"));  // {

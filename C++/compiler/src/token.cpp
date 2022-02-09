@@ -4,6 +4,7 @@
 #include <istream>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include "token.hpp"
 
 namespace ntt {

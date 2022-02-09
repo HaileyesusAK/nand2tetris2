@@ -6,3 +6,4 @@ set(SOURCES token.cpp
             parser.cpp)
             
 add_library(${BINARY} SHARED ${SOURCES})
+target_link_libraries(${BINARY} stdc++fs)

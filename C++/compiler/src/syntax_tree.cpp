@@ -94,4 +94,8 @@ namespace ntt {
     void SyntaxTree::set_gen_type(const CodeGeneratorType& type) {
         gen_type_ = type;
     }
+    
+    const std::vector<Node>& SyntaxTree::children() const {
+        return children_;
+    }
 }

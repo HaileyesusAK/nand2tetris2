@@ -27,6 +27,7 @@ namespace ntt {
 
             void set_gen_type(const CodeGeneratorType&);
 
+            const std::vector<Node>& children() const;
 
         private:
 

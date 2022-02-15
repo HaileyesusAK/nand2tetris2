@@ -12,7 +12,15 @@ namespace ntt {
     class CodeGenerator {
 
         public:
+            void compile_term(const SyntaxTree& tree);
+
+            void compile_expression(const SyntaxTree& tree);
+
             void compile_class_var_dec(const SyntaxTree& tree);
+
+            void compile_parameter_list(const SyntaxTree& tree);
+
+            void compile_var_dec(const SyntaxTree& tree);
 
             void write(std::ofstream& ofs);
 

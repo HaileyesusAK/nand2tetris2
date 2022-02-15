@@ -32,10 +32,9 @@ namespace ntt {
             uint16_t get_index(const std::string& name);
             const SymbolKind& get_kind(const std::string& name);
             const std::string& get_type(const std::string& name);
-
-        private:
             const SymbolTableEntry& get_entry(const std::string& name);
 
+        private:
             std::unordered_map<Key, SymbolTableEntry, KeyHash> table_;
             uint16_t static_index_= 0;
             uint16_t field_index_ = 0;

@@ -27,6 +27,8 @@ namespace ntt {
 
             void set_gen_type(const CodeGeneratorType&);
 
+            CodeGeneratorType gen_type() const;
+
             const std::vector<Node>& children() const;
 
         private:
@@ -47,7 +49,8 @@ namespace ntt {
                 {CodeGeneratorType::KEYWORD_TERM       ,"term"},
                 {CodeGeneratorType::IDENTIFIER_TERM    ,"term"},
                 {CodeGeneratorType::ARRAY_TERM         ,"term"},
-                {CodeGeneratorType::CALL_TERM          ,"term"},
+                {CodeGeneratorType::FUNCTION_CALL_TERM          ,"term"},
+                {CodeGeneratorType::METHOD_CALL_TERM          ,"term"},
                 {CodeGeneratorType::PARENTHESIS_TERM   ,"term"},
                 {CodeGeneratorType::UNARY_TERM         ,"term"},
                 {CodeGeneratorType::EXPRESSION         ,"expression"},

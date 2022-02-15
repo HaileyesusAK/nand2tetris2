@@ -63,7 +63,7 @@ namespace ntt {
                         tree->add_child(tokenizer.get());   // (
                         tree->add_child(parse_exp_list()); // exp list
                         tree->add_child(tokenizer.consume_symbol(")")); // )
-                        tree->set_gen_type(CodeGeneratorType::CALL_TERM);
+                        tree->set_gen_type(CodeGeneratorType::FUNCTION_CALL_TERM);
                     }
                     else if(tokenizer.peek().value() == ".") { // method call
                         tree->add_child(tokenizer.get());   // .
@@ -71,7 +71,7 @@ namespace ntt {
                         tree->add_child(tokenizer.consume_symbol("("));   // (
                         tree->add_child(parse_exp_list()); // exp list
                         tree->add_child(tokenizer.consume_symbol(")")); // )
-                        tree->set_gen_type(CodeGeneratorType::CALL_TERM);
+                        tree->set_gen_type(CodeGeneratorType::METHOD_CALL_TERM);
                     }
                 }
                 else

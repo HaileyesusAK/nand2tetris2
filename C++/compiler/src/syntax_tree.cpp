@@ -98,4 +98,8 @@ namespace ntt {
     const std::vector<Node>& SyntaxTree::children() const {
         return children_;
     }
+    
+    CodeGeneratorType SyntaxTree::gen_type() const {
+        return gen_type_;
+    }
 }

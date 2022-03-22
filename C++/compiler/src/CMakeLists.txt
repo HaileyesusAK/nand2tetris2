@@ -7,6 +7,7 @@ set(SOURCES identifier_term.cpp
             string_term.cpp
             syntax_tree.cpp
             term.cpp
+            term_factory.cpp
             token.cpp
             tokenizer.cpp)
 

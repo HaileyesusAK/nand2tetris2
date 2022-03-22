@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include "array_term.hpp"
 #include "gmock/gmock.h"
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
@@ -46,4 +47,8 @@ TEST_F(FTerm, ParsesKeyword) {
 
 TEST_F(FTerm, ParsesIdentifier) {
     ASSERT_THAT(cmp_parser_output<IdentifierTerm>("identifier_term.jack", "identifier_term.xml"), Eq(true));
+}
+
+TEST_F(FTerm, ParsesArray) {
+    ASSERT_THAT(cmp_parser_output<ArrayTerm>("array_term.jack", "array_term.xml"), Eq(true));
 }

@@ -1,3 +1,4 @@
+#include "array_term.hpp"
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
 #include "keyword_term.hpp"
@@ -23,7 +24,18 @@ namespace ntt {
                 return std::make_unique<StringTerm>(tokenizer);
 
             case TokenType::IDENTIFIER:
+            {
+                token = tokenizer.get();
+                if(tokenizer.has_token()) {
+                    if(tokenizer.peek().value() == "[") {
+                        tokenizer.put(token);
+                        return std::make_unique<ArrayTerm>(tokenizer);
+                    }
+                }
+
+                tokenizer.put(token);
                 return std::make_unique<IdentifierTerm>(tokenizer);
+            }
 
             default:
                 return nullptr;

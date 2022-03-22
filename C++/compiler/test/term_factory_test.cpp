@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include "array_term.hpp"
 #include "gmock/gmock.h"
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
@@ -38,4 +39,8 @@ TEST_F(FTermFactory, CreatesKeywordTerm) {
 
 TEST_F(FTermFactory, CreatesIdentifierTerm) {
     ASSERT_NE(dynamic_cast<IdentifierTerm*>(get_term("identifier_term.jack").get()), nullptr);
+}
+
+TEST_F(FTermFactory, CreatesArrayTerm) {
+    ASSERT_NE(dynamic_cast<ArrayTerm*>(get_term("array_term.jack").get()), nullptr);
 }

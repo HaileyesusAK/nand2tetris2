@@ -3,9 +3,11 @@
 #include <filesystem>
 #include "parser.hpp"
 #include "token.hpp"
+#include "tokenizer.hpp"
 #include "syntax_tree.hpp"
 #include "utils.hpp"
 #include "gmock/gmock.h"
+#include "expression.hpp"
 
 using namespace ntt;
 using namespace std;
@@ -17,12 +19,13 @@ const fs::path DATA_DIR = fs::path{TEST_DIR} / "data";
 class FParser : public Test {
 
     public:
+
         bool parse_term(std::string input_file, std::string expected_output_file) {
             return cmp_xml(get_parser(input_file).parse_term(), expected_output_file);
         }
 
         bool parse_exp(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_exp(), expected_output_file);
+            return cmp_xml<Expression>(input_file, expected_output_file);
         }
 
         bool parse_exp_list(std::string input_file, std::string expected_output_file) {
@@ -116,6 +119,21 @@ class FParser : public Test {
             {
                 ofstream ofs {output_file};
                 ofs << tree->to_xml();
+            }
+
+            return Utils::cmpFiles(output_file, DATA_DIR / expected_output_file);
+        }
+
+        template <typename Parser>
+        bool cmp_xml(const std::string& input_file, const std::string& expected_output_file) {
+            fs::path input_path { DATA_DIR / input_file };
+            ifstream ifs {input_path};
+            Tokenizer tokenizer {ifs};
+
+            fs::path output_file { DATA_DIR / "tmp.xml" };
+            {
+                ofstream ofs {output_file};
+                ofs << Parser(tokenizer).to_xml();
             }
 
             return Utils::cmpFiles(output_file, DATA_DIR / expected_output_file);

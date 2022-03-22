@@ -1,7 +1,9 @@
 set(BINARY ${CMAKE_PROJECT_NAME})
 
-set(SOURCES identifier_term.cpp
+set(SOURCES expression.cpp
+            identifier_term.cpp
             integer_term.cpp
+            jack_fragment.cpp
             keyword_term.cpp
             parser.cpp
             string_term.cpp

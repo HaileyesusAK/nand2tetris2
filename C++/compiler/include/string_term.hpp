@@ -12,7 +12,7 @@ namespace ntt {
         public:
             StringTerm(Tokenizer& tokenizer);
 
-            std::string to_xml() const override;
+            std::string to_xml(size_t level = 0) const override;
 
         private:
             Token token_;

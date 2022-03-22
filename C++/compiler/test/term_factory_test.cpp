@@ -5,6 +5,7 @@
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
 #include "keyword_term.hpp"
+#include "parenthesized_term.hpp"
 #include "string_term.hpp"
 #include "term_factory.hpp"
 #include "tokenizer.hpp"
@@ -43,4 +44,8 @@ TEST_F(FTermFactory, CreatesIdentifierTerm) {
 
 TEST_F(FTermFactory, CreatesArrayTerm) {
     ASSERT_NE(dynamic_cast<ArrayTerm*>(get_term("array_term.jack").get()), nullptr);
+}
+
+TEST_F(FTermFactory, CreatesParenthesizedTerm) {
+    ASSERT_NE(dynamic_cast<ParenthesizedTerm*>(get_term("parenthesized_term.jack").get()), nullptr);
 }

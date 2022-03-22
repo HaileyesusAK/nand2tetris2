@@ -2,6 +2,7 @@
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
 #include "keyword_term.hpp"
+#include "parenthesized_term.hpp"
 #include "string_term.hpp"
 #include "term.hpp"
 #include "term_factory.hpp"
@@ -19,7 +20,7 @@ namespace ntt {
 
             case TokenType::KEYWORD:
                 return std::make_unique<KeywordTerm>(tokenizer);
-                
+
             case TokenType::STRING:
                 return std::make_unique<StringTerm>(tokenizer);
 
@@ -37,8 +38,12 @@ namespace ntt {
                 return std::make_unique<IdentifierTerm>(tokenizer);
             }
 
-            default:
-                return nullptr;
+            case TokenType::SYMBOL:
+                if(token.value() == "(")
+                    return std::make_unique<ParenthesizedTerm>(tokenizer);
         }
+
+        return nullptr;
     }
+
 }

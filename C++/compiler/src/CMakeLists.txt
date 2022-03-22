@@ -6,6 +6,7 @@ set(SOURCES array_term.cpp
             integer_term.cpp
             jack_fragment.cpp
             keyword_term.cpp
+            parenthesized_term.cpp
             parser.cpp
             string_term.cpp
             syntax_tree.cpp

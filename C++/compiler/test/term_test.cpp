@@ -5,6 +5,7 @@
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
 #include "keyword_term.hpp"
+#include "parenthesized_term.hpp"
 #include "string_term.hpp"
 #include "tokenizer.hpp"
 #include "utils.hpp"
@@ -51,4 +52,8 @@ TEST_F(FTerm, ParsesIdentifier) {
 
 TEST_F(FTerm, ParsesArray) {
     ASSERT_THAT(cmp_parser_output<ArrayTerm>("array_term.jack", "array_term.xml"), Eq(true));
+}
+
+TEST_F(FTerm, ParsesParenthesized) {
+    ASSERT_THAT(cmp_parser_output<ParenthesizedTerm>("parenthesized_term.jack", "parenthesized_term.xml"), Eq(true));
 }

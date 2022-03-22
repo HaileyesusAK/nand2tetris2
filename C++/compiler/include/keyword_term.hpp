@@ -1,5 +1,5 @@
-#ifndef __INTEGER_TERM_H__
-#define __INTEGER_TERM_H__
+#ifndef __KEYWORD_TERM_H__
+#define __KEYWORD_TERM_H__
 
 #include <string>
 #include "term.hpp"
@@ -8,9 +8,9 @@
 
 namespace ntt {
 
-    class IntegerTerm : public Term {
+    class KeywordTerm : public Term {
         public:
-            IntegerTerm(Tokenizer& tokenizer);
+            KeywordTerm(Tokenizer& tokenizer);
 
             std::string to_xml() const override;
 

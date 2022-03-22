@@ -1,7 +1,8 @@
 #include <filesystem>
 #include <fstream>
-#include "integer_term.hpp"
 #include "gmock/gmock.h"
+#include "integer_term.hpp"
+#include "keyword_term.hpp"
 #include "string_term.hpp"
 #include "tokenizer.hpp"
 #include "utils.hpp"
@@ -36,4 +37,8 @@ TEST_F(FTerm, ParsesInteger) {
 
 TEST_F(FTerm, ParsesString) {
     ASSERT_THAT(cmp_parser_output<StringTerm>("string_term.jack", "string_term.xml"), Eq(true));
+}
+
+TEST_F(FTerm, ParsesKeyword) {
+    ASSERT_THAT(cmp_parser_output<KeywordTerm>("keyword_term.jack", "keyword_term.xml"), Eq(true));
 }

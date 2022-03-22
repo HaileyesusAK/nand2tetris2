@@ -10,6 +10,7 @@ set(SOURCES array_term.cpp
             parenthesized_term.cpp
             parser.cpp
             string_term.cpp
+            subroutine_call_term.cpp
             syntax_tree.cpp
             term.cpp
             term_factory.cpp

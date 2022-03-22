@@ -7,6 +7,7 @@
 #include "keyword_term.hpp"
 #include "parenthesized_term.hpp"
 #include "string_term.hpp"
+#include "subroutine_call_term.hpp"
 #include "term_factory.hpp"
 #include "tokenizer.hpp"
 
@@ -48,4 +49,8 @@ TEST_F(FTermFactory, CreatesArrayTerm) {
 
 TEST_F(FTermFactory, CreatesParenthesizedTerm) {
     ASSERT_NE(dynamic_cast<ParenthesizedTerm*>(get_term("parenthesized_term.jack").get()), nullptr);
+}
+
+TEST_F(FTermFactory, CreatesSubroutineCallTerm) {
+    ASSERT_NE(dynamic_cast<SubroutineCallTerm*>(get_term("subroutine_call.jack").get()), nullptr);
 }

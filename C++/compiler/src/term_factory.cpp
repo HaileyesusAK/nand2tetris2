@@ -4,6 +4,7 @@
 #include "keyword_term.hpp"
 #include "parenthesized_term.hpp"
 #include "string_term.hpp"
+#include "subroutine_call_term.hpp"
 #include "term.hpp"
 #include "term_factory.hpp"
 
@@ -31,6 +32,10 @@ namespace ntt {
                     if(tokenizer.peek().value() == "[") {
                         tokenizer.put(token);
                         return std::make_unique<ArrayTerm>(tokenizer);
+                    }
+                    else if(tokenizer.peek().value() == "(") {
+                        tokenizer.put(token);
+                        return std::make_unique<SubroutineCallTerm>(tokenizer);
                     }
                 }
 

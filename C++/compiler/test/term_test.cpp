@@ -7,6 +7,7 @@
 #include "keyword_term.hpp"
 #include "parenthesized_term.hpp"
 #include "string_term.hpp"
+#include "subroutine_call_term.hpp"
 #include "tokenizer.hpp"
 #include "utils.hpp"
 
@@ -56,4 +57,8 @@ TEST_F(FTerm, ParsesArray) {
 
 TEST_F(FTerm, ParsesParenthesized) {
     ASSERT_THAT(cmp_parser_output<ParenthesizedTerm>("parenthesized_term.jack", "parenthesized_term.xml"), Eq(true));
+}
+
+TEST_F(FTerm, ParsesSubroutine) {
+    ASSERT_THAT(cmp_parser_output<SubroutineCallTerm>("subroutine_call.jack", "subroutine_call.xml"), Eq(true));
 }

@@ -4,6 +4,7 @@
 #include "gmock/gmock.h"
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
+#include "method_call_term.hpp"
 #include "keyword_term.hpp"
 #include "parenthesized_term.hpp"
 #include "string_term.hpp"
@@ -61,4 +62,8 @@ TEST_F(FTerm, ParsesParenthesized) {
 
 TEST_F(FTerm, ParsesSubroutine) {
     ASSERT_THAT(cmp_parser_output<SubroutineCallTerm>("subroutine_call.jack", "subroutine_call.xml"), Eq(true));
+}
+
+TEST_F(FTerm, ParsesMethod) {
+    ASSERT_THAT(cmp_parser_output<MethodCallTerm>("method_call.jack", "method_call.xml"), Eq(true));
 }

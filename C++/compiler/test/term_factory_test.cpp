@@ -5,6 +5,7 @@
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
 #include "keyword_term.hpp"
+#include "method_call_term.hpp"
 #include "parenthesized_term.hpp"
 #include "string_term.hpp"
 #include "subroutine_call_term.hpp"
@@ -53,4 +54,8 @@ TEST_F(FTermFactory, CreatesParenthesizedTerm) {
 
 TEST_F(FTermFactory, CreatesSubroutineCallTerm) {
     ASSERT_NE(dynamic_cast<SubroutineCallTerm*>(get_term("subroutine_call.jack").get()), nullptr);
+}
+
+TEST_F(FTermFactory, CreatesMethodCallTerm) {
+    ASSERT_NE(dynamic_cast<MethodCallTerm*>(get_term("method_call.jack").get()), nullptr);
 }

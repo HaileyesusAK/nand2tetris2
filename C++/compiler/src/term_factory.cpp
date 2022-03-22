@@ -2,6 +2,7 @@
 #include "identifier_term.hpp"
 #include "integer_term.hpp"
 #include "keyword_term.hpp"
+#include "method_call_term.hpp"
 #include "parenthesized_term.hpp"
 #include "string_term.hpp"
 #include "subroutine_call_term.hpp"
@@ -36,6 +37,10 @@ namespace ntt {
                     else if(tokenizer.peek().value() == "(") {
                         tokenizer.put(token);
                         return std::make_unique<SubroutineCallTerm>(tokenizer);
+                    }
+                    else if(tokenizer.peek().value() == ".") {
+                        tokenizer.put(token);
+                        return std::make_unique<MethodCallTerm>(tokenizer);
                     }
                 }
 

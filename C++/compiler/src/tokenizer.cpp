@@ -267,6 +267,18 @@ namespace ntt {
         return token;
     }
 
+    Token Tokenizer::consume_string() {
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        auto token = tokens_.front();
+        if(token.type() != TokenType::STRING)
+            throw std::domain_error("token '" + token.value() + "' at " + token.pos() + " is not a string");
+
+        tokens_.pop_front();
+        return token;
+    }
+
     void Tokenizer::to_xml(std::ofstream& ofs) {
         if(!ofs.is_open())
             throw std::runtime_error("file is not open");

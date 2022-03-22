@@ -38,6 +38,8 @@ namespace ntt {
             Token consume_type();
 
             Token consume_integer();
+
+            Token consume_string();
     
         private:
 

@@ -35,6 +35,8 @@ namespace ntt {
 
             Token consume_symbol(const std::string&);
 
+            Token consume_symbol(const std::unordered_set<std::string>&);
+
             Token consume_type();
 
             Token consume_integer();

@@ -16,6 +16,7 @@ set(SOURCES array_term.cpp
             term.cpp
             term_factory.cpp
             token.cpp
-            tokenizer.cpp)
+            tokenizer.cpp
+            unaryop_term.cpp)
 
 add_library(${BINARY} SHARED ${SOURCES})

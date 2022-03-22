@@ -10,6 +10,7 @@
 #include "string_term.hpp"
 #include "subroutine_call_term.hpp"
 #include "tokenizer.hpp"
+#include "unaryop_term.hpp"
 #include "utils.hpp"
 
 using namespace ntt;
@@ -66,4 +67,8 @@ TEST_F(FTerm, ParsesSubroutine) {
 
 TEST_F(FTerm, ParsesMethod) {
     ASSERT_THAT(cmp_parser_output<MethodCallTerm>("method_call.jack", "method_call.xml"), Eq(true));
+}
+
+TEST_F(FTerm, ParsesUnaryOp) {
+    ASSERT_THAT(cmp_parser_output<UnaryOpTerm>("unaryop_terms.jack", "unaryop_terms.xml"), Eq(true));
 }

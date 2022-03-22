@@ -8,6 +8,7 @@
 #include "subroutine_call_term.hpp"
 #include "term.hpp"
 #include "term_factory.hpp"
+#include "unaryop_term.hpp"
 
 namespace ntt {
 
@@ -51,6 +52,10 @@ namespace ntt {
             case TokenType::SYMBOL:
                 if(token.value() == "(")
                     return std::make_unique<ParenthesizedTerm>(tokenizer);
+                else if (token.value() == "-" || token.value() == "~")
+                    return std::make_unique<UnaryOpTerm>(tokenizer);
+                else
+                    throw std::runtime_error("invalid symbol token");
         }
 
         return nullptr;

@@ -255,6 +255,21 @@ namespace ntt {
         return token;
     }
 
+    Token Tokenizer::consume_symbol(const std::unordered_set<std::string>& values) {
+        if(tokens_.empty())
+            throw std::domain_error("empty token stream");
+
+        auto token = tokens_.front();
+        if(token.type() != TokenType::SYMBOL)
+            throw std::domain_error("token '" + token.value() + "' at " + token.pos() + " is not a symbol");
+
+        if(!values.empty() && !values.count(token.value()))
+            throw std::domain_error("unexpected symbol '" + token.value() + "' at " + token.pos());
+            
+        tokens_.pop_front();
+        return token;
+    }
+
     Token Tokenizer::consume_integer() {
         if(tokens_.empty())
             throw std::domain_error("empty token stream");

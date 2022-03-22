@@ -2,6 +2,7 @@ set(BINARY ${CMAKE_PROJECT_NAME}_test)
 
 set(SOURCES tokenizer_test.cpp
             parser_test.cpp
+            term_test.cpp
             utils.cpp
             main.cpp)
 

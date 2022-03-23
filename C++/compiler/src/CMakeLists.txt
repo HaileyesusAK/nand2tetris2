@@ -12,6 +12,7 @@ set(SOURCES array_term.cpp
             method_call_term.cpp
             parenthesized_term.cpp
             parser.cpp
+            return_statement.cpp
             string_term.cpp
             subroutine_call_term.cpp
             syntax_tree.cpp

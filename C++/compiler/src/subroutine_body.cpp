@@ -1,7 +1,6 @@
 #include <sstream>
 #include "statement_factory.hpp"
 #include "subroutine_body.hpp"
-#include "var_dec.hpp"
 
 namespace ntt {
 
@@ -32,18 +31,18 @@ namespace ntt {
         return oss.str();
     }
 
-    std::vector<VarDec> SubroutineBody::parse_var_decs_(Tokenizer& tokenizer) {
+    std::vector<SubroutineVarDec> SubroutineBody::parse_var_decs_(Tokenizer& tokenizer) {
         static const std::unordered_set<std::string> STATEMENT_PREFIXES {
             "do", "if", "let", "return", "while"
         };
 
-        std::vector<VarDec> var_decs;
+        std::vector<SubroutineVarDec> var_decs;
         while(tokenizer.has_token()) {
             const auto& token = tokenizer.peek();
             if(STATEMENT_PREFIXES.count(token.value()) || token.value() == "}")
                 break;
 
-            var_decs.emplace_back(VarDec(tokenizer));
+            var_decs.emplace_back(SubroutineVarDec(tokenizer));
         }
 
         return var_decs;

@@ -25,8 +25,6 @@ namespace ntt {
                 TrailingVariable(Tokenizer&);
             };
 
-            Token var_;
-
             Token type_;
 
             Token first_var_name_;

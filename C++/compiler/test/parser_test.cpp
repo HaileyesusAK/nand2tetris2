@@ -2,6 +2,7 @@
 #include <iostream>
 #include <filesystem>
 #include "do_statement.hpp"
+#include "class_var_dec.hpp"
 #include "expression.hpp"
 #include "expression_list.hpp"
 #include "if_statement.hpp"
@@ -14,9 +15,9 @@
 #include "tokenizer.hpp"
 #include "subroutine_body.hpp"
 #include "subroutine_dec.hpp"
+#include "subroutine_var_dec.hpp"
 #include "syntax_tree.hpp"
 #include "utils.hpp"
-#include "var_dec.hpp"
 #include "while_statement.hpp"
 
 using namespace ntt;
@@ -63,7 +64,7 @@ class FParser : public Test {
         }
 
         bool parse_var_dec(std::string input_file, std::string expected_output_file) {
-            return cmp_xml<VarDec>(input_file, expected_output_file);
+            return cmp_xml<SubroutineVarDec>(input_file, expected_output_file);
         }
 
         bool parse_parameter_list(std::string input_file, std::string expected_output_file) {
@@ -79,7 +80,7 @@ class FParser : public Test {
         }
 
         bool parse_class_var_dec(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_class_var_dec(), expected_output_file);
+            return cmp_xml<ClassVarDec>(input_file, expected_output_file);
         }
 
         bool parse_class(std::string input_file, std::string expected_output_file) {

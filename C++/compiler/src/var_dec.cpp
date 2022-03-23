@@ -10,8 +10,7 @@ namespace ntt {
     {}
 
     VarDec::VarDec(Tokenizer& tokenizer)
-        : var_(tokenizer.consume_keyword({"var"})),
-          type_(tokenizer.consume_type()),
+        : type_(tokenizer.consume_type()),
           first_var_name_(tokenizer.consume_identifier()),
           trailing_var_names_(VarDec::parse_trailing_variables_(tokenizer)),
           semicolon_(tokenizer.consume_symbol(";"))
@@ -22,23 +21,20 @@ namespace ntt {
 
         while(tokenizer.has_token() && tokenizer.peek().value() != ";")
             variables.emplace_back(TrailingVariable(tokenizer));
-        
+
         return variables;
     }
 
     std::string VarDec::to_xml(size_t level) const {
         std::ostringstream oss;
 
-        oss << JackFragment::get_line("<varDec>", level);
-        oss << var_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << type_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << first_var_name_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << type_.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << first_var_name_.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
         for(const auto& [comma, var_name] : trailing_var_names_) {
-            oss << comma.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-            oss << var_name.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << comma.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << var_name.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
         }
-        oss << semicolon_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << JackFragment::get_line("</varDec>", level);
+        oss << semicolon_.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
 
         return oss.str();
     }

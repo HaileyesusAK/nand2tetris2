@@ -2,6 +2,7 @@ set(BINARY ${CMAKE_PROJECT_NAME})
 
 set(SOURCES array_term.cpp
             do_statement.cpp
+            class_var_dec.cpp
             expression.cpp
             expression_list.cpp
             identifier_term.cpp
@@ -20,6 +21,7 @@ set(SOURCES array_term.cpp
             subroutine_body.cpp
             subroutine_call_term.cpp
             subroutine_dec.cpp
+            subroutine_var_dec.cpp
             syntax_tree.cpp
             term.cpp
             term_factory.cpp

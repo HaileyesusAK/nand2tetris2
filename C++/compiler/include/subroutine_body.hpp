@@ -8,7 +8,7 @@
 #include "token.hpp"
 #include "tokenizer.hpp"
 #include "statement.hpp"
-#include "var_dec.hpp"
+#include "subroutine_var_dec.hpp"
 
 namespace ntt {
 
@@ -22,14 +22,14 @@ namespace ntt {
         private:
             Token left_brace_;
 
-            std::vector<VarDec> var_decs_;
+            std::vector<SubroutineVarDec> var_decs_;
 
             using Statements = std::vector<std::unique_ptr<Statement>>;
             Statements statements_;
 
             Token right_brace_;
 
-            static std::vector<VarDec> parse_var_decs_(Tokenizer&);
+            static std::vector<SubroutineVarDec> parse_var_decs_(Tokenizer&);
 
             static Statements parse_statements_(Tokenizer&);
     };

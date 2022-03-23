@@ -16,9 +16,10 @@ set(SOURCES array_term.cpp
             parser.cpp
             return_statement.cpp
             string_term.cpp
-            subroutine_call_term.cpp
-            subroutine_body.cpp
             statement_factory.cpp
+            subroutine_body.cpp
+            subroutine_call_term.cpp
+            subroutine_dec.cpp
             syntax_tree.cpp
             term.cpp
             term_factory.cpp

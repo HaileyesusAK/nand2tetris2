@@ -21,8 +21,10 @@ namespace ntt {
         for(const auto& var_dec : var_decs_)
             oss << var_dec.to_xml(level + 1);
 
+        oss << JackFragment::get_line("<statements>", level + 1);
         for(const auto& statement : statements_)
-            oss << statement->to_xml(level + 1);
+            oss << statement->to_xml(level + 2);
+        oss << JackFragment::get_line("</statements>", level + 1);
         oss << right_brace_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
 
         oss << JackFragment::get_line("</subroutineBody>", level);

@@ -3,7 +3,6 @@
 
 #include <optional>
 #include <string>
-#include <tuple>
 #include "expression.hpp"
 #include "statement.hpp"
 #include "token.hpp"
@@ -19,13 +18,20 @@ namespace ntt {
             std::string to_xml(size_t level = 0) const override;
 
         private:
+
+            struct IndexExpression {
+                Token left_bracket;
+                Expression expression;
+                Token right_bracket;
+
+                IndexExpression(Tokenizer&);
+            };
+
             Token let_;
 
             Token var_name_;
 
-            using IndexExpression = std::optional<std::tuple<Token, Expression, Token>>;
-
-            IndexExpression index_expression_;
+            std::optional<IndexExpression> index_expression_;
 
             Token eq_;
 
@@ -33,7 +39,7 @@ namespace ntt {
 
             Token semicolon_;
 
-            static IndexExpression parse_index_exp(Tokenizer&);
+            static std::optional<IndexExpression> parse_index_exp_(Tokenizer&);
     };
 
 }

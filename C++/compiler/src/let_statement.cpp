@@ -3,22 +3,24 @@
 
 namespace ntt {
 
+    LetStatement::IndexExpression::IndexExpression(Tokenizer& tokenizer)
+        : left_bracket(tokenizer.consume_symbol("[")),
+          expression(Expression(tokenizer)),
+          right_bracket(tokenizer.consume_symbol("]"))
+    {}
+
     LetStatement::LetStatement(Tokenizer& tokenizer)
         : let_(tokenizer.consume_keyword({"let"})),
           var_name_(tokenizer.consume_identifier()),
-          index_expression_(LetStatement::parse_index_exp(tokenizer)),
+          index_expression_(LetStatement::parse_index_exp_(tokenizer)),
           eq_(tokenizer.consume_symbol("=")),
           expression_(Expression(tokenizer)),
           semicolon_(tokenizer.consume_symbol(";")) {
     }
 
-    LetStatement::IndexExpression LetStatement::parse_index_exp(Tokenizer& tokenizer) {
-        if(tokenizer.peek().value() == "[") {
-            auto left_bracket = tokenizer.get();
-            auto expression = Expression(tokenizer);
-            auto right_bracket = tokenizer.consume_symbol("]");
-            return std::make_tuple(std::move(left_bracket), std::move(expression), std::move(right_bracket));
-        }
+    std::optional<LetStatement::IndexExpression> LetStatement::parse_index_exp_(Tokenizer& tokenizer) {
+        if(tokenizer.peek().value() == "[") 
+            return IndexExpression(tokenizer);
 
         return std::nullopt;
     }
@@ -29,10 +31,12 @@ namespace ntt {
         oss << JackFragment::get_line("<letStatement>", level);
         oss << let_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
         oss << var_name_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+
         if(index_expression_.has_value()) {
-            oss << std::get<0>(index_expression_.value()).to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-            oss << std::get<1>(index_expression_.value()).to_xml(level + 1);
-            oss << std::get<2>(index_expression_.value()).to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            const auto& expression = index_expression_.value();
+            oss << expression.left_bracket.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << expression.expression.to_xml(level + 1);
+            oss << expression.right_bracket.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
         }
 
         oss << eq_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;

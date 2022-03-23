@@ -1,10 +1,12 @@
 #include <filesystem>
 #include <fstream>
 #include "do_statement.hpp"
+#include "if_statement.hpp"
 #include "gmock/gmock.h"
 #include "let_statement.hpp"
 #include "return_statement.hpp"
 #include "statement_factory.hpp"
+#include "while_statement.hpp"
 
 
 using namespace ntt;
@@ -33,4 +35,12 @@ TEST_F(FStatementFactory, CreatesLetStatement) {
 
 TEST_F(FStatementFactory, CreatesReturnStatement) {
     ASSERT_NE(dynamic_cast<ReturnStatement*>(get_statement("return_void.jack").get()), nullptr);
+}
+
+TEST_F(FStatementFactory, CreatesWhileStatement) {
+    ASSERT_NE(dynamic_cast<WhileStatement*>(get_statement("while.jack").get()), nullptr);
+}
+
+TEST_F(FStatementFactory, CreatesIfStatement) {
+    ASSERT_NE(dynamic_cast<IfStatement*>(get_statement("if.jack").get()), nullptr);
 }

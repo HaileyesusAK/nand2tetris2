@@ -4,6 +4,7 @@
 #include "do_statement.hpp"
 #include "expression.hpp"
 #include "expression_list.hpp"
+#include "if_statement.hpp"
 #include "gmock/gmock.h"
 #include "let_statement.hpp"
 #include "parser.hpp"
@@ -50,7 +51,7 @@ class FParser : public Test {
         }
 
         bool parse_if_statement(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_if_statement(), expected_output_file);
+            return cmp_xml<IfStatement>(input_file, expected_output_file);
         }
 
         bool parse_while_statement(std::string input_file, std::string expected_output_file) {

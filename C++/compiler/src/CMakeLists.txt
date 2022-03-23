@@ -5,6 +5,7 @@ set(SOURCES array_term.cpp
             expression.cpp
             expression_list.cpp
             identifier_term.cpp
+            if_statement.cpp
             integer_term.cpp
             jack_fragment.cpp
             keyword_term.cpp

@@ -14,7 +14,7 @@ namespace ntt {
             static std::unique_ptr<Statement> parse(Tokenizer&);
 
         private:
-            enum class StatementID { DO, LET, RETURN, WHILE }; 
+            enum class StatementID { DO, IF, LET, RETURN, WHILE }; 
     };
 }
 

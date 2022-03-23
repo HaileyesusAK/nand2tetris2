@@ -1,6 +1,7 @@
 #include <string>
 #include <unordered_map>
 #include "do_statement.hpp"
+#include "if_statement.hpp"
 #include "let_statement.hpp"
 #include "return_statement.hpp"
 #include "statement_factory.hpp"
@@ -13,6 +14,7 @@ namespace ntt {
 
         const static std::unordered_map<std::string, StatementID> statement_map {
             {"do", StatementID::DO},
+            {"if", StatementID::IF},
             {"let", StatementID::LET},
             {"return", StatementID::RETURN},
             {"while", StatementID::WHILE}
@@ -27,6 +29,7 @@ namespace ntt {
                 case StatementID::LET: return std::make_unique<LetStatement>(tokenizer);
                 case StatementID::RETURN: return std::make_unique<ReturnStatement>(tokenizer);
                 case StatementID::WHILE: return std::make_unique<WhileStatement>(tokenizer);
+                case StatementID::IF: return std::make_unique<IfStatement>(tokenizer);
             }
         }
         catch(std::out_of_range&) {

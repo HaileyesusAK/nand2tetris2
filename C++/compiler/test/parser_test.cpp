@@ -11,6 +11,7 @@
 #include "return_statement.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
+#include "subroutine_body.hpp"
 #include "syntax_tree.hpp"
 #include "utils.hpp"
 #include "var_dec.hpp"
@@ -68,7 +69,7 @@ class FParser : public Test {
         }
 
         bool parse_subroutine_body(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_subroutine_body(), expected_output_file);
+            return cmp_xml<SubroutineBody>(input_file, expected_output_file);
         }
 
         bool parse_subroutine_dec(std::string input_file, std::string expected_output_file) {

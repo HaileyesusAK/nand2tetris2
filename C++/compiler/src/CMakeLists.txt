@@ -16,6 +16,7 @@ set(SOURCES array_term.cpp
             return_statement.cpp
             string_term.cpp
             subroutine_call_term.cpp
+            subroutine_body.cpp
             statement_factory.cpp
             syntax_tree.cpp
             term.cpp

@@ -11,6 +11,7 @@ set(SOURCES array_term.cpp
             keyword_term.cpp
             let_statement.cpp
             method_call_term.cpp
+            parameter_list.cpp
             parenthesized_term.cpp
             parser.cpp
             return_statement.cpp

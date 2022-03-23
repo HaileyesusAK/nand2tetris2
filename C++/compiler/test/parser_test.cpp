@@ -7,6 +7,7 @@
 #include "if_statement.hpp"
 #include "gmock/gmock.h"
 #include "let_statement.hpp"
+#include "parameter_list.hpp"
 #include "parser.hpp"
 #include "return_statement.hpp"
 #include "token.hpp"
@@ -65,7 +66,7 @@ class FParser : public Test {
         }
 
         bool parse_parameter_list(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_parameter_list(), expected_output_file);
+            return cmp_xml<ParameterList>(input_file, expected_output_file);
         }
 
         bool parse_subroutine_body(std::string input_file, std::string expected_output_file) {

@@ -1,6 +1,7 @@
 set(BINARY ${CMAKE_PROJECT_NAME})
 
 set(SOURCES array_term.cpp
+            do_statement.cpp
             expression.cpp
             expression_list.cpp
             identifier_term.cpp

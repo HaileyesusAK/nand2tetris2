@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "do_statement.hpp"
 #include "expression.hpp"
 #include "expression_list.hpp"
 #include "gmock/gmock.h"
@@ -39,7 +40,7 @@ class FParser : public Test {
         }
 
         bool parse_do_statement(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_do_statement(), expected_output_file);
+            return cmp_xml<DoStatement>(input_file, expected_output_file);
         }
 
         bool parse_return_statement(std::string input_file, std::string expected_output_file) {

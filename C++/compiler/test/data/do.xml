@@ -1,9 +1,11 @@
 <doStatement>
     <keyword> do </keyword>
-    <identifier> call </identifier>
-    <symbol> ( </symbol>
-    <expressionList>
-    </expressionList>
-    <symbol> ) </symbol>
+    <term>
+        <identifier> call </identifier>
+        <symbol> ( </symbol>
+        <expressionList>
+        </expressionList>
+        <symbol> ) </symbol>
+    </term>
     <symbol> ; </symbol>
 </doStatement>

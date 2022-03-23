@@ -23,6 +23,7 @@ set(SOURCES array_term.cpp
             token.cpp
             tokenizer.cpp
             unaryop_term.cpp
+            var_dec.cpp
             while_statement.cpp)
 
 add_library(${BINARY} SHARED ${SOURCES})

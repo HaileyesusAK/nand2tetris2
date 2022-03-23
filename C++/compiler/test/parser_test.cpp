@@ -13,6 +13,7 @@
 #include "tokenizer.hpp"
 #include "syntax_tree.hpp"
 #include "utils.hpp"
+#include "var_dec.hpp"
 #include "while_statement.hpp"
 
 using namespace ntt;
@@ -59,7 +60,7 @@ class FParser : public Test {
         }
 
         bool parse_var_dec(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_var_dec(), expected_output_file);
+            return cmp_xml<VarDec>(input_file, expected_output_file);
         }
 
         bool parse_parameter_list(std::string input_file, std::string expected_output_file) {

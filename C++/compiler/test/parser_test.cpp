@@ -1,14 +1,15 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include "expression.hpp"
+#include "expression_list.hpp"
+#include "gmock/gmock.h"
+#include "let_statement.hpp"
 #include "parser.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
 #include "syntax_tree.hpp"
 #include "utils.hpp"
-#include "gmock/gmock.h"
-#include "expression.hpp"
-#include "expression_list.hpp"
 
 using namespace ntt;
 using namespace std;
@@ -34,7 +35,7 @@ class FParser : public Test {
         }
 
         bool parse_let_statement(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_let_statement(), expected_output_file);
+            return cmp_xml<LetStatement>(input_file, expected_output_file);
         }
 
         bool parse_do_statement(std::string input_file, std::string expected_output_file) {

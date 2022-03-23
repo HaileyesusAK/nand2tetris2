@@ -2,6 +2,7 @@
 #include <iostream>
 #include <filesystem>
 #include "do_statement.hpp"
+#include "class.hpp"
 #include "class_var_dec.hpp"
 #include "expression.hpp"
 #include "expression_list.hpp"
@@ -84,7 +85,7 @@ class FParser : public Test {
         }
 
         bool parse_class(std::string input_file, std::string expected_output_file) {
-            return cmp_xml(get_parser(input_file).parse_class(), expected_output_file);
+            return cmp_xml<Class>(input_file, expected_output_file);
         }
 
         bool cmpFiles(const fs::path& p1, const fs::path& p2) {

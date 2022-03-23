@@ -4,13 +4,13 @@
 #include <optional>
 #include <string>
 #include "expression.hpp"
-#include "jack_fragment.hpp"
+#include "statement.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
 
 namespace ntt {
 
-    class ReturnStatement : public JackFragment {
+    class ReturnStatement : public Statement {
         public:
             ReturnStatement(Tokenizer&);
 

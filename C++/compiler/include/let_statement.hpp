@@ -5,13 +5,13 @@
 #include <string>
 #include <tuple>
 #include "expression.hpp"
-#include "jack_fragment.hpp"
+#include "statement.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
 
 namespace ntt {
 
-    class LetStatement : public JackFragment {
+    class LetStatement : public Statement {
 
         public:
             LetStatement(Tokenizer&);

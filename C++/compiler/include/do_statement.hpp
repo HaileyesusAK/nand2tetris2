@@ -2,14 +2,14 @@
 #define __DO_STATEMENT_H__
 
 #include <string>
-#include "jack_fragment.hpp"
+#include "statement.hpp"
 #include "subroutine_call_term.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
 
 namespace ntt {
 
-    class DoStatement : public JackFragment {
+    class DoStatement : public Statement {
         public:
             DoStatement(Tokenizer&);
 

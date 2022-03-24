@@ -12,6 +12,19 @@
 
 namespace ntt {
 
+    /*
+        term            : integerConstant | stringConstant | keywordConstant | varName |
+                          varName '[' expresion ']' | subroutineCall | methodCall |
+                          '(' expression ')' | unaryOp term
+        keywordConstant : 'true' | 'false' | 'null' | 'this'
+        subroutineCall  : functionCallsubroutineName '(' expressionList ')' |
+        methodCall      : (className | varName) '.' functionCall
+        functionCall    : functionName '(' expressionList ')'
+        unaryOP         : '-' | '~'
+        subroutineName  : identifier
+        varName         : identifier
+        className       : identifier
+    */
     std::unique_ptr<Term> TermFactory::parse(Tokenizer& tokenizer) {
         if(!tokenizer.has_token())
             return nullptr;

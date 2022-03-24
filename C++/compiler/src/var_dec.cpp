@@ -1,5 +1,5 @@
-#include <unordered_set>
 #include <sstream>
+#include <unordered_set>
 #include "var_dec.hpp"
 
 namespace ntt {
@@ -9,6 +9,12 @@ namespace ntt {
           var_name(tokenizer.consume_identifier())
     {}
 
+    /*
+        variableDec  : type varName(','varName)*';'
+        type    : 'int' | 'char' | 'boolean' | className
+        varName : identifier
+        className : identifier
+    */
     VarDec::VarDec(Tokenizer& tokenizer)
         : type_(tokenizer.consume_type()),
           first_var_name_(tokenizer.consume_identifier()),
@@ -28,13 +34,13 @@ namespace ntt {
     std::string VarDec::to_xml(size_t level) const {
         std::ostringstream oss;
 
-        oss << type_.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << first_var_name_.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(type_, level);
+        oss << JackFragment::to_xml(first_var_name_, level);
         for(const auto& [comma, var_name] : trailing_var_names_) {
-            oss << comma.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
-            oss << var_name.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << JackFragment::to_xml(comma, level);
+            oss << JackFragment::to_xml(var_name, level);
         }
-        oss << semicolon_.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(semicolon_, level);
 
         return oss.str();
     }

@@ -3,6 +3,7 @@
 
 namespace ntt {
 
+    /* varDec  : 'var' variableDec */
     SubroutineVarDec::SubroutineVarDec(Tokenizer& tokenizer)
         : var_(tokenizer.consume_keyword({"var"})),
           var_dec_(tokenizer)
@@ -12,7 +13,7 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<varDec>", level);
-        oss << var_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(var_, level + 1);
         oss << var_dec_.to_xml(level + 1);
         oss << JackFragment::get_line("</varDec>", level);
 

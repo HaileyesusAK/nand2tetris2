@@ -8,6 +8,7 @@
 
 namespace ntt {
 
+    /* represents a parenthesized term */
     class ParenthesizedTerm : public Term {
         public:
             ParenthesizedTerm(Tokenizer& tokenizer);

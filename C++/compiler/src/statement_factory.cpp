@@ -10,6 +10,9 @@
 
 namespace ntt {
 
+    /*
+        statement  : letStatement | ifStatement | whileStatement | doStatement | returnStatement
+    */
     std::unique_ptr<Statement> StatementFactory::parse(Tokenizer& tokenizer) {
 
         const static std::unordered_map<std::string, StatementID> statement_map {

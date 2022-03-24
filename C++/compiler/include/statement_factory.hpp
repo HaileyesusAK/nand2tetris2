@@ -8,13 +8,13 @@
 
 namespace ntt {
 
+    /* Jack statement factory class */
     class StatementFactory {
-
         public:
             static std::unique_ptr<Statement> parse(Tokenizer&);
 
         private:
-            enum class StatementID { DO, IF, LET, RETURN, WHILE }; 
+            enum class StatementID { DO, IF, LET, RETURN, WHILE };
     };
 }
 

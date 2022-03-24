@@ -2,12 +2,14 @@
 #define __METHOD_CALL_TERM_H__
 
 #include <string>
+#include "function_call.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
 #include "expression_list.hpp"
 
 namespace ntt {
 
+    /* represents a class method call term */
     class MethodCallTerm : public Term {
         public:
             MethodCallTerm(Tokenizer& tokenizer);
@@ -17,10 +19,7 @@ namespace ntt {
         private:
             Token var_name_;
             Token dot_;
-            Token method_name_;
-            Token left_parenthesis_;
-            ExpressionList expression_list_;
-            Token right_parenthesis_;
+            FunctionCall call_;
     };
 }
 

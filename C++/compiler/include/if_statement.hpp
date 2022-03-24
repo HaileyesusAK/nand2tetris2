@@ -13,6 +13,7 @@
 
 namespace ntt {
 
+    /* represents an if statement */
     class IfStatement : public Statement {
         public:
             IfStatement(Tokenizer&);
@@ -20,22 +21,7 @@ namespace ntt {
             std::string to_xml(size_t level = 0) const override;
 
         private:
-            Token if_;
-
-            Token left_parenthesis_;
-
-            Expression expression_;
-
-            Token right_parenthesis_;
-
-            Token left_brace_;
-
             using StatementList = std::vector<std::unique_ptr<Statement>>;
-
-            StatementList statements_;
-
-            Token right_brace_;
-
             struct ElsePart {
                 Token else_keyword;
                 Token left_parenthesis;
@@ -44,13 +30,18 @@ namespace ntt {
                 ElsePart(Tokenizer&);
             };
 
+            Token if_;
+            Token left_parenthesis_;
+            Expression expression_;
+            Token right_parenthesis_;
+            Token left_brace_;
+            StatementList statements_;
+            Token right_brace_;
             std::optional<ElsePart> else_;
 
             static StatementList parse_statements_(Tokenizer&);
-
             static std::optional<ElsePart> parse_else_part_(Tokenizer&);
-
-            static void statements_to_xml(std::ostringstream&, const StatementList&, size_t);
+            static void statements_to_xml_(std::ostringstream&, const StatementList&, size_t);
     };
 }
 

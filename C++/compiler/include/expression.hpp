@@ -11,10 +11,11 @@
 
 namespace ntt {
 
+    /* represents an expression */
     class Expression : public JackFragment {
-
         public:
             Expression(Tokenizer&); 
+
             std::string to_xml(size_t level = 0) const override; 
 
         private:

@@ -10,8 +10,8 @@
 
 namespace ntt {
 
+    /* represents a subroutine declaration */
     class SubroutineDec : public JackFragment {
-
         public:
             SubroutineDec(Tokenizer&);
 
@@ -19,17 +19,11 @@ namespace ntt {
 
         private:
             Token routine_type_;
-
             Token return_type_;
-
             Token name_;
-
             Token left_parenthesis_;
-
             ParameterList parameter_list_;
-
             Token right_parenthesis_;
-
             SubroutineBody body_;
 
             static Token get_return_type_(Tokenizer&);

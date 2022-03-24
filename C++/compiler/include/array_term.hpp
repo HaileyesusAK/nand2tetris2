@@ -8,8 +8,7 @@
 
 namespace ntt {
 
-    //class Expression;
-
+    /* represents an array term */
     class ArrayTerm : public Term {
         public:
             ArrayTerm(Tokenizer& tokenizer);

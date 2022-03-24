@@ -1,9 +1,8 @@
-#include <string>
 #include "keyword_term.hpp"
-#include "tokenizer.hpp"
 
 namespace ntt {
 
+    /* keywordConstant : 'true' | 'false' | 'null' | 'this' */
     KeywordTerm::KeywordTerm(Tokenizer& tokenizer)
         : token_(tokenizer.consume_keyword({"true", "false", "null", "this"})) {}
 

@@ -10,6 +10,7 @@
 
 namespace ntt {
 
+    /* represents a return statement */
     class ReturnStatement : public Statement {
         public:
             ReturnStatement(Tokenizer&);
@@ -18,12 +19,10 @@ namespace ntt {
 
         private:
             Token return_;
-
             std::optional<Expression> expression_;
-
             Token semicolon_;
 
-            std::optional<Expression> parse_expression(Tokenizer&);
+            static std::optional<Expression> parse_expression_(Tokenizer&);
     };
 }
 

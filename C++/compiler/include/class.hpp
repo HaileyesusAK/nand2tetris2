@@ -10,7 +10,8 @@
 #include "tokenizer.hpp"
 
 namespace ntt {
-    
+
+    /* represents Jack class */
     class Class : public JackFragment {
         public:
             Class(Tokenizer&);
@@ -19,19 +20,13 @@ namespace ntt {
 
         private:
             Token class_;
-
             Token name_;
-
             Token left_brace_;
-
             std::vector<ClassVarDec> class_var_dec_;
-
             std::vector<SubroutineDec> subroutine_dec_;
-
             Token right_brace_;
 
             static std::vector<ClassVarDec> parse_class_var_dec_(Tokenizer&);
-
             static std::vector<SubroutineDec> parse_subroutine_dec_(Tokenizer&);
     };
 }

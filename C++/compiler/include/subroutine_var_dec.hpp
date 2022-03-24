@@ -9,16 +9,15 @@
 
 namespace ntt {
 
+    /* represents subroutine-level variable declaration */
     class SubroutineVarDec : JackFragment {
-
         public:
-            SubroutineVarDec(Tokenizer&); 
+            SubroutineVarDec(Tokenizer&);
 
-            std::string to_xml(size_t level = 0) const override; 
+            std::string to_xml(size_t level = 0) const override;
 
         private:
             Token var_;
-
             VarDec var_dec_;
     };
 }

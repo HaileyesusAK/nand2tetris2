@@ -4,6 +4,7 @@
 
 namespace ntt {
 
+    /* term: '(' expression ')' */
     ParenthesizedTerm::ParenthesizedTerm(Tokenizer& tokenizer)
         : left_parenthesis_(tokenizer.consume_symbol("(")),
           expression_(Expression(tokenizer)),
@@ -14,9 +15,9 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<term>", level);
-        oss << left_parenthesis_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(left_parenthesis_, level + 1);
         oss << expression_.to_xml(level + 1);
-        oss << right_parenthesis_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(right_parenthesis_, level + 1);
         oss << JackFragment::get_line("</term>", level);
 
         return oss.str();

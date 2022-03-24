@@ -3,6 +3,10 @@
 
 namespace ntt {
 
+    /*
+        class     : 'class' className '{' classVarDec* subroutineDec* '}'
+        className : identifier
+    */
     Class::Class(Tokenizer& tokenizer)
         : class_(tokenizer.consume_keyword({"class"})),
           name_(tokenizer.consume_identifier()),
@@ -16,10 +20,9 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<class>", level);
-
-        oss << class_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << name_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << left_brace_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(class_, level + 1);
+        oss << JackFragment::to_xml(name_, level + 1);
+        oss << JackFragment::to_xml(left_brace_, level + 1);
 
         for(const auto& class_var_dec : class_var_dec_)
             oss << class_var_dec.to_xml(level + 1);
@@ -27,8 +30,7 @@ namespace ntt {
         for(const auto& subroutine_dec: subroutine_dec_)
             oss << subroutine_dec.to_xml(level + 1);
 
-        oss << right_brace_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-
+        oss << JackFragment::to_xml(right_brace_, level + 1);
         oss << JackFragment::get_line("</class>", level);
 
         return oss.str();

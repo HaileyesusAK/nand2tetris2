@@ -1,9 +1,9 @@
 #include <sstream>
-#include <string>
 #include "array_term.hpp"
 
 namespace ntt {
 
+    /* term: varName '[' expresion ']' */
     ArrayTerm::ArrayTerm(Tokenizer& tokenizer)
         : var_name_(tokenizer.consume_identifier()),
           left_bracket_(tokenizer.consume_symbol("[")),
@@ -15,10 +15,10 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<term>", level);
-        oss << var_name_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << left_bracket_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(var_name_, level + 1);
+        oss << JackFragment::to_xml(left_bracket_, level + 1);
         oss << expression_.to_xml(level + 1);
-        oss << right_bracket_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(right_bracket_, level + 1);
         oss << JackFragment::get_line("</term>", level);
 
         return oss.str();

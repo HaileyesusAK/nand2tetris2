@@ -2,6 +2,7 @@
 #define __EXPRESSION_LIST_H__
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,15 +12,23 @@
 
 namespace ntt {
 
+    /* represents an expression list */
     class ExpressionList : public JackFragment {
-
         public:
-            ExpressionList(Tokenizer&); 
-            std::string to_xml(size_t level = 0) const override; 
+            ExpressionList(Tokenizer&);
+
+            std::string to_xml(size_t level = 0) const override;
 
         private:
-            std::unique_ptr<Expression> first_expression_;
-            std::vector<std::pair<Token, std::unique_ptr<Expression>>> trailing_expressions_;
+            struct TrailingExpression {
+                Token comma;
+                Expression expression;
+
+                TrailingExpression(Tokenizer&);
+            };
+
+            using List = std::optional<std::pair<Expression, std::vector<TrailingExpression>>>;
+            List expression_list_ = std::nullopt;
     };
 }
 

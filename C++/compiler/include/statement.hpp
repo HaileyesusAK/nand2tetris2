@@ -5,6 +5,7 @@
 
 namespace ntt {
 
+    /* represents a generic jack statement */
     class Statement : public JackFragment {};
 }
 

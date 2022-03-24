@@ -9,6 +9,10 @@ namespace ntt {
           right_bracket(tokenizer.consume_symbol("]"))
     {}
 
+    /*
+        letStatement : 'let' varName ('[' expression ']')? '=' expression ';'
+        varName      : identifier
+    */
     LetStatement::LetStatement(Tokenizer& tokenizer)
         : let_(tokenizer.consume_keyword({"let"})),
           var_name_(tokenizer.consume_identifier()),
@@ -19,7 +23,7 @@ namespace ntt {
     }
 
     std::optional<LetStatement::IndexExpression> LetStatement::parse_index_exp_(Tokenizer& tokenizer) {
-        if(tokenizer.peek().value() == "[") 
+        if(tokenizer.peek().value() == "[")
             return IndexExpression(tokenizer);
 
         return std::nullopt;
@@ -29,19 +33,19 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<letStatement>", level);
-        oss << let_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << var_name_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(let_, level + 1);
+        oss << JackFragment::to_xml(var_name_, level + 1);
 
         if(index_expression_.has_value()) {
             const auto& expression = index_expression_.value();
-            oss << expression.left_bracket.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << JackFragment::to_xml(expression.left_bracket, level + 1);
             oss << expression.expression.to_xml(level + 1);
-            oss << expression.right_bracket.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << JackFragment::to_xml(expression.right_bracket, level + 1);
         }
 
-        oss << eq_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(eq_, level + 1);
         oss << expression_.to_xml(level + 1);
-        oss << semicolon_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(semicolon_, level + 1);
         oss << JackFragment::get_line("</letStatement>", level);
 
         return oss.str();

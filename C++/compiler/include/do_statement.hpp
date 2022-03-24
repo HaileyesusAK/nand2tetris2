@@ -2,6 +2,8 @@
 #define __DO_STATEMENT_H__
 
 #include <string>
+#include <variant>
+#include "method_call_term.hpp"
 #include "statement.hpp"
 #include "subroutine_call_term.hpp"
 #include "token.hpp"
@@ -16,11 +18,22 @@ namespace ntt {
             std::string to_xml(size_t level = 0) const override;
 
         private:
+            using CallTerm = std::variant<MethodCallTerm, SubroutineCallTerm>;
+            struct CallTermVisitor{
+                size_t level;
+                CallTermVisitor(size_t l): level(l) {}
+
+                template <typename T>
+                std::string operator()(const T& term) {
+                    return term.to_xml(level);
+                }
+            };
+
             Token do_;
-
-            SubroutineCallTerm call_term_;
-
+            CallTerm call_term_;
             Token semicolon_;
+
+            static CallTerm parse_call_term_(Tokenizer&);
     };
 }
 

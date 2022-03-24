@@ -4,9 +4,10 @@
 
 namespace ntt {
 
+    /* returnStatement : 'return' expression? ';' */
     ReturnStatement::ReturnStatement(Tokenizer& tokenizer)
         : return_(tokenizer.consume_keyword({"return"})),
-          expression_(ReturnStatement::parse_expression(tokenizer)),
+          expression_(ReturnStatement::parse_expression_(tokenizer)),
           semicolon_(tokenizer.consume_symbol(";"))
     {}
 
@@ -14,17 +15,16 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<returnStatement>", level);
-        oss << return_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(return_, level + 1);
         if(expression_.has_value())
             oss << expression_.value().to_xml(level + 1);
-        oss << semicolon_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(semicolon_, level + 1);
         oss << JackFragment::get_line("</returnStatement>", level);
 
         return oss.str();
     }
 
-    std::optional<Expression> ReturnStatement::parse_expression(Tokenizer& tokenizer) {
-
+    std::optional<Expression> ReturnStatement::parse_expression_(Tokenizer& tokenizer) {
         if(tokenizer.peek().value() != ";") {
             return Expression(tokenizer);
         }

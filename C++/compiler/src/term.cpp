@@ -1,7 +1,5 @@
-#include <iomanip>
 #include <sstream>
 #include "term.hpp"
-#include "token.hpp"
 
 namespace ntt {
 
@@ -9,7 +7,7 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<term>", level);
-        oss << token.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(token, level + 1);
         oss << JackFragment::get_line("</term>", level);
 
         return oss.str();

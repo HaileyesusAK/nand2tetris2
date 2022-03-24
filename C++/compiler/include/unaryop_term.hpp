@@ -8,10 +8,12 @@
 
 namespace ntt {
 
+    /* represents a term with unary operator */
     class UnaryOpTerm : public Term {
 
         public:
             UnaryOpTerm(Tokenizer&);
+
             std::string to_xml(size_t level = 0) const override;
 
         private:

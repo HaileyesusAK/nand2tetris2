@@ -7,7 +7,8 @@
 #include "tokenizer.hpp"
 
 namespace ntt {
-
+    
+    /* represents integer constant term */
     class IntegerTerm : public Term {
         public:
             IntegerTerm(Tokenizer& tokenizer);

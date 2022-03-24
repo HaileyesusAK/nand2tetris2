@@ -8,6 +8,7 @@
 
 namespace ntt {
 
+    /* represents a string constant term */
     class StringTerm : public Term {
         public:
             StringTerm(Tokenizer& tokenizer);

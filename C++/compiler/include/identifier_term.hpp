@@ -8,6 +8,7 @@
 
 namespace ntt {
 
+    /* represents an identifer term */
     class IdentifierTerm : public Term {
         public:
             IdentifierTerm(Tokenizer& tokenizer);

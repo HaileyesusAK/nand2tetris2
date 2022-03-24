@@ -209,6 +209,10 @@ TEST_F(FParser, HandlesDoStatement) {
     ASSERT_THAT(parse_do_statement("do.jack", "do.xml"), Eq(true));
 }
 
+TEST_F(FParser, HandlesDoStatementToMethod) {
+    ASSERT_THAT(parse_do_statement("do_method_call.jack", "do_method_call.xml"), Eq(true));
+}
+
 TEST_F(FParser, HandlesVoidReturnStatement) {
     ASSERT_THAT(parse_return_statement("return_void.jack", "return_void.xml"), Eq(true));
 }

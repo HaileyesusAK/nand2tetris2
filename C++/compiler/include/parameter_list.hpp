@@ -11,8 +11,8 @@
 
 namespace ntt {
 
+    /* represents subroutine parameter list */
     class ParameterList : public JackFragment {
-
         public:
             ParameterList(Tokenizer&);
 

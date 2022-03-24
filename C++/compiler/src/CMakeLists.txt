@@ -6,6 +6,7 @@ set(SOURCES array_term.cpp
             class_var_dec.cpp
             expression.cpp
             expression_list.cpp
+            function_call.cpp
             identifier_term.cpp
             if_statement.cpp
             integer_term.cpp

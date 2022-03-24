@@ -4,6 +4,10 @@
 
 namespace ntt {
 
+    /* term:    unaryOp term
+       unaryOP: '-' | '~'
+    */
+
     UnaryOpTerm::UnaryOpTerm(Tokenizer& tokenizer)
         : unary_op_(tokenizer.consume_symbol(std::unordered_set<std::string>{"~", "-"})),
           term_(TermFactory::parse(tokenizer))

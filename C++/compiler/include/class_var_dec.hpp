@@ -9,16 +9,15 @@
 
 namespace ntt {
 
+    /* represents variable declaration at class level */
     class ClassVarDec : JackFragment {
-
         public:
-            ClassVarDec(Tokenizer&); 
+            ClassVarDec(Tokenizer&);
 
-            std::string to_xml(size_t level = 0) const override; 
+            std::string to_xml(size_t level = 0) const override;
 
         private:
             Token storage_class_;
-
             VarDec var_dec_;
     };
 }

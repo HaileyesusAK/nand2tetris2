@@ -11,6 +11,10 @@ namespace ntt {
           right_parenthesis(tokenizer.consume_symbol("}"))
           {}
 
+    /*
+    ifStatement : 'if' '(' expression ')' '{' statements '}'
+                  ('else' '{' statements '}')?
+    */
     IfStatement::IfStatement(Tokenizer& tokenizer)
         : if_(tokenizer.consume_keyword({"if"})),
           left_parenthesis_(tokenizer.consume_symbol("(")),
@@ -31,7 +35,7 @@ namespace ntt {
         return statements;
     }
 
-    void IfStatement::statements_to_xml(std::ostringstream& oss, const StatementList& statements, size_t level) {
+    void IfStatement::statements_to_xml_(std::ostringstream& oss, const StatementList& statements, size_t level) {
         oss << JackFragment::get_line("<statements>", level);
         for(auto& statement : statements)
             oss << statement->to_xml(level + 1);
@@ -50,22 +54,21 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<ifStatement>", level);
-        oss << if_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << left_parenthesis_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(if_, level + 1);
+        oss << JackFragment::to_xml(left_parenthesis_, level + 1);
         oss << expression_.to_xml(level + 1);
-        oss << right_parenthesis_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << left_brace_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(right_parenthesis_, level + 1);
+        oss << JackFragment::to_xml(left_brace_, level + 1);
         if(!statements_.empty())
-            IfStatement::statements_to_xml(oss, statements_, level + 1);
-        oss << right_brace_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            IfStatement::statements_to_xml_(oss, statements_, level + 1);
+        oss << JackFragment::to_xml(right_brace_, level + 1);
 
         if(else_.has_value()) {
             const auto& else_part = else_.value();
-
-            oss << else_part.else_keyword .to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-            oss << else_part.left_parenthesis.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
-            IfStatement::statements_to_xml(oss, else_part.statements, level + 1);
-            oss << else_part.right_parenthesis.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << JackFragment::to_xml(else_part.else_keyword, level + 1);
+            oss << JackFragment::to_xml(else_part.left_parenthesis, level + 1);
+            IfStatement::statements_to_xml_(oss, else_part.statements, level + 1);
+            oss << JackFragment::to_xml(else_part.right_parenthesis, level + 1);
         }
 
         oss << JackFragment::get_line("</ifStatement>", level);

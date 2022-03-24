@@ -12,8 +12,8 @@
 
 namespace ntt {
 
+    /* represents a subroutine body */
     class SubroutineBody : public JackFragment {
-
         public:
             SubroutineBody(Tokenizer&);
 

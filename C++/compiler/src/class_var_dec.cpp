@@ -3,6 +3,7 @@
 
 namespace ntt {
 
+    /* classVarDec : ('static' | 'field') variableDec */
     ClassVarDec::ClassVarDec(Tokenizer& tokenizer)
         : storage_class_(tokenizer.consume_keyword({"static", "field"})),
           var_dec_(tokenizer)
@@ -12,7 +13,7 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<classVarDec>", level);
-        oss << storage_class_.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(storage_class_, level + 1);
         oss << var_dec_.to_xml(level + 1);
         oss << JackFragment::get_line("</classVarDec>", level);
 

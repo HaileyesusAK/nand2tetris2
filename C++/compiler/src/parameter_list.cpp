@@ -10,8 +10,8 @@ namespace ntt {
 
     std::string ParameterList::Parameter::to_xml(size_t level) const {
         std::ostringstream oss;
-        oss << type.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
-        oss << var_name.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(type, level);
+        oss << JackFragment::to_xml(var_name, level);
         return oss.str();
     }
 
@@ -22,15 +22,20 @@ namespace ntt {
 
     std::string ParameterList::TrailingParameter::to_xml(size_t level) const {
         std::ostringstream oss;
-        oss << comma.to_xml(level, JackFragment::TAB_WIDTH_) << std::endl;
+        oss << JackFragment::to_xml(comma, level);
         oss << parameter.to_xml(level);
         return oss.str();
     }
 
+    /* parameterList : ((type varName)(',' type varName)*)? */
     ParameterList::ParameterList(Tokenizer& tokenizer) {
         if(!tokenizer.has_token())
             throw NoTokenErr();
 
+        /*
+            parameter list is defined in the context of function definition;
+            therefore, continue checking the token stream until ')' is encountered.
+        */
         if(tokenizer.peek().value() != ")") {
             parameter_list_ = std::make_pair<Parameter, std::vector<TrailingParameter>>(Parameter(tokenizer), {});
 

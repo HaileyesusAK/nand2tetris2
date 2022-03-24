@@ -5,18 +5,18 @@
 
 namespace ntt {
 
+    /*
+        expression : term (op term)*
+        op : '+' |  '-' |  '*' |  '/' |  '&' |  '|' |  '<' |  '>' |  '='
+    */
     Expression::Expression(Tokenizer& tokenizer) {
-
-        static std::unordered_set<std::string> ops {
+        static const std::unordered_set<std::string> ops {
             "+" ,  "-" ,  "*" ,  "/" ,  "&" ,  "|" ,  "<" ,  ">" ,  "="
         };
 
         first_term_ = TermFactory::parse(tokenizer);
 
-        while(true) {
-            if(!tokenizer.has_token())
-                break;
-            
+        while(tokenizer.has_token()) {
             const auto& token = tokenizer.peek();
             if(!ops.count(token.value()))
                 break;
@@ -32,7 +32,7 @@ namespace ntt {
         oss << JackFragment::get_line("<expression>", level);
         oss << first_term_->to_xml(level + 1);
         for(const auto& [op, term] : trailing_terms_) {
-            oss << op.to_xml(level + 1, JackFragment::TAB_WIDTH_) << std::endl;
+            oss << JackFragment::to_xml(op, level + 1);
             oss << term->to_xml(level + 1);
         }
         oss << JackFragment::get_line("</expression>", level);

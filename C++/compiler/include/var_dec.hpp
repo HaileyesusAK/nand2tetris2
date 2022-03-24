@@ -5,17 +5,17 @@
 #include <utility>
 #include <vector>
 #include "jack_fragment.hpp"
-#include "tokenizer.hpp"
 #include "token.hpp"
+#include "tokenizer.hpp"
 
 namespace ntt {
 
+    /* represent a generic variable declartion */
     class VarDec : public JackFragment {
-
         public:
-            VarDec(Tokenizer&); 
+            VarDec(Tokenizer&);
 
-            std::string to_xml(size_t level = 0) const override; 
+            std::string to_xml(size_t level = 0) const override;
 
         private:
             struct TrailingVariable {
@@ -24,15 +24,11 @@ namespace ntt {
 
                 TrailingVariable(Tokenizer&);
             };
-
-            Token type_;
-
-            Token first_var_name_;
-
             using TrailingVariables = std::vector<TrailingVariable>;
 
+            Token type_;
+            Token first_var_name_;
             TrailingVariables trailing_var_names_;
-
             Token semicolon_;
 
             static TrailingVariables parse_trailing_variables_(Tokenizer&);

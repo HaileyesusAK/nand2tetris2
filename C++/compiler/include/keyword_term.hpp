@@ -8,6 +8,7 @@
 
 namespace ntt {
 
+    /* represents keyword constant term */
     class KeywordTerm : public Term {
         public:
             KeywordTerm(Tokenizer& tokenizer);

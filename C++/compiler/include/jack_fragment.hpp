@@ -15,6 +15,8 @@ namespace ntt {
 
             static std::string get_line(const std::string& s, size_t level);
 
+            static std::string to_xml(const Token& token, size_t level);
+
             static constexpr size_t TAB_WIDTH_ = 4;
     };
 }

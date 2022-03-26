@@ -30,22 +30,24 @@
     <statements>
         <doStatement>
             <keyword> do </keyword>
-            <identifier> cmp </identifier>
-            <symbol> ( </symbol>
-            <expressionList>
-                <expression>
-                    <term>
-                        <identifier> a </identifier>
-                    </term>
-                </expression>
-                <symbol> , </symbol>
-                <expression>
-                    <term>
-                        <identifier> b </identifier>
-                    </term>
-                </expression>
-            </expressionList>
-            <symbol> ) </symbol>
+            <term>
+                <identifier> cmp </identifier>
+                <symbol> ( </symbol>
+                <expressionList>
+                    <expression>
+                        <term>
+                            <identifier> a </identifier>
+                        </term>
+                    </expression>
+                    <symbol> , </symbol>
+                    <expression>
+                        <term>
+                            <identifier> b </identifier>
+                        </term>
+                    </expression>
+                </expressionList>
+                <symbol> ) </symbol>
+            </term>
             <symbol> ; </symbol>
         </doStatement>
         <returnStatement>

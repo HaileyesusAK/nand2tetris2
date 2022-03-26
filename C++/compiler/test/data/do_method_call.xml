@@ -1,0 +1,18 @@
+<doStatement>
+    <keyword> do </keyword>
+    <term>
+        <identifier> Screen </identifier>
+        <symbol> . </symbol>
+        <identifier> setColor </identifier>
+        <symbol> ( </symbol>
+        <expressionList>
+            <expression>
+                <term>
+                    <keyword> false </keyword>
+                </term>
+            </expression>
+        </expressionList>
+        <symbol> ) </symbol>
+    </term>
+    <symbol> ; </symbol>
+</doStatement>

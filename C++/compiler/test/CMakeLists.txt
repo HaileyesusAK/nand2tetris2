@@ -3,7 +3,6 @@ set(BINARY ${CMAKE_PROJECT_NAME}_test)
 set(SOURCES tokenizer_test.cpp
             parser_test.cpp
             statement_factory_test.cpp
-            term_test.cpp
             term_factory_test.cpp
             utils.cpp
             main.cpp)

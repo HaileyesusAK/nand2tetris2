@@ -44,24 +44,28 @@
                 </letStatement>
                 <doStatement>
                     <keyword> do </keyword>
-                    <identifier> game </identifier>
-                    <symbol> . </symbol>
-                    <identifier> run </identifier>
-                    <symbol> ( </symbol>
-                    <expressionList>
-                    </expressionList>
-                    <symbol> ) </symbol>
+                    <term>
+                        <identifier> game </identifier>
+                        <symbol> . </symbol>
+                        <identifier> run </identifier>
+                        <symbol> ( </symbol>
+                        <expressionList>
+                        </expressionList>
+                        <symbol> ) </symbol>
+                    </term>
                     <symbol> ; </symbol>
                 </doStatement>
                 <doStatement>
                     <keyword> do </keyword>
-                    <identifier> game </identifier>
-                    <symbol> . </symbol>
-                    <identifier> dispose </identifier>
-                    <symbol> ( </symbol>
-                    <expressionList>
-                    </expressionList>
-                    <symbol> ) </symbol>
+                    <term>
+                        <identifier> game </identifier>
+                        <symbol> . </symbol>
+                        <identifier> dispose </identifier>
+                        <symbol> ( </symbol>
+                        <expressionList>
+                        </expressionList>
+                        <symbol> ) </symbol>
+                    </term>
                     <symbol> ; </symbol>
                 </doStatement>
                 <returnStatement>

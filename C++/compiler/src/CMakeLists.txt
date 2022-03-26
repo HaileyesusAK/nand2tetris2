@@ -23,7 +23,6 @@ set(SOURCES array_term.cpp
             subroutine_call_term.cpp
             subroutine_dec.cpp
             subroutine_var_dec.cpp
-            syntax_tree.cpp
             term.cpp
             term_factory.cpp
             token.cpp

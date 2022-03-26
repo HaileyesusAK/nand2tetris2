@@ -25,7 +25,6 @@
 #include "subroutine_call_term.hpp"
 #include "subroutine_dec.hpp"
 #include "subroutine_var_dec.hpp"
-#include "syntax_tree.hpp"
 #include "unaryop_term.hpp"
 #include "utils.hpp"
 #include "while_statement.hpp"

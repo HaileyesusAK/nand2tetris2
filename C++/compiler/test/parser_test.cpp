@@ -17,7 +17,6 @@
 #include "parameter_list.hpp"
 #include "parenthesized_term.hpp"
 #include "parenthesized_term.hpp"
-#include "parser.hpp"
 #include "return_statement.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
@@ -54,18 +53,6 @@ class FParser : public Test {
             return Utils::cmpFiles(output_file, DATA_DIR / expected_output_file);
         }
 };
-
-TEST_F(FParser, ThrowsExceptionForInvalidKeywordConstant) {
-    string file_name {"test.jack"};
-    {
-        ofstream ofs {file_name};
-        ofs << "int";
-    }
-
-    ifstream ifs {file_name};
-    auto parser = Parser(ifs);
-    ASSERT_THROW(parser.parse_term(), runtime_error);
-}
 
 TEST_F(FParser, HandlesIdentifierTerm) {
     ASSERT_THAT(parse<IdentifierTerm>("identifier_term.jack", "identifier_term.xml"), Eq(true));

@@ -13,6 +13,10 @@ namespace ntt {
           term_(TermFactory::parse(tokenizer))
     { }
 
+    Term::Type UnaryOpTerm::get_type() const {
+        return Term::Type::UNARY_OP;
+    }
+
     std::string UnaryOpTerm::to_xml(size_t level) const {
         std::ostringstream oss;
 

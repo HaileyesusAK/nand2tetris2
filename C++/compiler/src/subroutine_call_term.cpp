@@ -7,6 +7,10 @@ namespace ntt {
         : call_(tokenizer)
     {}
 
+    Term::Type SubroutineCallTerm::get_type() const {
+        return Term::Type::SUBROUTINE_CALL;
+    }
+
     std::string SubroutineCallTerm::to_xml(size_t level) const {
         std::ostringstream oss;
 

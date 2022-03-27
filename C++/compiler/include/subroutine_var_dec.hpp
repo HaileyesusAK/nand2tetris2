@@ -10,7 +10,7 @@
 namespace ntt {
 
     /* represents subroutine-level variable declaration */
-    class SubroutineVarDec : JackFragment {
+    class SubroutineVarDec : public JackFragment {
         public:
             SubroutineVarDec(Tokenizer&);
 

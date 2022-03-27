@@ -15,6 +15,8 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            Type get_type() const override;
+
         private:
             Token left_parenthesis_;
             Expression expression_;

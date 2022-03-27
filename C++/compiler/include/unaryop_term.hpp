@@ -16,6 +16,8 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            Type get_type() const override;
+
         private:
             Token unary_op_;
             std::unique_ptr<Term> term_;

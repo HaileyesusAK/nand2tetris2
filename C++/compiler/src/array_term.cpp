@@ -10,6 +10,10 @@ namespace ntt {
           expression_(Expression(tokenizer)),
           right_bracket_(tokenizer.consume_symbol("]"))
     {}
+    
+    Term::Type ArrayTerm::get_type() const {
+        return Term::Type::ARRAY;
+    }
 
     std::string ArrayTerm::to_xml(size_t level) const {
         std::ostringstream oss;

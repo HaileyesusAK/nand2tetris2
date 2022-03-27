@@ -12,9 +12,6 @@ namespace ntt {
     class StatementFactory {
         public:
             static std::unique_ptr<Statement> parse(Tokenizer&);
-
-        private:
-            enum class StatementID { DO, IF, LET, RETURN, WHILE };
     };
 }
 

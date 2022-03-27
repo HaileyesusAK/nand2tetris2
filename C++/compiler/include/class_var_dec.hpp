@@ -10,7 +10,7 @@
 namespace ntt {
 
     /* represents variable declaration at class level */
-    class ClassVarDec : JackFragment {
+    class ClassVarDec : public JackFragment {
         public:
             ClassVarDec(Tokenizer&);
 

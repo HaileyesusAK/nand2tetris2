@@ -11,6 +11,10 @@ namespace ntt {
           call_(tokenizer)
     {}
 
+    Term::Type MethodCallTerm::get_type() const {
+        return Term::Type::METHOD_CALL;
+    }
+
     std::string MethodCallTerm::to_xml(size_t level) const {
         std::ostringstream oss;
 

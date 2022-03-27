@@ -6,7 +6,10 @@
 namespace ntt {
 
     /* represents a generic jack statement */
-    class Statement : public JackFragment {};
+    class Statement : public JackFragment {
+        public:
+            enum Type { DO, IF, LET, RETURN, WHILE };
+    };
 }
 
 #endif

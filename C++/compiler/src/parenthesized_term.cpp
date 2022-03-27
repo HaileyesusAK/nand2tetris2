@@ -11,6 +11,10 @@ namespace ntt {
           right_parenthesis_(tokenizer.consume_symbol(")"))
     {}
 
+    Term::Type ParenthesizedTerm::get_type() const {
+        return Term::Type::PARENTHESIZED_TERM;
+    }
+
     std::string ParenthesizedTerm::to_xml(size_t level) const {
         std::ostringstream oss;
 

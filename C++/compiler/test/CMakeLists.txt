@@ -1,6 +1,7 @@
 set(BINARY ${CMAKE_PROJECT_NAME}_test)
 
-set(SOURCES tokenizer_test.cpp
+set(SOURCES code_generator_test.cpp
+            tokenizer_test.cpp
             parser_test.cpp
             statement_factory_test.cpp
             symbol_table_test.cpp

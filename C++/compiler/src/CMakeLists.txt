@@ -4,6 +4,7 @@ set(SOURCES array_term.cpp
             do_statement.cpp
             class.cpp
             class_var_dec.cpp
+            code_generator.cpp
             expression.cpp
             expression_list.cpp
             function_call.cpp

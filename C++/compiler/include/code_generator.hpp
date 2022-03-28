@@ -12,8 +12,10 @@ namespace ntt {
             /* add the parameters in the symbol table and return their count */
             uint16_t compile(const ParameterList& param_list);
 
+            const SymbolTable& symbol_table() const;
+
         private:
-            SymbolTable symbol_table;
+            SymbolTable symbol_table_;
     };
 }
 

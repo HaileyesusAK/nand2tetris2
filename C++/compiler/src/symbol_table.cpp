@@ -34,7 +34,7 @@ namespace ntt {
                                             {type, kind, index})).second;
     }
 
-    const SymbolTableEntry& SymbolTable::get_entry(const std::string& name) {
+    const SymbolTableEntry& SymbolTable::get_entry(const std::string& name) const {
         try {
             return table_.at(std::make_pair(name, Scope::SUBROUTINE));
         }
@@ -43,15 +43,15 @@ namespace ntt {
         }
     }
 
-    uint16_t SymbolTable::get_index(const std::string& name) {
+    uint16_t SymbolTable::get_index(const std::string& name) const {
         return get_entry(name).index;
     }
 
-    const SymbolKind& SymbolTable::get_kind(const std::string& name) {
+    const SymbolKind& SymbolTable::get_kind(const std::string& name) const {
         return get_entry(name).kind;
     }
 
-    const std::string& SymbolTable::get_type(const std::string& name) {
+    const std::string& SymbolTable::get_type(const std::string& name) const {
         return get_entry(name).type;
     }
 

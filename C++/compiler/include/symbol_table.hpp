@@ -30,10 +30,10 @@ namespace ntt {
     class SymbolTable {
         public:
             bool insert(const std::string& name, const std::string& type, const SymbolKind& kind);
-            uint16_t get_index(const std::string& name);
-            const SymbolKind& get_kind(const std::string& name);
-            const std::string& get_type(const std::string& name);
-            const SymbolTableEntry& get_entry(const std::string& name);
+            uint16_t get_index(const std::string& name) const;
+            const SymbolKind& get_kind(const std::string& name) const;
+            const std::string& get_type(const std::string& name) const;
+            const SymbolTableEntry& get_entry(const std::string& name) const;
 
         private:
             std::unordered_map<Key, SymbolTableEntry, KeyHash> table_;

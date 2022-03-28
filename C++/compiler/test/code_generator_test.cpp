@@ -1,9 +1,10 @@
+#include <stdexcept>
+#include <filesystem>
+#include <fstream>
 #include "code_generator.hpp"
 #include "gmock/gmock.h"
 #include "parameter_list.hpp"
 #include "tokenizer.hpp"
-#include <filesystem>
-#include <fstream>
 
 using namespace ntt;
 using namespace std;
@@ -41,4 +42,8 @@ TEST_F(FCodeGenerator, UpdatesSymbolTableWhenCompilingNonEmptyParameterList) {
     ASSERT_THAT(entry.type, Eq("int"));
     ASSERT_THAT(entry.index, Eq(0));
     ASSERT_THAT(entry.kind, Eq(SymbolKind::ARGUMENT));
+}
+
+TEST_F(FCodeGenerator, HandlesDuplicateEntryParameterList) {
+    ASSERT_THROW(compile_parameter_list("parameter_list_dup.jack"), runtime_error);
 }

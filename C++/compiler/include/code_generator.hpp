@@ -9,9 +9,11 @@ namespace ntt {
 
     class CodeGenerator {
         public:
-
-            /* comile the parameters and return their count */
+            /* add the parameters in the symbol table and return their count */
             uint16_t compile(const ParameterList& param_list);
+
+        private:
+            SymbolTable symbol_table;
     };
 }
 

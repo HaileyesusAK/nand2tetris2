@@ -60,4 +60,17 @@ namespace ntt {
         return oss.str();
     }
 
+    std::vector<std::pair<Token, Token>> ParameterList::parameters() const {
+        std::vector<std::pair<Token, Token>> parameters;
+        if(parameter_list_.has_value()) {
+            const auto& first_parameter = parameter_list_.value().first;
+            parameters.emplace_back(first_parameter.type, first_parameter.var_name);
+
+            for(const auto& trailing_parameter : parameter_list_.value().second)
+                parameters.emplace_back(trailing_parameter.parameter.type, trailing_parameter.parameter.var_name);
+        }
+
+        return parameters;
+    }
+
 }

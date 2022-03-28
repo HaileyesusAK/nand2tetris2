@@ -18,6 +18,8 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            std::vector<std::pair<Token, Token>> parameters() const;
+
         private:
             struct Parameter {
                 Token type;

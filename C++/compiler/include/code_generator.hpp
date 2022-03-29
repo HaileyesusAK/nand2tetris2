@@ -23,6 +23,8 @@ namespace ntt {
 
             std::string compile(const KeywordTerm& term);
 
+            std::string compile(const IdentifierTerm& term);
+
             const SymbolTable& symbol_table() const;
 
         private:

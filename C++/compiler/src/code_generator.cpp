@@ -46,7 +46,7 @@ namespace ntt {
 
         return oss.str();
     }
-    
+
     std::string CodeGenerator::compile(const KeywordTerm& term) {
         std::ostringstream oss;
         if(term.token().value() == "false" || term.token().value() == "null")
@@ -57,7 +57,37 @@ namespace ntt {
         }
         else
             oss << "push pointer 0" << std::endl;
-        
+
+        return oss.str();
+    }
+
+    std::string CodeGenerator::compile(const IdentifierTerm& term) {
+        std::ostringstream oss;
+        try {
+            const auto& entry = symbol_table_.get_entry(term.token().value());
+            switch(entry.kind) {
+                case SymbolKind::LOCAL:
+                    oss << "push local ";
+                break;
+
+                case SymbolKind::STATIC:
+                    oss << "push static ";
+                break;
+
+                case SymbolKind::ARGUMENT:
+                    oss << "push argument ";
+                break;
+
+                case SymbolKind::FIELD:
+                    oss << "push this ";
+                break;
+            }
+            oss << entry.index << std::endl;
+        }
+        catch(std::out_of_range&) {
+            throw std::runtime_error("undeclared identifier at " + term.token().pos());
+        }
+
         return oss.str();
     }
 

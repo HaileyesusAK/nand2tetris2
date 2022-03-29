@@ -92,3 +92,13 @@ TEST_F(FCodeGenerator, CompilesStringTerm) {
 TEST_F(FCodeGenerator, CompilesKeywordTerm) {
     ASSERT_THAT(compile<KeywordTerm>("keyword_term.jack", "keyword_term.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesIdentifierTerm) {
+    compile<SubroutineVarDec>("multi_var_dec.jack");
+    ASSERT_THAT(compile<IdentifierTerm>("identifier_term2.jack", "identifier_term2.vm"), Eq(true));
+}
+
+TEST_F(FCodeGenerator, HandlesUndeclaredIdentifierTerm) {
+    compile<SubroutineVarDec>("multi_var_dec.jack");
+    ASSERT_THROW(compile<IdentifierTerm>("identifier_term.jack", "identifier_term.vm"), runtime_error);
+}

@@ -72,19 +72,24 @@ namespace ntt {
 
     std::string CodeGenerator::compile(const ArrayTerm& term) {
         std::ostringstream oss;
-        const auto& entry = symbol_table_.get_entry(term.identifier().value());
+        try {
+            const auto& entry = symbol_table_.get_entry(term.identifier().value());
 
-        // evaluate the index expression
-        oss << compile(term.expression());
+            // evaluate the index expression
+            oss << compile(term.expression());
 
-        // get the array's base address
-        oss << "push " << CodeGenerator::segment(entry.kind) << " " << entry.index << std::endl;
+            // get the array's base address
+            oss << "push " << CodeGenerator::segment(entry.kind) << " " << entry.index << std::endl;
 
-        // evaluate address of the accessed element
-        oss << "add" << std::endl;
+            // evaluate address of the accessed element
+            oss << "add" << std::endl;
 
-        // set that's pointer to the address of the element
-        oss << "pop pointer 1" << std::endl;
+            // set that's pointer to the address of the element
+            oss << "pop pointer 1" << std::endl;
+        }
+        catch(std::out_of_range&) {
+            throw std::runtime_error("undeclared identifier at " + term.identifier().pos());
+        }
 
         return oss.str();
     }

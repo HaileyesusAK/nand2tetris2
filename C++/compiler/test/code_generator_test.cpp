@@ -112,3 +112,13 @@ TEST_F(FCodeGenerator, CompilesArrayTerm) {
     compile<SubroutineVarDec>("tmp.jack");
     ASSERT_THAT(compile<ArrayTerm>("array_term.jack", "array_term.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, HandlesUndeclaredArrayVariable) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var Array blabla;";
+    }
+
+    compile<SubroutineVarDec>("tmp.jack");
+    ASSERT_THROW(compile<ArrayTerm>("array_term.jack", "array_term.vm"), runtime_error);
+}

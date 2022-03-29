@@ -12,4 +12,8 @@ namespace ntt {
     std::string IntegerTerm::to_xml(size_t level) const {
         return Term::to_xml_(token_, level);
     }
+
+    const Token& IntegerTerm::token() const {
+        return token_;
+    }
 }

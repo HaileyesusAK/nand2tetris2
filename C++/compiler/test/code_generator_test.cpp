@@ -65,3 +65,8 @@ TEST_F(FCodeGenerator, UpdatesSymbolTableWhenCompilingVariableDeclaration) {
 TEST_F(FCodeGenerator, HandlesDuplicateVariableDeclaration) {
     ASSERT_THROW(compile<SubroutineVarDec>("multi_var_dec_dup.jack"), runtime_error);
 }
+
+TEST_F(FCodeGenerator, CompilesIntegerTerm) {
+    ASSERT_THAT((compile<IntegerTerm>("integer_term.jack")), Eq("push constant 5"));
+}
+

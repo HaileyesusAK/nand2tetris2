@@ -17,6 +17,8 @@ namespace ntt {
             /* add the parameters in the symbol table and return their count */
             uint16_t compile(const SubroutineVarDec& var_dec);
 
+            std::string compile(const IntegerTerm& term);
+
             const SymbolTable& symbol_table() const;
 
         private:

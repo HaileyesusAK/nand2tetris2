@@ -27,4 +27,8 @@ namespace ntt {
         return names.size();
     }
 
+    std::string CodeGenerator::compile(const IntegerTerm& term){
+        return "push constant " + term.token().value();
+    }
+
 }

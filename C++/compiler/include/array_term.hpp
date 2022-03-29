@@ -17,6 +17,10 @@ namespace ntt {
 
             Type get_type() const override;
 
+            const Token& identifier() const;
+
+            const Expression& expression() const;
+
         private:
             Token var_name_;
             Token left_bracket_;

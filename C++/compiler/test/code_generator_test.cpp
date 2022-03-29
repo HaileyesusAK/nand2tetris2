@@ -102,3 +102,13 @@ TEST_F(FCodeGenerator, HandlesUndeclaredIdentifierTerm) {
     compile<SubroutineVarDec>("multi_var_dec.jack");
     ASSERT_THROW(compile<IdentifierTerm>("identifier_term.jack", "identifier_term.vm"), runtime_error);
 }
+
+TEST_F(FCodeGenerator, CompilesArrayTerm) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var Array Point;";
+    }
+
+    compile<SubroutineVarDec>("tmp.jack");
+    ASSERT_THAT(compile<ArrayTerm>("array_term.jack", "array_term.vm"), Eq(true));
+}

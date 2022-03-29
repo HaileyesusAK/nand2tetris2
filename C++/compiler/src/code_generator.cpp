@@ -28,11 +28,73 @@ namespace ntt {
         return names.size();
     }
 
+    std::string CodeGenerator::compile(const Expression& expression) {
+        static const std::unordered_map<std::string, std::string> vm_ops {
+            {"/", "call Math.divide 2"}, {"*", "call Math.multiply 2"}, {"+", "add"},
+            {"-", "sub"}, {"&", "and"}, {"|", "or"}, {"<", "lt"}, {">", "gt"}
+        };
+
+        std::ostringstream oss;
+
+        oss << compile(expression.first_term());
+
+        for(const auto& [op, term] : expression.trailing_terms()) {
+            oss << compile(term);
+            oss << vm_ops.at(op.value());
+        }
+
+        return oss.str();
+    }
+
+    std::string CodeGenerator::compile(const std::unique_ptr<Term>& term) {
+        switch(term->get_type()) {
+            case Term::Type::ARRAY:
+                return compile(static_cast<const ArrayTerm&>(*term)); break;
+
+            case Term::Type::IDENTIFIER:
+                return compile(static_cast<const IdentifierTerm&>(*term)); break;
+
+            case Term::Type::INTEGER:
+                return compile(static_cast<const IntegerTerm&>(*term)); break;
+
+            case Term::Type::KEYWORD:
+                return compile(static_cast<const KeywordTerm&>(*term)); break;
+
+            case Term::Type::STRING:
+                return compile(static_cast<const StringTerm&>(*term)); break;
+
+            default:
+                return "";
+        }
+
+        return "";
+    }
+
+    std::string CodeGenerator::compile(const ArrayTerm& term) {
+        std::ostringstream oss;
+        const auto& entry = symbol_table_.get_entry(term.identifier().value());
+
+        // evaluate the index expression
+        oss << compile(term.expression());
+
+        // get the array's base address
+        oss << "push " << CodeGenerator::segment(entry.kind) << " " << entry.index << std::endl;
+
+        // evaluate address of the accessed element
+        oss << "add" << std::endl;
+
+        // set that's pointer to the address of the element
+        oss << "pop pointer 1" << std::endl;
+
+        return oss.str();
+    }
+
     std::string CodeGenerator::compile(const IntegerTerm& term) {
         std::ostringstream oss;
         oss << "push constant " << term.token().value() << std::endl;
         return oss.str();
     }
+
 
     std::string CodeGenerator::compile(const StringTerm& term) {
         std::ostringstream oss;
@@ -65,24 +127,7 @@ namespace ntt {
         std::ostringstream oss;
         try {
             const auto& entry = symbol_table_.get_entry(term.token().value());
-            switch(entry.kind) {
-                case SymbolKind::LOCAL:
-                    oss << "push local ";
-                break;
-
-                case SymbolKind::STATIC:
-                    oss << "push static ";
-                break;
-
-                case SymbolKind::ARGUMENT:
-                    oss << "push argument ";
-                break;
-
-                case SymbolKind::FIELD:
-                    oss << "push this ";
-                break;
-            }
-            oss << entry.index << std::endl;
+            oss << "push " << CodeGenerator::segment(entry.kind) << " " << entry.index << std::endl;
         }
         catch(std::out_of_range&) {
             throw std::runtime_error("undeclared identifier at " + term.token().pos());
@@ -91,4 +136,13 @@ namespace ntt {
         return oss.str();
     }
 
+    std::string CodeGenerator::segment(const SymbolKind& kind) {
+        switch(kind) {
+            case SymbolKind::LOCAL: return "local";
+            case SymbolKind::STATIC: return "static";
+            case SymbolKind::ARGUMENT: return "argument";
+            case SymbolKind::FIELD: return "this";
+            default: return "";
+        }
+    }
 }

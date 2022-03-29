@@ -40,4 +40,12 @@ namespace ntt {
         return oss.str();
     }
 
+    const std::unique_ptr<Term>& Expression::first_term() const {
+        return first_term_;
+    }
+    
+    const Expression::TrailingTerms& Expression::trailing_terms() const {
+        return trailing_terms_;
+    }
+
 }

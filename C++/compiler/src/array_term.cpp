@@ -27,4 +27,12 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Token& ArrayTerm::identifier() const {
+        return var_name_;
+    }
+
+    const Expression& ArrayTerm::expression() const {
+        return expression_;
+    }
 }

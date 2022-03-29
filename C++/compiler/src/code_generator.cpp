@@ -3,10 +3,12 @@
 
 namespace ntt {
 
+    CodeGenerator::CodeGenerator(const std::string& class_name) : class_name_(class_name) {}
+
     const SymbolTable& CodeGenerator::symbol_table() const {
         return symbol_table_;
     }
-    
+
     const std::vector<std::string>& CodeGenerator::vm_commands() const {
         return vm_commands_;
     }
@@ -72,6 +74,10 @@ namespace ntt {
                 compile(static_cast<const StringTerm&>(*term));
             break;
 
+            case Term::Type::SUBROUTINE_CALL:
+                compile(static_cast<const SubroutineCallTerm&>(*term));
+            break;
+
             default:
             break;
         }
@@ -128,15 +134,34 @@ namespace ntt {
     }
 
     void CodeGenerator::compile(const StringTerm& term) {
+        // push the length of the string
         vm_commands_.emplace_back("push constant " + std::to_string(term.token().value().size()));
+
+        // call the builtin static method to allocate space for the string
         vm_commands_.emplace_back("call String.new 1");
 
         for(auto c : term.token().value()) {
             vm_commands_.emplace_back("push constant " + std::to_string(static_cast<uint16_t>(c)));
 
-            // First argument is for 'this' of the string object
+            // call String.appendChar with pointer to the string object and the ascii value of the character
             vm_commands_.emplace_back("call String.appendChar 2");
         }
+    }
+
+    void CodeGenerator::compile(const SubroutineCallTerm& term) {
+        // the first argument must be pointer to the current object
+        vm_commands_.emplace_back("push pointer 0");
+
+        // push the arguments
+        for(const auto& expression : term.expressions())
+            compile(expression);
+
+        auto n_args = term.expressions().size() + 1; // +1 is for the current object
+
+        // This is to disambiguate the same method name that is defined in another class
+        auto subroutine_name = class_name_ + "." + term.name().value();
+
+        vm_commands_.emplace_back("call " + subroutine_name + " " + std::to_string(n_args));
     }
 
     std::string CodeGenerator::segment(const SymbolKind& kind) {

@@ -21,4 +21,12 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Token& FunctionCall::name() const {
+        return func_name_;
+    }
+
+    const std::vector<Expression>& FunctionCall::expressions() const {
+        return expression_list_.expressions();
+    }
 }

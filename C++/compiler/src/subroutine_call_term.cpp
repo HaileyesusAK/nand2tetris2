@@ -20,4 +20,12 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Token& SubroutineCallTerm::name() const {
+        return call_.name();
+    }
+
+    const std::vector<Expression>& SubroutineCallTerm::expressions() const {
+        return call_.expressions();
+    }
 }

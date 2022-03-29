@@ -17,6 +17,10 @@ namespace ntt {
 
             Type get_type() const override;
 
+            const Token& name() const;
+
+            const std::vector<Expression>& expressions() const;
+
         private:
             FunctionCall call_;
     };

@@ -4,11 +4,6 @@
 
 namespace ntt {
 
-    ExpressionList::TrailingExpression::TrailingExpression(Tokenizer& tokenizer)
-        : comma(tokenizer.consume_symbol(",")),
-          expression(Expression(tokenizer))
-    {}
-
     /* expressionList : (expression (',' expression)*)?  */
     ExpressionList::ExpressionList(Tokenizer& tokenizer)  {
         /*
@@ -17,11 +12,11 @@ namespace ntt {
             wether the expression list is empty or not.
         */
         if(tokenizer.peek().value() != ")") {
-            expression_list_ = std::make_pair<Expression, std::vector<TrailingExpression>>(Expression(tokenizer), {});
-
-            auto& trailing_expressions = expression_list_.value().second;
-            while(tokenizer.has_token() && tokenizer.peek().value() == ",")
-                trailing_expressions.emplace_back(TrailingExpression(tokenizer));
+            expressions_.emplace_back(Expression(tokenizer));    
+            while(tokenizer.has_token() && tokenizer.peek().value() == ",") {
+                commas_.emplace_back(tokenizer.consume_symbol(","));
+                expressions_.emplace_back(Expression(tokenizer));    
+            }
         }
     }
 
@@ -29,18 +24,22 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<expressionList>", level);
-        if(expression_list_.has_value()) {
-            const auto& list = expression_list_.value();
-            oss << list.first.to_xml(level + 1);
-            for(const auto& trailing_expression : list.second) {
-                oss << JackFragment::to_xml(trailing_expression.comma, level + 1);
-                oss << trailing_expression.expression.to_xml(level + 1);
+
+        if(!expressions_.empty()) {
+            oss << expressions_[0].to_xml(level + 1);
+            for(size_t i = 1; i < expressions_.size(); ++i) {
+                oss << JackFragment::to_xml(commas_[i - 1], level + 1);
+                oss << expressions_[i].to_xml(level + 1);
             }
         }
 
         oss << JackFragment::get_line("</expressionList>", level);
 
         return oss.str();
+    }
+
+    const std::vector<Expression>& ExpressionList::expressions() const {
+        return expressions_;
     }
 
 }

@@ -2,7 +2,6 @@
 #define __EXPRESSION_LIST_H__
 
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -19,16 +18,11 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            const std::vector<Expression>& expressions() const;
+
         private:
-            struct TrailingExpression {
-                Token comma;
-                Expression expression;
-
-                TrailingExpression(Tokenizer&);
-            };
-
-            using List = std::optional<std::pair<Expression, std::vector<TrailingExpression>>>;
-            List expression_list_ = std::nullopt;
+            std::vector<Expression> expressions_;
+            std::vector<Token> commas_;
     };
 }
 

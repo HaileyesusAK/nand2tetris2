@@ -15,6 +15,10 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            const Token& name() const;
+
+            const std::vector<Expression>& expressions() const;
+
         private:
             Token func_name_;
             Token left_parenthesis_;

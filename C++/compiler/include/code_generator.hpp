@@ -11,6 +11,10 @@ namespace ntt {
 
     class CodeGenerator {
         public:
+            CodeGenerator() = default;
+
+            CodeGenerator(const std::string& class_name);
+
             /* add the parameters in the symbol table and return their count */
             uint16_t compile(const ParameterList& param_list);
 
@@ -35,17 +39,20 @@ namespace ntt {
 
             void compile(const StringTerm& term);
 
+            void compile(const SubroutineCallTerm& term);
+
             const SymbolTable& symbol_table() const;
 
             const std::vector<std::string>& vm_commands() const;
 
         private:
-
             static std::string segment(const SymbolKind& kind);
 
             SymbolTable symbol_table_;
 
             std::vector<std::string> vm_commands_;
+
+            std::string class_name_;
     };
 }
 

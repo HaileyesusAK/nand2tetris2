@@ -20,7 +20,7 @@ const fs::path DATA_DIR = fs::path{TEST_DIR} / "data";
 
 class FCodeGenerator : public Test {
     public:
-        CodeGenerator generator;
+        CodeGenerator generator {"Test"};
 
         template <typename T> 
         auto compile(const std::string& jack_file) {
@@ -131,4 +131,13 @@ TEST_F(FCodeGenerator, HandlesUndeclaredArrayVariable) {
 
 TEST_F(FCodeGenerator, CompilesParenthesizedTerm) {
     ASSERT_THAT(compile<ParenthesizedTerm>("parenthesized_term.jack", "parenthesized_term.vm"), Eq(true));
+}
+
+TEST_F(FCodeGenerator, CompilesSubroutineCallTerm) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var int bmi;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+    ASSERT_THAT(compile<SubroutineCallTerm>("subroutine_call.jack", "subroutine_call.vm"), Eq(true));
 }

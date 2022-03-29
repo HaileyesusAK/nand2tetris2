@@ -1,0 +1,6 @@
+push pointer 0
+push local 0
+push constant 12
+push constant 6
+call Math.multiply 2
+call Test.calc_index 3

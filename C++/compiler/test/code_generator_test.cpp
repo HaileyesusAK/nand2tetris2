@@ -1,6 +1,9 @@
-#include <stdexcept>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <iterator>
+#include <stdexcept>
 #include "code_generator.hpp"
 #include "gmock/gmock.h"
 #include "types.hpp"
@@ -36,7 +39,10 @@ class FCodeGenerator : public Test {
 
             {
                 ofstream ofs { DATA_DIR / "tmp.vm" };
-                ofs << generator.compile(jack_element);
+                generator.compile(jack_element);
+                std::copy(generator.vm_commands().begin(),
+                          generator.vm_commands().end(),
+                          ostream_iterator<string>(ofs, "\n"));
             }
 
             return Utils::cmpFiles(DATA_DIR / "tmp.vm", DATA_DIR / expected_vm_file);

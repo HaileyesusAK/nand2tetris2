@@ -18,28 +18,33 @@ namespace ntt {
             uint16_t compile(const SubroutineVarDec& var_dec);
           
             /* compile the expression and return the corresponding vm code */
-            std::string compile(const Expression& expression);
+            void compile(const Expression& expression);
 
             /* compile the term and return the corresponding vm code */
-            std::string compile(const std::unique_ptr<Term>& term);
+            void compile(const std::unique_ptr<Term>& term);
 
-            std::string compile(const ArrayTerm& term);
+            void compile(const ArrayTerm& term);
 
-            std::string compile(const IdentifierTerm& term);
+            void compile(const IdentifierTerm& term);
 
-            std::string compile(const IntegerTerm& term);
+            void compile(const IntegerTerm& term);
 
-            std::string compile(const KeywordTerm& term);
+            void compile(const KeywordTerm& term);
 
-            std::string compile(const StringTerm& term);
+
+            void compile(const StringTerm& term);
 
             const SymbolTable& symbol_table() const;
+
+            const std::vector<std::string>& vm_commands() const;
 
         private:
 
             static std::string segment(const SymbolKind& kind);
 
             SymbolTable symbol_table_;
+
+            std::vector<std::string> vm_commands_;
     };
 }
 

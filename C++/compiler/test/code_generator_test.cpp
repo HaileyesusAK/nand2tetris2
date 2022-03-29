@@ -128,3 +128,7 @@ TEST_F(FCodeGenerator, HandlesUndeclaredArrayVariable) {
     compile<SubroutineVarDec>("tmp.jack");
     ASSERT_THROW(compile<ArrayTerm>("array_term.jack", "array_term.vm"), runtime_error);
 }
+
+TEST_F(FCodeGenerator, CompilesParenthesizedTerm) {
+    ASSERT_THAT(compile<ParenthesizedTerm>("parenthesized_term.jack", "parenthesized_term.vm"), Eq(true));
+}

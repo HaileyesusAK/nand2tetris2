@@ -64,6 +64,10 @@ namespace ntt {
                 compile(static_cast<const KeywordTerm&>(*term));
             break;
 
+            case Term::Type::PARENTHESIZED_TERM:
+                compile(static_cast<const ParenthesizedTerm&>(*term));
+            break;
+
             case Term::Type::STRING:
                 compile(static_cast<const StringTerm&>(*term));
             break;
@@ -119,6 +123,9 @@ namespace ntt {
             vm_commands_.emplace_back("push pointer 0");
     }
 
+    void CodeGenerator::compile(const ParenthesizedTerm& term) {
+        compile(term.expression());
+    }
 
     void CodeGenerator::compile(const StringTerm& term) {
         vm_commands_.emplace_back("push constant " + std::to_string(term.token().value().size()));

@@ -17,6 +17,8 @@ namespace ntt {
 
             Type get_type() const override;
 
+            const Expression& expression() const;
+
         private:
             Token left_parenthesis_;
             Expression expression_;

@@ -26,4 +26,8 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Expression& ParenthesizedTerm::expression() const {
+        return expression_;
+    }
 }

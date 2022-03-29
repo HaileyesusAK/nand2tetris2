@@ -89,3 +89,6 @@ TEST_F(FCodeGenerator, CompilesStringTerm) {
     ASSERT_THAT(compile<StringTerm>("string_term.jack", "string_term.vm"), Eq(true));
 }
 
+TEST_F(FCodeGenerator, CompilesKeywordTerm) {
+    ASSERT_THAT(compile<KeywordTerm>("keyword_term.jack", "keyword_term.vm"), Eq(true));
+}

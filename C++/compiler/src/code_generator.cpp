@@ -46,5 +46,19 @@ namespace ntt {
 
         return oss.str();
     }
+    
+    std::string CodeGenerator::compile(const KeywordTerm& term) {
+        std::ostringstream oss;
+        if(term.token().value() == "false" || term.token().value() == "null")
+            oss << "push constant 0" << std::endl;
+        else if(term.token().value() == "true") {
+            oss << "push constant 1" << std::endl;
+            oss << "neg" << std::endl;
+        }
+        else
+            oss << "push pointer 0" << std::endl;
+        
+        return oss.str();
+    }
 
 }

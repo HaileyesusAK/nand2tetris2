@@ -13,4 +13,8 @@ namespace ntt {
     std::string KeywordTerm::to_xml(size_t level) const {
         return Term::to_xml_(token_, level);
     }
+
+    const Token& KeywordTerm::token() const {
+        return token_;
+    }
 }

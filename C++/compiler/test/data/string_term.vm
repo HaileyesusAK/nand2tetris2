@@ -1,0 +1,10 @@
+push constant 4
+call String.new 1
+push constant 99
+call String.appendChar 2
+push constant 105
+call String.appendChar 2
+push constant 97
+call String.appendChar 2
+push constant 111
+call String.appendChar 2

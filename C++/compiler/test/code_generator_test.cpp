@@ -5,6 +5,7 @@
 #include "gmock/gmock.h"
 #include "types.hpp"
 #include "tokenizer.hpp"
+#include "utils.hpp"
 
 using namespace ntt;
 using namespace std;
@@ -25,6 +26,20 @@ class FCodeGenerator : public Test {
             T jack_element { tokenizer };
 
             return generator.compile(jack_element);
+        }
+
+        template <typename T> 
+        bool compile(const std::string& jack_file, const std::string& expected_vm_file) {
+            ifstream ifs { DATA_DIR / jack_file };
+            Tokenizer tokenizer { ifs };
+            T jack_element { tokenizer };
+
+            {
+                ofstream ofs { DATA_DIR / "tmp.vm" };
+                ofs << generator.compile(jack_element);
+            }
+
+            return Utils::cmpFiles(DATA_DIR / "tmp.vm", DATA_DIR / expected_vm_file);
         }
 };
 
@@ -67,6 +82,10 @@ TEST_F(FCodeGenerator, HandlesDuplicateVariableDeclaration) {
 }
 
 TEST_F(FCodeGenerator, CompilesIntegerTerm) {
-    ASSERT_THAT((compile<IntegerTerm>("integer_term.jack")), Eq("push constant 5"));
+    ASSERT_THAT(compile<IntegerTerm>("integer_term.jack", "integer_term.vm"), Eq(true));
+}
+
+TEST_F(FCodeGenerator, CompilesStringTerm) {
+    ASSERT_THAT(compile<StringTerm>("string_term.jack", "string_term.vm"), Eq(true));
 }
 

@@ -19,6 +19,8 @@ namespace ntt {
 
             std::string compile(const IntegerTerm& term);
 
+            std::string compile(const StringTerm& term);
+
             const SymbolTable& symbol_table() const;
 
         private:

@@ -1,3 +1,4 @@
+#include <sstream>
 #include "code_generator.hpp"
 
 namespace ntt {
@@ -27,8 +28,23 @@ namespace ntt {
         return names.size();
     }
 
-    std::string CodeGenerator::compile(const IntegerTerm& term){
-        return "push constant " + term.token().value();
+    std::string CodeGenerator::compile(const IntegerTerm& term) {
+        std::ostringstream oss;
+        oss << "push constant " << term.token().value() << std::endl;
+        return oss.str();
+    }
+
+    std::string CodeGenerator::compile(const StringTerm& term) {
+        std::ostringstream oss;
+        oss << "push constant " << term.token().value().size() << std::endl;
+        oss << "call String.new 1" << std::endl;
+
+        for(auto c : term.token().value()) {
+            oss << "push constant " << static_cast<uint16_t>(c) << std::endl;
+            oss << "call String.appendChar 2" << std::endl; // First argument is for 'this' of the string object
+        }
+
+        return oss.str();
     }
 
 }

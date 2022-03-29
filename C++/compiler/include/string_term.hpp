@@ -17,6 +17,8 @@ namespace ntt {
 
             Type get_type() const override;
 
+            const Token& token() const;
+
         private:
             Token token_;
     };

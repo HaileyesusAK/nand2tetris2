@@ -45,4 +45,15 @@ namespace ntt {
         return oss.str();
     }
 
+    Token VarDec::type() const {
+        return type_;
+    }
+
+    std::vector<Token> VarDec::names() const {
+        std::vector<Token> names {first_var_name_};
+        for(const auto& trailing_variable : trailing_var_names_)
+            names.emplace_back(trailing_variable.var_name);
+        return names;
+    }
+
 }

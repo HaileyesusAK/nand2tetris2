@@ -2,6 +2,7 @@
 #define __SUBROUTINE_VAR_DEC_H__
 
 #include <string>
+#include <vector>
 #include "jack_fragment.hpp"
 #include "token.hpp"
 #include "tokenizer.hpp"
@@ -15,6 +16,10 @@ namespace ntt {
             SubroutineVarDec(Tokenizer&);
 
             std::string to_xml(size_t level = 0) const override;
+
+            Token type() const;
+
+            std::vector<Token> names() const;
 
         private:
             Token var_;

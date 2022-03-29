@@ -2,7 +2,9 @@
 #define __CODE_GENERATOR_H__
 
 #include <cstdint>
-#include "parameter_list.hpp"
+#include <memory>
+#include <string>
+#include "types.hpp"
 #include "symbol_table.hpp"
 
 namespace ntt {
@@ -11,6 +13,9 @@ namespace ntt {
         public:
             /* add the parameters in the symbol table and return their count */
             uint16_t compile(const ParameterList& param_list);
+
+            /* add the parameters in the symbol table and return their count */
+            uint16_t compile(const SubroutineVarDec& var_dec);
 
             const SymbolTable& symbol_table() const;
 

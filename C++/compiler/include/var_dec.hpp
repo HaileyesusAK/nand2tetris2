@@ -17,6 +17,10 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            Token type() const;
+
+            std::vector<Token> names() const;
+
         private:
             struct TrailingVariable {
                 Token comma;

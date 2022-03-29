@@ -1,0 +1,30 @@
+#ifndef __TYPES_H__
+#define __TYPES_H__
+
+#include "array_term.hpp"
+#include "class.hpp"
+#include "class_var_dec.hpp"
+#include "do_statement.hpp"
+#include "expression.hpp"
+#include "expression_list.hpp"
+#include "identifier_term.hpp"
+#include "if_statement.hpp"
+#include "integer_term.hpp"
+#include "keyword_term.hpp"
+#include "let_statement.hpp"
+#include "method_call_term.hpp"
+#include "parameter_list.hpp"
+#include "parenthesized_term.hpp"
+#include "return_statement.hpp"
+#include "string_term.hpp"
+#include "subroutine_body.hpp"
+#include "subroutine_call_term.hpp"
+#include "subroutine_dec.hpp"
+#include "subroutine_var_dec.hpp"
+#include "term.hpp"
+#include "token.hpp"
+#include "tokenizer.hpp"
+#include "unaryop_term.hpp"
+#include "while_statement.hpp"
+
+#endif

@@ -19,4 +19,12 @@ namespace ntt {
 
         return oss.str();
     }
+
+    Token SubroutineVarDec::type() const {
+        return var_dec_.type();
+    }
+
+    std::vector<Token> SubroutineVarDec::names() const {
+        return var_dec_.names();
+    }
 }

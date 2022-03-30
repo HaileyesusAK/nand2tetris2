@@ -16,9 +16,11 @@ namespace ntt {
             DoStatement(Tokenizer&);
 
             std::string to_xml(size_t level = 0) const override;
+			
+            using CallTerm = std::variant<MethodCallTerm, SubroutineCallTerm>;
+			const CallTerm& call_term() const;
 
         private:
-            using CallTerm = std::variant<MethodCallTerm, SubroutineCallTerm>;
             struct CallTermVisitor{
                 size_t level;
                 CallTermVisitor(size_t l): level(l) {}

@@ -33,4 +33,8 @@ namespace ntt {
             return SubroutineCallTerm(tokenizer);
         }
     }
+
+    const DoStatement::CallTerm& DoStatement::call_term() const {
+        return call_term_;
+    }
 }

@@ -205,7 +205,16 @@ namespace ntt {
         else
             vm_commands_.emplace_back("neg");
     }
-    
+
+    void CodeGenerator::compile(const DoStatement& statement) {
+        try {
+            compile(std::get<MethodCallTerm>(statement.call_term()));
+        }
+        catch(std::bad_variant_access&) {
+            compile(std::get<SubroutineCallTerm>(statement.call_term()));
+        }
+    }
+
     void CodeGenerator::compile(const LetStatement& statement) {
         const auto& entry = symbol_table_.get_entry(statement.variable().value());
 

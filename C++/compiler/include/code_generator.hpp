@@ -43,6 +43,8 @@ namespace ntt {
 
             void compile(const SubroutineCallTerm& term);
 
+            void compile(const DoStatement& statement);
+
             void compile(const LetStatement& statement);
 
             void compile(const UnaryOpTerm& term);

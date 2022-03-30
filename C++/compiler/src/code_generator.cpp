@@ -280,7 +280,7 @@ namespace ntt {
         vm_commands_.emplace_back("label " + end_label);
 
         // necessary to revert back since the inner statements could contain another while statement
-        label_count++;
+        label_count--;
     }
 
     void CodeGenerator::compile(const LetStatement& statement) {

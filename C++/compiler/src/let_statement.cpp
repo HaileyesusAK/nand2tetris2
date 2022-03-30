@@ -50,4 +50,13 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Token& LetStatement::variable() const {
+        return var_name_;
+    }
+
+    const Expression& LetStatement::assignment_expression() const {
+        return expression_;
+    }
+
 }

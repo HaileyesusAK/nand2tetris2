@@ -165,3 +165,12 @@ TEST_F(FCodeGenerator, CompilesStaticMethodCallTerm) {
 TEST_F(FCodeGenerator, CompilesUnaryOpTerm) {
     ASSERT_THAT(compile<UnaryOpTerm>("unaryop_terms.jack", "unaryop_terms.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesSimpleLetStatement) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var int age;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+    ASSERT_THAT(compile<LetStatement>("let_statement_variable.jack", "let_statement_variable.vm"), Eq(true));
+}

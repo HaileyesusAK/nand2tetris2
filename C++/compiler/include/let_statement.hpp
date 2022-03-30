@@ -17,6 +17,10 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            const Token& variable() const;
+
+            const Expression& assignment_expression() const;
+
         private:
             struct IndexExpression {
                 Token left_bracket;

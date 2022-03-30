@@ -205,6 +205,12 @@ namespace ntt {
         else
             vm_commands_.emplace_back("neg");
     }
+    
+    void CodeGenerator::compile(const LetStatement& statement) {
+        const auto& entry = symbol_table_.get_entry(statement.variable().value());
+        compile(statement.assignment_expression());
+        vm_commands_.emplace_back("pop " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+    }
 
     std::string CodeGenerator::segment(const SymbolKind& kind) {
         switch(kind) {

@@ -20,4 +20,16 @@ namespace ntt {
         return oss.str();
     }
 
+    const Token& ClassVarDec::storage_class() const {
+        return storage_class_;
+    }
+
+    const Token& ClassVarDec::type() const {
+        return var_dec_.type();
+    }
+
+    const std::vector<Token>& ClassVarDec::names() const {
+        return var_dec_.names();
+    }
+
 }

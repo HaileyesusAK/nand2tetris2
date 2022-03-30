@@ -59,6 +59,8 @@ namespace ntt {
 
             void compile(const SubroutineBody& body);
 
+            void compile(const ClassVarDec& class_var_dec);
+
             const SymbolTable& symbol_table() const;
 
             const std::vector<std::string>& vm_commands() const;

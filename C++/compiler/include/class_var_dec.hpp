@@ -16,6 +16,12 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            const Token& storage_class() const;
+
+            const Token& type() const;
+
+            const std::vector<Token>& names() const;
+
         private:
             Token storage_class_;
             VarDec var_dec_;

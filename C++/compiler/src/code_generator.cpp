@@ -340,6 +340,12 @@ namespace ntt {
             compile(statement);
     }
 
+    void CodeGenerator::compile(const ClassVarDec& class_var_dec) {
+        const auto& type = class_var_dec.type();
+        for(const auto& name : class_var_dec.names())
+            symbol_table_.insert(name.value(), type.value(), SymbolKind::STATIC);
+    }
+
     std::string CodeGenerator::segment(const SymbolKind& kind) {
         switch(kind) {
             case SymbolKind::LOCAL: return "local";

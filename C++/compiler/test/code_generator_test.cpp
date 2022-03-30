@@ -260,3 +260,15 @@ TEST_F(FCodeGenerator, CompilesSubroutineBody) {
     CodeGenerator generator {CLASS_NAME};
 	ASSERT_THAT(compile<SubroutineBody>(generator, "subroutine_body2.jack", "subroutine_body2.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesStaticClassVariableDeclaration) {
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<SubroutineBody>(generator, "subroutine_body2.jack", "subroutine_body2.vm"), Eq(true));
+    
+    compile<ClassVarDec>(generator, "static_class_var_dec.jack");
+    auto entry = generator.symbol_table().get_entry("height");
+
+	ASSERT_THAT(entry.type, Eq("int"));
+	ASSERT_THAT(entry.index, Eq(1));
+	ASSERT_THAT(entry.kind, Eq(SymbolKind::STATIC));
+}

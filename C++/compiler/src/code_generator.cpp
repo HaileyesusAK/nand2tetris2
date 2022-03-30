@@ -341,9 +341,10 @@ namespace ntt {
     }
 
     void CodeGenerator::compile(const ClassVarDec& class_var_dec) {
-        const auto& type = class_var_dec.type();
+        const auto& type = class_var_dec.type().value();
+        auto kind = class_var_dec.storage_class().value() == "static" ? SymbolKind::STATIC : SymbolKind::FIELD;
         for(const auto& name : class_var_dec.names())
-            symbol_table_.insert(name.value(), type.value(), SymbolKind::STATIC);
+            symbol_table_.insert(name.value(), type, kind);
     }
 
     std::string CodeGenerator::segment(const SymbolKind& kind) {

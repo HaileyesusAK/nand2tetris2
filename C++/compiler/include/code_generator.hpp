@@ -47,6 +47,8 @@ namespace ntt {
 
             void compile(const DoStatement& statement);
 
+            void compile(const IfStatement& statement);
+
             void compile(const LetStatement& statement);
 
             void compile(const ReturnStatement& statement);

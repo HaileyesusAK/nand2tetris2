@@ -80,4 +80,12 @@ namespace ntt {
         return Statement::Type::IF;
     }
 
+    const Expression& IfStatement::expression() const {
+        return expression_;
+    }
+
+    const IfStatement::StatementList& IfStatement::if_statements() const {
+        return statements_;
+    }
+
 }

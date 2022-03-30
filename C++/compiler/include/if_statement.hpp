@@ -22,8 +22,12 @@ namespace ntt {
 
             Type type() const override;
 
-        private:
+            const Expression& expression() const;
+
             using StatementList = std::vector<std::unique_ptr<Statement>>;
+            const StatementList& if_statements() const;
+
+        private:
             struct ElsePart {
                 Token else_keyword;
                 Token left_parenthesis;

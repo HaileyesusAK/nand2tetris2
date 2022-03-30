@@ -207,3 +207,12 @@ TEST_F(FCodeGenerator, CompilesWhileStatement) {
     compile<SubroutineVarDec>("tmp.jack");
     ASSERT_THAT(compile<WhileStatement>("while.jack", "while.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesIfStatement) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var int a;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+    ASSERT_THAT(compile<IfStatement>("if.jack", "if.vm"), Eq(true));
+}

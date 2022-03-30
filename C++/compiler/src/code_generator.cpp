@@ -212,6 +212,10 @@ namespace ntt {
                 compile(static_cast<const DoStatement&>(*statement));
             break;
 
+            case Statement::Type::IF:
+                compile(static_cast<const IfStatement&>(*statement));
+            break;
+
             case Statement::Type::LET:
                 compile(static_cast<const LetStatement&>(*statement));
             break;
@@ -236,6 +240,27 @@ namespace ntt {
         catch(std::bad_variant_access&) {
             compile(std::get<SubroutineCallTerm>(statement.call_term()));
         }
+    }
+
+    void CodeGenerator::compile(const IfStatement& statement) {
+        static size_t label_count = 0;
+
+        label_count++;
+
+        std::string label_suffix { std::to_string(label_count) + "_" + class_name_ };
+        std::string end_label { "End_If" + label_suffix};
+
+        compile(statement.expression());
+        vm_commands_.emplace_back("not");
+        vm_commands_.emplace_back("if-goto " + end_label);
+
+        for(const auto& inner_statement : statement.if_statements())
+            compile(inner_statement);
+
+        vm_commands_.emplace_back("label " + end_label);
+
+        // necessary to revert back since the inner statements could contain another while statement
+        label_count++;
     }
 
     void CodeGenerator::compile(const LetStatement& statement) {

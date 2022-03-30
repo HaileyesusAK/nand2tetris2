@@ -17,25 +17,15 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
-            Token type() const;
+            const Token& type() const;
 
-            std::vector<Token> names() const;
+            const std::vector<Token>& names() const;
 
         private:
-            struct TrailingVariable {
-                Token comma;
-                Token var_name;
-
-                TrailingVariable(Tokenizer&);
-            };
-            using TrailingVariables = std::vector<TrailingVariable>;
-
             Token type_;
-            Token first_var_name_;
-            TrailingVariables trailing_var_names_;
+            std::vector<Token> names_;
+            std::vector<Token> commas_;
             Token semicolon_;
-
-            static TrailingVariables parse_trailing_variables_(Tokenizer&);
     };
 }
 

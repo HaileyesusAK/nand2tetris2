@@ -1,6 +1,7 @@
 #ifndef __LET_STATEMENT_H__
 #define __LET_STATEMENT_H__
 
+#include <functional>
 #include <optional>
 #include <string>
 #include "expression.hpp"
@@ -18,6 +19,8 @@ namespace ntt {
             std::string to_xml(size_t level = 0) const override;
 
             const Token& variable() const;
+
+            std::optional<std::reference_wrapper<const Expression>> index_expression() const;
 
             const Expression& assignment_expression() const;
 

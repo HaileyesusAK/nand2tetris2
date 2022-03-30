@@ -55,6 +55,13 @@ namespace ntt {
         return var_name_;
     }
 
+    std::optional<std::reference_wrapper<const Expression>> LetStatement::index_expression() const {
+        if(index_expression_.has_value())
+            return std::cref(index_expression_.value().expression);
+
+        return std::nullopt;
+    }
+
     const Expression& LetStatement::assignment_expression() const {
         return expression_;
     }

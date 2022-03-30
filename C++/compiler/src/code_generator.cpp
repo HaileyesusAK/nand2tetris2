@@ -208,8 +208,19 @@ namespace ntt {
     
     void CodeGenerator::compile(const LetStatement& statement) {
         const auto& entry = symbol_table_.get_entry(statement.variable().value());
-        compile(statement.assignment_expression());
-        vm_commands_.emplace_back("pop " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+
+        if(statement.index_expression().has_value()) {  // assignment to an array element
+            compile(statement.index_expression().value());
+            vm_commands_.emplace_back("push " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+            vm_commands_.emplace_back("add");   // evaluate address of the array element
+            vm_commands_.emplace_back("pop pointer 1"); // set 'that' to the address of the element
+            compile(statement.assignment_expression());
+            vm_commands_.emplace_back("pop that 0"); // assign the expression's result in the element
+        }
+        else {
+            compile(statement.assignment_expression());
+            vm_commands_.emplace_back("pop " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+        }
     }
 
     std::string CodeGenerator::segment(const SymbolKind& kind) {

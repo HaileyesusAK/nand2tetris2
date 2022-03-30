@@ -174,3 +174,19 @@ TEST_F(FCodeGenerator, CompilesSimpleLetStatement) {
     compile<SubroutineVarDec>("tmp.jack");
     ASSERT_THAT(compile<LetStatement>("let_statement_variable.jack", "let_statement_variable.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesArrayAssignmentLetStatement) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var int x, y;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var Array Point;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+
+    ASSERT_THAT(compile<LetStatement>("let_statement_array.jack", "let_statement_array.vm"), Eq(true));
+}

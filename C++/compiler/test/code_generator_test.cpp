@@ -161,3 +161,7 @@ TEST_F(FCodeGenerator, CompilesMethodCallTerm) {
 TEST_F(FCodeGenerator, CompilesStaticMethodCallTerm) {
     ASSERT_THAT(compile<MethodCallTerm>("static_method_call.jack", "static_method_call.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesUnaryOpTerm) {
+    ASSERT_THAT(compile<UnaryOpTerm>("unaryop_terms.jack", "unaryop_terms.vm"), Eq(true));
+}

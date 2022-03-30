@@ -27,4 +27,13 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Token& UnaryOpTerm::op() const {
+        return unary_op_;
+    }
+
+    const std::unique_ptr<Term>& UnaryOpTerm::term() const {
+        return term_;
+    }
+
 }

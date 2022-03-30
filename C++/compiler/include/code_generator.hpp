@@ -43,6 +43,8 @@ namespace ntt {
 
             void compile(const SubroutineCallTerm& term);
 
+            void compile(const UnaryOpTerm& term);
+
             const SymbolTable& symbol_table() const;
 
             const std::vector<std::string>& vm_commands() const;

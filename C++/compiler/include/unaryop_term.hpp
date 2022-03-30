@@ -18,6 +18,10 @@ namespace ntt {
 
             Type get_type() const override;
 
+            const Token& op() const;
+
+            const std::unique_ptr<Term>& term() const;
+
         private:
             Token unary_op_;
             std::unique_ptr<Term> term_;

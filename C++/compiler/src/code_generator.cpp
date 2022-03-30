@@ -82,6 +82,10 @@ namespace ntt {
                 compile(static_cast<const MethodCallTerm&>(*term));
             break;
 
+            case Term::Type::UNARY_OP:
+                compile(static_cast<const UnaryOpTerm&>(*term));
+            break;
+
             default:
             break;
         }
@@ -192,6 +196,14 @@ namespace ntt {
         auto method_name = class_name + "." + term.method_name().value();
 
         vm_commands_.emplace_back("call " + method_name + " " + std::to_string(n_args));
+    }
+
+    void CodeGenerator::compile(const UnaryOpTerm& term) {
+        compile(term.term());
+        if(term.op().value() == "~")
+            vm_commands_.emplace_back("not");
+        else
+            vm_commands_.emplace_back("neg");
     }
 
     std::string CodeGenerator::segment(const SymbolKind& kind) {

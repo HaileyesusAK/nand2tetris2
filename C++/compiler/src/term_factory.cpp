@@ -69,6 +69,9 @@ namespace ntt {
                     return std::make_unique<UnaryOpTerm>(tokenizer);
                 else
                     throw std::runtime_error("invalid symbol token");
+
+            case TokenType::UNKNOWN:
+                return nullptr;
         }
 
         return nullptr;

@@ -157,3 +157,7 @@ TEST_F(FCodeGenerator, CompilesMethodCallTerm) {
 
     ASSERT_THAT(compile<MethodCallTerm>("method_call.jack", "method_call.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesStaticMethodCallTerm) {
+    ASSERT_THAT(compile<MethodCallTerm>("static_method_call.jack", "static_method_call.vm"), Eq(true));
+}

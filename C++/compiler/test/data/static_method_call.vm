@@ -1,0 +1,3 @@
+push constant 1
+neg
+call Screen.setColor 1

@@ -78,6 +78,10 @@ namespace ntt {
                 compile(static_cast<const SubroutineCallTerm&>(*term));
             break;
 
+            case Term::Type::METHOD_CALL:
+                compile(static_cast<const MethodCallTerm&>(*term));
+            break;
+
             default:
             break;
         }
@@ -165,19 +169,27 @@ namespace ntt {
     }
 
     void CodeGenerator::compile(const MethodCallTerm& term) {
-        const auto& entry = symbol_table_.get_entry(term.variable().value());
+        auto n_args = term.expressions().size();
+        std::string class_name;
 
-        // first argument is always address of the object
-        vm_commands_.emplace_back("push " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+        try {   // assuming the variable is a class type
+            const auto& entry = symbol_table_.get_entry(term.variable().value());
+
+            // first argument is always address of the object
+            vm_commands_.emplace_back("push " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+            class_name = entry.type;
+            n_args++;   // take into account also the address of the object
+        }
+        catch(std::out_of_range&) { // the call is to a static function
+            class_name = term.variable().value();
+        }
 
         // push the arguments
         for(const auto& expression : term.expressions())
             compile(expression);
 
-        auto n_args = term.expressions().size() + 1; // +1 is for the object
-
         // qualify the method's name with the class name of the variable
-        auto method_name = entry.type + "." + term.method_name().value();
+        auto method_name = class_name + "." + term.method_name().value();
 
         vm_commands_.emplace_back("call " + method_name + " " + std::to_string(n_args));
     }
@@ -191,4 +203,5 @@ namespace ntt {
             default: return "";
         }
     }
+
 }

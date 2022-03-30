@@ -14,15 +14,14 @@ namespace ntt {
             "+" ,  "-" ,  "*" ,  "/" ,  "&" ,  "|" ,  "<" ,  ">" ,  "="
         };
 
-        first_term_ = TermFactory::parse(tokenizer);
+        terms_.emplace_back(TermFactory::parse(tokenizer));
 
         while(tokenizer.has_token()) {
             const auto& token = tokenizer.peek();
             if(!ops.count(token.value()))
                 break;
-
-            auto op = tokenizer.get();
-            trailing_terms_.emplace_back(op, TermFactory::parse(tokenizer));
+            ops_.emplace_back(tokenizer.get());
+            terms_.emplace_back(TermFactory::parse(tokenizer));
         }
     }
 
@@ -30,22 +29,22 @@ namespace ntt {
         std::ostringstream oss;
 
         oss << JackFragment::get_line("<expression>", level);
-        oss << first_term_->to_xml(level + 1);
-        for(const auto& [op, term] : trailing_terms_) {
-            oss << JackFragment::to_xml(op, level + 1);
-            oss << term->to_xml(level + 1);
+        oss << terms_[0]->to_xml(level + 1);
+        for(size_t i = 0; i < ops_.size(); ++i) {
+            oss << JackFragment::to_xml(ops_[i], level + 1);
+            oss << terms_[i+1]->to_xml(level + 1);
         }
         oss << JackFragment::get_line("</expression>", level);
 
         return oss.str();
     }
 
-    const std::unique_ptr<Term>& Expression::first_term() const {
-        return first_term_;
+    const std::vector<std::unique_ptr<Term>>& Expression::terms() const {
+        return terms_;
     }
     
-    const Expression::TrailingTerms& Expression::trailing_terms() const {
-        return trailing_terms_;
+    const std::vector<Token>& Expression::ops() const {
+        return ops_;
     }
 
 }

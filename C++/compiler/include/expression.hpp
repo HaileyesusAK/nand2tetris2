@@ -14,18 +14,17 @@ namespace ntt {
     /* represents an expression */
     class Expression : public JackFragment {
         public:
-            using TrailingTerms = std::vector<std::pair<Token, std::unique_ptr<Term>>>;
-            Expression(Tokenizer&); 
+            Expression(Tokenizer&);
 
-            std::string to_xml(size_t level = 0) const override; 
+            std::string to_xml(size_t level = 0) const override;
 
-            const std::unique_ptr<Term>& first_term() const;
-            
-            const TrailingTerms& trailing_terms() const;
+            const std::vector<std::unique_ptr<Term>>& terms() const;
+
+            const std::vector<Token>& ops() const;
 
         private:
-            std::unique_ptr<Term> first_term_;
-            TrailingTerms trailing_terms_;
+            std::vector<std::unique_ptr<Term>> terms_;
+            std::vector<Token> ops_;
     };
 }
 

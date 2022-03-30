@@ -40,11 +40,13 @@ namespace ntt {
             {"-", "sub"}, {"&", "and"}, {"|", "or"}, {"<", "lt"}, {">", "gt"}
         };
 
-        compile(expression.first_term());
+        const auto& terms = expression.terms();
+        const auto& ops = expression.ops();
 
-        for(const auto& [op, term] : expression.trailing_terms()) {
-            compile(term);
-            vm_commands_.emplace_back(vm_ops.at(op.value()));
+        compile(terms[0]);
+        for(size_t i = 1; i < terms.size(); ++i) {
+            compile(terms[i]);
+            vm_commands_.emplace_back(vm_ops.at(ops[i - 1].value()));
         }
     }
 

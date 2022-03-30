@@ -43,11 +43,15 @@ namespace ntt {
 
             void compile(const SubroutineCallTerm& term);
 
+            void compile(const std::unique_ptr<Statement>& statement);
+
             void compile(const DoStatement& statement);
 
             void compile(const LetStatement& statement);
 
             void compile(const ReturnStatement& statement);
+            
+            void compile(const WhileStatement& statement);
 
             void compile(const UnaryOpTerm& term);
 

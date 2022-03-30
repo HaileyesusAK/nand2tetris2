@@ -37,4 +37,8 @@ namespace ntt {
     const DoStatement::CallTerm& DoStatement::call_term() const {
         return call_term_;
     }
+
+    Statement::Type DoStatement::type() const {
+        return Statement::Type::DO;
+    }
 }

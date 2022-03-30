@@ -198,3 +198,12 @@ TEST_F(FCodeGenerator, CompilesDoStatement) {
 TEST_F(FCodeGenerator, CompilesReturnStatement) {
     ASSERT_THAT(compile<ReturnStatement>("return_exp.jack", "return_exp.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesWhileStatement) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var int a;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+    ASSERT_THAT(compile<WhileStatement>("while.jack", "while.vm"), Eq(true));
+}

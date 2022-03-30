@@ -1,0 +1,22 @@
+label Begin_While1_Test
+push local 0
+push constant 9
+gt
+not
+if-goto End_While1_Test
+push local 0
+push constant 1
+sub
+pop local 0
+label Begin_While2_Test
+push constant 1
+neg
+not
+if-goto End_While2_Test
+push pointer 0
+push constant 3
+push constant 4
+call Test.calc 3
+return
+label End_While2_Test
+label End_While1_Test

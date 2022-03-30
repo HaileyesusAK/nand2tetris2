@@ -40,4 +40,8 @@ namespace ntt {
         return std::nullopt;
     }
 
+    Statement::Type ReturnStatement::type() const {
+        return Statement::Type::RETURN;
+    }
+
 }

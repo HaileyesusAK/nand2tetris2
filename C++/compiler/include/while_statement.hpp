@@ -18,13 +18,19 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            const Expression& expression() const;
+
+            using StatementList = std::vector<std::unique_ptr<Statement>>;
+            const StatementList& statements() const;
+
+            Type type() const override;
+
         private:
             Token while_;
             Token left_parenthesis_;
             Expression expression_;
             Token right_parenthesis_;
             Token left_brace_;
-            using StatementList = std::vector<std::unique_ptr<Statement>>;
             StatementList statements_;
             Token right_brace_;
 

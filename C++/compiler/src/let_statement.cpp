@@ -66,4 +66,8 @@ namespace ntt {
         return expression_;
     }
 
+    Statement::Type LetStatement::type() const {
+        return Statement::Type::LET;
+    }
+
 }

@@ -76,4 +76,8 @@ namespace ntt {
         return oss.str();
     }
 
+    Statement::Type IfStatement::type() const {
+        return Statement::Type::IF;
+    }
+
 }

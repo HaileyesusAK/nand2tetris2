@@ -206,6 +206,29 @@ namespace ntt {
             vm_commands_.emplace_back("neg");
     }
 
+    void CodeGenerator::compile(const std::unique_ptr<Statement>& statement) {
+        switch(statement->type()) {
+            case Statement::Type::DO:
+                compile(static_cast<const DoStatement&>(*statement));
+            break;
+
+            case Statement::Type::LET:
+                compile(static_cast<const LetStatement&>(*statement));
+            break;
+
+            case Statement::Type::RETURN:
+                compile(static_cast<const ReturnStatement&>(*statement));
+            break;
+
+            case Statement::Type::WHILE:
+                compile(static_cast<const WhileStatement&>(*statement));
+            break;
+
+            default:
+            break;
+        }
+    }
+
     void CodeGenerator::compile(const DoStatement& statement) {
         try {
             compile(std::get<MethodCallTerm>(statement.call_term()));
@@ -237,6 +260,29 @@ namespace ntt {
             compile(statement.expression().value());
 
         vm_commands_.emplace_back("return");
+    }
+
+    void CodeGenerator::compile(const WhileStatement& statement) {
+        static size_t label_count = 0;
+
+        label_count++;
+
+        std::string label_suffix { std::to_string(label_count) + "_" + class_name_ };
+        std::string start_label { "Begin_While" + label_suffix};
+        std::string end_label { "End_While" + label_suffix};
+
+        vm_commands_.emplace_back("label " + start_label);
+        compile(statement.expression());
+        vm_commands_.emplace_back("not");    // it is easier to jump after negating the expression's result
+        vm_commands_.emplace_back("if-goto " + end_label);
+
+        for(const auto& inner_statement : statement.statements())
+            compile(inner_statement);
+
+        vm_commands_.emplace_back("label " + end_label);
+
+        // necessary to revert back since the inner statements could contain another while statement
+        label_count--;
     }
 
     std::string CodeGenerator::segment(const SymbolKind& kind) {

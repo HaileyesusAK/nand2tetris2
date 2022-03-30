@@ -20,6 +20,8 @@ namespace ntt {
             using CallTerm = std::variant<MethodCallTerm, SubroutineCallTerm>;
 			const CallTerm& call_term() const;
 
+            Type type() const override;
+
         private:
             struct CallTermVisitor{
                 size_t level;

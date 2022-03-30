@@ -20,6 +20,8 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            Type type() const override;
+
         private:
             using StatementList = std::vector<std::unique_ptr<Statement>>;
             struct ElsePart {

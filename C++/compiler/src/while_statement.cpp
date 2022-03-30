@@ -47,4 +47,16 @@ namespace ntt {
         return oss.str();
     }
 
+    const Expression& WhileStatement::expression() const {
+        return expression_;
+    }
+
+    const WhileStatement::StatementList& WhileStatement::statements() const {
+        return statements_;
+    }
+
+    Statement::Type WhileStatement::type() const {
+        return Statement::Type::WHILE;
+    }
+
 }

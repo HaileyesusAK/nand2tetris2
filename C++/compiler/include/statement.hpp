@@ -9,6 +9,8 @@ namespace ntt {
     class Statement : public JackFragment {
         public:
             enum Type { DO, IF, LET, RETURN, WHILE };
+            
+            virtual Type type() const = 0;
     };
 }
 

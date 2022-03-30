@@ -24,6 +24,8 @@ namespace ntt {
 
             const Expression& assignment_expression() const;
 
+            Type type() const override;
+
         private:
             struct IndexExpression {
                 Token left_bracket;

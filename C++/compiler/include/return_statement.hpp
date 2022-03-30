@@ -20,6 +20,8 @@ namespace ntt {
 
             std::optional<std::reference_wrapper<const Expression>> expression() const;
 
+            Type type() const override;
+
         private:
             Token return_;
             std::optional<Expression> expression_;

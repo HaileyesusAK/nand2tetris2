@@ -32,4 +32,12 @@ namespace ntt {
         return std::nullopt;
     }
 
+    std::optional<std::reference_wrapper<const Expression>> ReturnStatement::expression() const {
+        if(expression_.has_value()) {
+            return std::cref(expression_.value());
+        }
+
+        return std::nullopt;
+    }
+
 }

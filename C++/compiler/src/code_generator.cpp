@@ -232,6 +232,13 @@ namespace ntt {
         }
     }
 
+    void CodeGenerator::compile(const ReturnStatement& statement) {
+        if(statement.expression().has_value())
+            compile(statement.expression().value());
+
+        vm_commands_.emplace_back("return");
+    }
+
     std::string CodeGenerator::segment(const SymbolKind& kind) {
         switch(kind) {
             case SymbolKind::LOCAL: return "local";

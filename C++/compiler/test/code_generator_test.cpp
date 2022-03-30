@@ -194,3 +194,7 @@ TEST_F(FCodeGenerator, CompilesArrayAssignmentLetStatement) {
 TEST_F(FCodeGenerator, CompilesDoStatement) {
     ASSERT_THAT(compile<DoStatement>("do_method_call.jack", "do_method_call.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesReturnStatement) {
+    ASSERT_THAT(compile<ReturnStatement>("return_exp.jack", "return_exp.vm"), Eq(true));
+}

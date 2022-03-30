@@ -1,6 +1,7 @@
 #ifndef __RETURN_STATEMENT_H__
 #define __RETURN_STATEMENT_H__
 
+#include <functional>
 #include <optional>
 #include <string>
 #include "expression.hpp"
@@ -16,6 +17,8 @@ namespace ntt {
             ReturnStatement(Tokenizer&);
 
             std::string to_xml(size_t level = 0) const override;
+
+            std::optional<std::reference_wrapper<const Expression>> expression() const;
 
         private:
             Token return_;

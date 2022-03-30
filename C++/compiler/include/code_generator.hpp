@@ -47,6 +47,8 @@ namespace ntt {
 
             void compile(const LetStatement& statement);
 
+            void compile(const ReturnStatement& statement);
+
             void compile(const UnaryOpTerm& term);
 
             const SymbolTable& symbol_table() const;

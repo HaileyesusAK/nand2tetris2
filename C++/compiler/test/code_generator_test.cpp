@@ -20,10 +20,10 @@ const fs::path DATA_DIR = fs::path{TEST_DIR} / "data";
 
 class FCodeGenerator : public Test {
     public:
-        CodeGenerator generator {"Test"};
-
-        template <typename T> 
-        auto compile(const std::string& jack_file) {
+        static inline const string CLASS_NAME = "Test";
+        
+        template <typename T>
+        auto compile(CodeGenerator& generator, const std::string& jack_file) {
             ifstream ifs { DATA_DIR / jack_file };
             Tokenizer tokenizer { ifs };
             T jack_element { tokenizer };
@@ -31,8 +31,8 @@ class FCodeGenerator : public Test {
             return generator.compile(jack_element);
         }
 
-        template <typename T> 
-        bool compile(const std::string& jack_file, const std::string& expected_vm_file) {
+        template <typename T>
+        bool compile(CodeGenerator& generator, const std::string& jack_file, const std::string& expected_vm_file) {
             ifstream ifs { DATA_DIR / jack_file };
             Tokenizer tokenizer { ifs };
             T jack_element { tokenizer };
@@ -50,63 +50,77 @@ class FCodeGenerator : public Test {
 };
 
 TEST_F(FCodeGenerator, CompilesEmptyParameterList) {
-    ASSERT_THAT(compile<ParameterList>("parameter_list_empty.jack"), Eq(0));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<ParameterList>(generator, "parameter_list_empty.jack"), Eq(0));
 }
 
 TEST_F(FCodeGenerator, CompilesNonEmptyParameterList) {
-    ASSERT_THAT(compile<ParameterList>("parameter_list.jack"), Eq(2));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<ParameterList>(generator, "parameter_list.jack"), Eq(2));
 }
 
 TEST_F(FCodeGenerator, UpdatesSymbolTableWhenCompilingNonEmptyParameterList) {
-    compile<ParameterList>("parameter_list.jack");
+    CodeGenerator generator {CLASS_NAME};
+
+    compile<ParameterList>(generator, "parameter_list.jack");
     auto entry = generator.symbol_table().get_entry("a");
 
-    ASSERT_THAT(entry.type, Eq("int"));
-    ASSERT_THAT(entry.index, Eq(0));
-    ASSERT_THAT(entry.kind, Eq(SymbolKind::ARGUMENT));
+	ASSERT_THAT(entry.type, Eq("int"));
+	ASSERT_THAT(entry.index, Eq(0));
+	ASSERT_THAT(entry.kind, Eq(SymbolKind::ARGUMENT));
 }
 
 TEST_F(FCodeGenerator, HandlesDuplicateEntryParameterList) {
-    ASSERT_THROW(compile<ParameterList>("parameter_list_dup.jack"), runtime_error);
+    CodeGenerator generator {CLASS_NAME};
+    ASSERT_THROW(compile<ParameterList>(generator, "parameter_list_dup.jack"), runtime_error);
 }
 
 TEST_F(FCodeGenerator, CompilesMethodVariableDeclaration) {
-    ASSERT_THAT(compile<SubroutineVarDec>("multi_var_dec.jack"), Eq(2));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<SubroutineVarDec>(generator, "multi_var_dec.jack"), Eq(2));
 }
 
 TEST_F(FCodeGenerator, UpdatesSymbolTableWhenCompilingVariableDeclaration) {
-    compile<SubroutineVarDec>("multi_var_dec.jack");
+    CodeGenerator generator {CLASS_NAME};
+
+    compile<SubroutineVarDec>(generator, "multi_var_dec.jack");
     auto entry = generator.symbol_table().get_entry("weight");
 
-    ASSERT_THAT(entry.type, Eq("int"));
-    ASSERT_THAT(entry.index, Eq(1));
-    ASSERT_THAT(entry.kind, Eq(SymbolKind::LOCAL));
+	ASSERT_THAT(entry.type, Eq("int"));
+	ASSERT_THAT(entry.index, Eq(1));
+	ASSERT_THAT(entry.kind, Eq(SymbolKind::LOCAL));
 }
 
 TEST_F(FCodeGenerator, HandlesDuplicateVariableDeclaration) {
-    ASSERT_THROW(compile<SubroutineVarDec>("multi_var_dec_dup.jack"), runtime_error);
+    CodeGenerator generator {CLASS_NAME};
+    ASSERT_THROW(compile<SubroutineVarDec>(generator, "multi_var_dec_dup.jack"), runtime_error);
 }
 
 TEST_F(FCodeGenerator, CompilesIntegerTerm) {
-    ASSERT_THAT(compile<IntegerTerm>("integer_term.jack", "integer_term.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<IntegerTerm>(generator, "integer_term.jack", "integer_term.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesStringTerm) {
-    ASSERT_THAT(compile<StringTerm>("string_term.jack", "string_term.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<StringTerm>(generator, "string_term.jack", "string_term.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesKeywordTerm) {
-    ASSERT_THAT(compile<KeywordTerm>("keyword_term.jack", "keyword_term.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<KeywordTerm>(generator, "keyword_term.jack", "keyword_term.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesIdentifierTerm) {
-    compile<SubroutineVarDec>("multi_var_dec.jack");
-    ASSERT_THAT(compile<IdentifierTerm>("identifier_term2.jack", "identifier_term2.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+    compile<SubroutineVarDec>(generator, "multi_var_dec.jack");
+	ASSERT_THAT(compile<IdentifierTerm>(generator, "identifier_term2.jack", "identifier_term2.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, HandlesUndeclaredIdentifierTerm) {
-    compile<SubroutineVarDec>("multi_var_dec.jack");
-    ASSERT_THROW(compile<IdentifierTerm>("identifier_term.jack", "identifier_term.vm"), runtime_error);
+    CodeGenerator generator {CLASS_NAME};
+    compile<SubroutineVarDec>(generator, "multi_var_dec.jack");
+    ASSERT_THROW(compile<IdentifierTerm>(generator, "identifier_term.jack", "identifier_term.vm"), runtime_error);
 }
 
 TEST_F(FCodeGenerator, CompilesArrayTerm) {
@@ -115,8 +129,9 @@ TEST_F(FCodeGenerator, CompilesArrayTerm) {
         ofs << "var Array Point;";
     }
 
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THAT(compile<ArrayTerm>("array_term.jack", "array_term.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+	ASSERT_THAT(compile<ArrayTerm>(generator, "array_term.jack", "array_term.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, HandlesUndeclaredArrayVariable) {
@@ -125,12 +140,14 @@ TEST_F(FCodeGenerator, HandlesUndeclaredArrayVariable) {
         ofs << "var Array blabla;";
     }
 
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THROW(compile<ArrayTerm>("array_term.jack", "array_term.vm"), runtime_error);
+    CodeGenerator generator {CLASS_NAME};
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+    ASSERT_THROW(compile<ArrayTerm>(generator, "array_term.jack", "array_term.vm"), runtime_error);
 }
 
 TEST_F(FCodeGenerator, CompilesParenthesizedTerm) {
-    ASSERT_THAT(compile<ParenthesizedTerm>("parenthesized_term.jack", "parenthesized_term.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<ParenthesizedTerm>(generator, "parenthesized_term.jack", "parenthesized_term.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesSubroutineCallTerm) {
@@ -138,94 +155,108 @@ TEST_F(FCodeGenerator, CompilesSubroutineCallTerm) {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int bmi;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THAT(compile<SubroutineCallTerm>("subroutine_call.jack", "subroutine_call.vm"), Eq(true));
+
+    CodeGenerator generator {CLASS_NAME};
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+	ASSERT_THAT(compile<SubroutineCallTerm>(generator, "subroutine_call.jack", "subroutine_call.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesMethodCallTerm) {
+    CodeGenerator generator {CLASS_NAME};
+
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int a, b;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
+    compile<SubroutineVarDec>(generator, "tmp.jack");
 
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var Shape square;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
+    compile<SubroutineVarDec>(generator, "tmp.jack");
 
-    ASSERT_THAT(compile<MethodCallTerm>("method_call.jack", "method_call.vm"), Eq(true));
+	ASSERT_THAT(compile<MethodCallTerm>(generator, "method_call.jack", "method_call.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesStaticMethodCallTerm) {
-    ASSERT_THAT(compile<MethodCallTerm>("static_method_call.jack", "static_method_call.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<MethodCallTerm>(generator, "static_method_call.jack", "static_method_call.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesUnaryOpTerm) {
-    ASSERT_THAT(compile<UnaryOpTerm>("unaryop_terms.jack", "unaryop_terms.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<UnaryOpTerm>(generator, "unaryop_terms.jack", "unaryop_terms.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesSimpleLetStatement) {
+    CodeGenerator generator {CLASS_NAME};
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int age;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THAT(compile<LetStatement>("let_statement_variable.jack", "let_statement_variable.vm"), Eq(true));
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+	ASSERT_THAT(compile<LetStatement>(generator, "let_statement_variable.jack", "let_statement_variable.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesArrayAssignmentLetStatement) {
+    CodeGenerator generator {CLASS_NAME};
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int x, y;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
+    compile<SubroutineVarDec>(generator, "tmp.jack");
 
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var Array Point;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
+    compile<SubroutineVarDec>(generator, "tmp.jack");
 
-    ASSERT_THAT(compile<LetStatement>("let_statement_array.jack", "let_statement_array.vm"), Eq(true));
+	ASSERT_THAT(compile<LetStatement>(generator, "let_statement_array.jack", "let_statement_array.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesDoStatement) {
-    ASSERT_THAT(compile<DoStatement>("do_method_call.jack", "do_method_call.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<DoStatement>(generator, "do_method_call.jack", "do_method_call.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesReturnStatement) {
-    ASSERT_THAT(compile<ReturnStatement>("return_exp.jack", "return_exp.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<ReturnStatement>(generator, "return_exp.jack", "return_exp.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesWhileStatement) {
+    CodeGenerator generator {CLASS_NAME};
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int a;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THAT(compile<WhileStatement>("while.jack", "while.vm"), Eq(true));
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+	ASSERT_THAT(compile<WhileStatement>(generator, "while.jack", "while.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesIfStatement) {
+    CodeGenerator generator {CLASS_NAME};
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int a;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THAT(compile<IfStatement>("if.jack", "if.vm"), Eq(true));
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+	ASSERT_THAT(compile<IfStatement>(generator, "if.jack", "if.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesIfElseStatement) {
+    CodeGenerator generator {CLASS_NAME};
     {
         ofstream ofs { DATA_DIR / "tmp.jack" };
         ofs << "var int a,b;";
     }
-    compile<SubroutineVarDec>("tmp.jack");
-    ASSERT_THAT(compile<IfStatement>("if_else.jack", "if_else.vm"), Eq(true));
+    compile<SubroutineVarDec>(generator, "tmp.jack");
+	ASSERT_THAT(compile<IfStatement>(generator, "if_else.jack", "if_else.vm"), Eq(true));
 }
 
 TEST_F(FCodeGenerator, CompilesSubroutineBody) {
-    ASSERT_THAT(compile<SubroutineBody>("subroutine_body2.jack", "subroutine_body2.vm"), Eq(true));
+    CodeGenerator generator {CLASS_NAME};
+	ASSERT_THAT(compile<SubroutineBody>(generator, "subroutine_body2.jack", "subroutine_body2.vm"), Eq(true));
 }

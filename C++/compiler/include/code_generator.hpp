@@ -35,6 +35,8 @@ namespace ntt {
 
             void compile(const KeywordTerm& term);
 
+            void compile(const MethodCallTerm& term);
+
             void compile(const ParenthesizedTerm& term);
 
             void compile(const StringTerm& term);

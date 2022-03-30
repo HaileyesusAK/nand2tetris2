@@ -1,0 +1,6 @@
+push local 2
+push local 0
+push local 1
+push constant 3
+add
+call Shape.area 3

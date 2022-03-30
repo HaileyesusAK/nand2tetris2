@@ -141,3 +141,19 @@ TEST_F(FCodeGenerator, CompilesSubroutineCallTerm) {
     compile<SubroutineVarDec>("tmp.jack");
     ASSERT_THAT(compile<SubroutineCallTerm>("subroutine_call.jack", "subroutine_call.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesMethodCallTerm) {
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var int a, b;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+
+    {
+        ofstream ofs { DATA_DIR / "tmp.jack" };
+        ofs << "var Shape square;";
+    }
+    compile<SubroutineVarDec>("tmp.jack");
+
+    ASSERT_THAT(compile<MethodCallTerm>("method_call.jack", "method_call.vm"), Eq(true));
+}

@@ -18,6 +18,12 @@ namespace ntt {
 
             Type get_type() const override;
 
+            const Token& variable() const;
+
+            const Token& method_name() const;
+
+            const std::vector<Expression>& expressions() const;
+
         private:
             Token var_name_;
             Token dot_;

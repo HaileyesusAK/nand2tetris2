@@ -26,4 +26,17 @@ namespace ntt {
 
         return oss.str();
     }
+
+    const Token& MethodCallTerm::variable() const {
+        return var_name_;
+    }
+
+    const Token& MethodCallTerm::method_name() const {
+        return call_.name();
+    }
+
+    const std::vector<Expression>& MethodCallTerm::expressions() const {
+        return call_.expressions();
+    }
+
 }

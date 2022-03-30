@@ -164,6 +164,24 @@ namespace ntt {
         vm_commands_.emplace_back("call " + subroutine_name + " " + std::to_string(n_args));
     }
 
+    void CodeGenerator::compile(const MethodCallTerm& term) {
+        const auto& entry = symbol_table_.get_entry(term.variable().value());
+
+        // first argument is always address of the object
+        vm_commands_.emplace_back("push " + CodeGenerator::segment(entry.kind) + " " + std::to_string(entry.index));
+
+        // push the arguments
+        for(const auto& expression : term.expressions())
+            compile(expression);
+
+        auto n_args = term.expressions().size() + 1; // +1 is for the object
+
+        // qualify the method's name with the class name of the variable
+        auto method_name = entry.type + "." + term.method_name().value();
+
+        vm_commands_.emplace_back("call " + method_name + " " + std::to_string(n_args));
+    }
+
     std::string CodeGenerator::segment(const SymbolKind& kind) {
         switch(kind) {
             case SymbolKind::LOCAL: return "local";

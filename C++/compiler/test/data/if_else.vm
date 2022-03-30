@@ -1,0 +1,18 @@
+push constant 1
+neg
+not
+not
+if-goto Else1_Test
+push constant 10
+pop local 0
+goto End_If1_Test
+label Else1_Test
+push pointer 0
+push local 0
+push local 1
+call Test.cmp 3
+push local 0
+push local 1
+add
+return
+label End_If1_Test

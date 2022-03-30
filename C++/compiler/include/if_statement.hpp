@@ -1,6 +1,7 @@
 #ifndef __IF_STATEMENT_H__
 #define __IF_STATEMENT_H__
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <sstream>
@@ -27,12 +28,15 @@ namespace ntt {
             using StatementList = std::vector<std::unique_ptr<Statement>>;
             const StatementList& if_statements() const;
 
+            std::optional<std::reference_wrapper<const StatementList>> else_statements() const;
+
         private:
             struct ElsePart {
                 Token else_keyword;
                 Token left_parenthesis;
                 StatementList statements;
                 Token right_parenthesis;
+
                 ElsePart(Tokenizer&);
             };
 

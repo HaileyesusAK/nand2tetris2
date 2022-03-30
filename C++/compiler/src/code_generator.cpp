@@ -248,14 +248,34 @@ namespace ntt {
         label_count++;
 
         std::string label_suffix { std::to_string(label_count) + "_" + class_name_ };
+        std::string else_label { "Else" + label_suffix};
         std::string end_label { "End_If" + label_suffix};
 
         compile(statement.expression());
-        vm_commands_.emplace_back("not");
-        vm_commands_.emplace_back("if-goto " + end_label);
 
+        // it is easier to jump after negating the expression's result
+        vm_commands_.emplace_back("not");
+
+        // jump to the else part or to the end if the expression evaluates to false
+        if(statement.else_statements().has_value())
+            vm_commands_.emplace_back("if-goto " + else_label);
+        else
+            vm_commands_.emplace_back("if-goto " + end_label);
+
+        // the expression evaluates to true; hence, compile the statements in the if block
         for(const auto& inner_statement : statement.if_statements())
             compile(inner_statement);
+
+        if(statement.else_statements().has_value()) {
+            // arrives at this line only if the 'if' part is executed
+            vm_commands_.emplace_back("goto " + end_label);
+
+            // if the expression evaluates to false, control jumps directly to here
+            vm_commands_.emplace_back("label " + else_label);
+
+            for(const auto& inner_statement : statement.else_statements().value().get())
+                compile(inner_statement);
+        }
 
         vm_commands_.emplace_back("label " + end_label);
 

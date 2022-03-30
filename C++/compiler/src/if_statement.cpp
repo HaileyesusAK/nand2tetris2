@@ -88,4 +88,11 @@ namespace ntt {
         return statements_;
     }
 
+    std::optional<std::reference_wrapper<const IfStatement::StatementList>> IfStatement::else_statements() const {
+        if(else_.has_value())
+            return std::cref(else_.value().statements);
+
+        return std::nullopt;
+    }
+
 }

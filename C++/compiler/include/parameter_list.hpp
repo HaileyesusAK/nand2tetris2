@@ -18,27 +18,18 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
-            std::vector<std::pair<Token, Token>> parameters() const;
-
-        private:
             struct Parameter {
                 Token type;
-                Token var_name;
+                Token name;
 
                 Parameter(Tokenizer&);
-                std::string to_xml(size_t level) const;
             };
+            
+            const std::vector<Parameter>& parameters() const;
 
-            struct TrailingParameter {
-                Token comma;
-                Parameter parameter;
-
-                TrailingParameter(Tokenizer&);
-                std::string to_xml(size_t level) const;
-            };
-
-            using Parameters = std::optional<std::pair<Parameter, std::vector<TrailingParameter>>>;
-            Parameters parameter_list_ = std::nullopt;
+        private:
+            std::vector<Parameter> parameter_list_;
+            std::vector<Token> commas_;
     };
 }
 

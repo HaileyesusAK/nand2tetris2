@@ -225,3 +225,7 @@ TEST_F(FCodeGenerator, CompilesIfElseStatement) {
     compile<SubroutineVarDec>("tmp.jack");
     ASSERT_THAT(compile<IfStatement>("if_else.jack", "if_else.vm"), Eq(true));
 }
+
+TEST_F(FCodeGenerator, CompilesSubroutineBody) {
+    ASSERT_THAT(compile<SubroutineBody>("subroutine_body2.jack", "subroutine_body2.vm"), Eq(true));
+}

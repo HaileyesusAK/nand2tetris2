@@ -1,0 +1,31 @@
+push constant 0
+call Screen.setColor 1
+push local 0
+push local 1
+push local 2
+add
+push constant 1
+sub
+push local 0
+push local 2
+add
+push local 1
+push local 2
+add
+call Screen.drawRectangle 4
+push local 1
+push constant 2
+sub
+pop local 1
+push constant 1
+neg
+call Screen.setColor 1
+push local 0
+push local 1
+push local 0
+push local 2
+add
+push local 1
+push constant 1
+add
+call Screen.drawRectangle 4

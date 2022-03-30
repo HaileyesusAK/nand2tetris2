@@ -330,6 +330,14 @@ namespace ntt {
         label_count--;
     }
 
+    void CodeGenerator::compile(const SubroutineBody& body) {
+        for(const auto& var_dec : body.variable_declarations())
+            compile(var_dec);
+
+        for(const auto& statement : body.statements())
+            compile(statement);
+    }
+
     std::string CodeGenerator::segment(const SymbolKind& kind) {
         switch(kind) {
             case SymbolKind::LOCAL: return "local";

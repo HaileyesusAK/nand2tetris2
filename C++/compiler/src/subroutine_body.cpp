@@ -31,12 +31,12 @@ namespace ntt {
         return oss.str();
     }
 
-    std::vector<SubroutineVarDec> SubroutineBody::parse_var_decs_(Tokenizer& tokenizer) {
+    SubroutineBody::VarDecs SubroutineBody::parse_var_decs_(Tokenizer& tokenizer) {
         static const std::unordered_set<std::string> STATEMENT_PREFIXES {
             "do", "if", "let", "return", "while"
         };
 
-        std::vector<SubroutineVarDec> var_decs;
+        VarDecs var_decs;
         while(tokenizer.has_token()) {
             const auto& token = tokenizer.peek();
 
@@ -57,6 +57,14 @@ namespace ntt {
             statements.emplace_back(StatementFactory::parse(tokenizer));
 
         return statements;
+    }
+
+    const SubroutineBody::VarDecs& SubroutineBody::variable_declarations() const {
+        return var_decs_;
+    }
+
+    const SubroutineBody::Statements& SubroutineBody::statements() const {
+        return statements_;
     }
 
 }

@@ -19,17 +19,22 @@ namespace ntt {
 
             std::string to_xml(size_t level = 0) const override;
 
+            using VarDecs = std::vector<SubroutineVarDec>;
+            const VarDecs& variable_declarations() const;
+
+            using Statements = std::vector<std::unique_ptr<Statement>>;
+            const Statements& statements() const;
+
         private:
             Token left_brace_;
 
-            std::vector<SubroutineVarDec> var_decs_;
+            VarDecs var_decs_;
 
-            using Statements = std::vector<std::unique_ptr<Statement>>;
             Statements statements_;
 
             Token right_brace_;
 
-            static std::vector<SubroutineVarDec> parse_var_decs_(Tokenizer&);
+            static VarDecs parse_var_decs_(Tokenizer&);
 
             static Statements parse_statements_(Tokenizer&);
     };

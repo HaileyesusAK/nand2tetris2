@@ -43,6 +43,8 @@ namespace ntt {
 
             void compile(const SubroutineCallTerm& term);
 
+            void compile(const UnaryOpTerm& term);
+
             void compile(const std::unique_ptr<Statement>& statement);
 
             void compile(const DoStatement& statement);
@@ -55,7 +57,7 @@ namespace ntt {
             
             void compile(const WhileStatement& statement);
 
-            void compile(const UnaryOpTerm& term);
+            void compile(const SubroutineBody& body);
 
             const SymbolTable& symbol_table() const;
 
